@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
 import ActivityDynamicSelect from './ActivityDynamicSelect';
 
-export default function ActivityModal({ open, setOpen }) {
+export default function ActivityModal({ open, setOpen, onSuccess }) {
   const [questions, setQuestions] = useState([]);
 
   const getQuestions = async () => {
@@ -16,6 +16,17 @@ export default function ActivityModal({ open, setOpen }) {
     await setQuestions(cleanedQuestions)
     return cleanedQuestions
   }
+
+  const handleActivitySaved = async (result) => {
+    // ... any existing success handling
+
+    // Call the onSuccess callback to refresh the parent feed
+    if (onSuccess) onSuccess();
+
+    // Close the modal
+    setOpen('');
+  };
+
 
   useEffect(() => {
     getQuestions().then()
@@ -39,7 +50,7 @@ export default function ActivityModal({ open, setOpen }) {
                   Add an activity
                 </DialogTitle>
                 <div className="">
-                  <ActivityDynamicSelect setOpen={setOpen} questions={questions} />
+                  <ActivityDynamicSelect setOpen={setOpen} questions={questions} onSuccess={handleActivitySaved} />
                 </div>
               </div>
             </div>

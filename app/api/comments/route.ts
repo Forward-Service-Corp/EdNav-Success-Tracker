@@ -1,34 +1,68 @@
+// app/api/comments/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getCollection } from '@/lib/mongodb';
-import { ObjectId } from 'mongodb';
 
-// GET all comments
 export async function GET(request: NextRequest) {
   const url = new URL(request.url);
-  const clientId = url.searchParams.get('clientId')?.split(',') || [];
-  const activityId = url.searchParams.get('activityId')?.split(',') || [];
-  const noteId = url.searchParams.get('noteId')?.split(',') || [];
-  let comments: any[] = [];
-  try {
-    const collection = await getCollection('comments');
-    if (clientId) {
-      comments = await collection.find({ clientId: { $in: clientId.map(id => new ObjectId(id)) } }).toArray();
-    } else {
-      comments = await collection.find().toArray();
-    }
+  const clientId = url.searchParams.get('clientId');
 
-    return NextResponse.json(comments, { status: 200 });
+  if (!clientId) {
+    return NextResponse.json({ error: 'Client ID is required' }, { status: 400 });
+  }
+
+  try {
+    const commentsCollection = await getCollection('comments');
+    const comments = await commentsCollection
+      .find({ clientId })
+      .sort({ createdAt: -1 })
+      .toArray();
+
+    return NextResponse.json(comments);
   } catch (error) {
     console.error('Error fetching comments:', error);
-    return NextResponse.json({ error: 'Failed to fetch comments' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to fetch comments' },
+      { status: 500 }
+    );
   }
 }
 
 export async function POST(request: NextRequest) {
-  const body = await request.json();
-  body.createdAt = new Date().toISOString();
-  const collection = await getCollection('comments');
-  const result = await collection.insertOne(body);
-  const comment = await collection.find({ activityId: body.activityId }).toArray();
-  return NextResponse.json({ message: 'Comment added successfully', comment }, { status: 201 });
+  try {
+    const body = await request.json();
+    const { parentId, clientId, commentText, author } = body;
+
+    if (!parentId || !clientId || !commentText) {
+      return NextResponse.json(
+        { error: 'Missing required fields' },
+        { status: 400 }
+      );
+    }
+
+    const commentsCollection = await getCollection('comments');
+    const comment = {
+      parentId,
+      clientId,
+      commentText,
+      author,
+      createdAt: new Date().toISOString()
+    };
+
+    const result = await commentsCollection.insertOne(comment);
+
+    return NextResponse.json(
+      {
+        message: 'Comment added successfully',
+        _id: result.insertedId,
+        ...comment
+      },
+      { status: 201 }
+    );
+  } catch (error) {
+    console.error('Error adding comment:', error);
+    return NextResponse.json(
+      { error: 'Failed to add comment' },
+      { status: 500 }
+    );
+  }
 }

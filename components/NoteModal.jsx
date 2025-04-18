@@ -2,10 +2,11 @@
 import React, { useState } from 'react';
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
 
-import { useClients } from '../contexts/ClientsContext';
-import { useNavigators } from '../contexts/NavigatorsContext';
+import { useClients } from '@/contexts/ClientsContext';
+import { useNavigators } from '@/contexts/NavigatorsContext';
+// import * as response from 'next-auth/client/__tests__/helpers/mocks';
 
-export default function NoteModal({ open, setOpen }) {
+export default function NoteModal({ open, setOpen, onSuccess }) {
   const { selectedClient } = useClients();
   const { selectedNavigator } = useNavigators();
   const [note, setNote] = useState(
@@ -19,23 +20,39 @@ export default function NoteModal({ open, setOpen }) {
   );
 
   const handleSave = async () => {
-    console.log(note);
-    note.clientId = selectedClient?._id;
-    const response = await fetch('/api/activities', {
-      method: 'POST',
-      body: JSON.stringify({
-        noteContent: note.noteContent,
-        noteAuthor: selectedNavigator?.name,
-        createdAt: new Date(),
-        clientId: selectedClient?._id,
-        isNote: true
-      })
-    });
-    const data = await response.json();
-    console.log(data);
-    setOpen('');
-    setNote(prev => ({ ...prev, noteContent: '' }));
+    try {
+      // setIsSubmitting(true);
+      // ... existing save logic
+
+      if (response['ok']) {
+        console.log(note);
+        note.clientId = selectedClient?._id;
+        const response = await fetch('/api/activities', {
+          method: 'POST',
+          body: JSON.stringify({
+            noteContent: note.noteContent,
+            noteAuthor: selectedNavigator?.name,
+            createdAt: new Date(),
+            clientId: selectedClient?._id,
+            isNote: true
+          })
+        });
+        const data = await response.json();
+        console.log(data);
+        setOpen('');
+        setNote(prev => ({ ...prev, noteContent: '' }));
+        if (onSuccess) onSuccess();
+      }
+    } catch (error) {
+      // ... error handling
+    } finally {
+      // setIsSubmitting(false);
+    }
   };
+
+  // const handleSave = async () => {
+  //
+  // };
 
   const handleCancel = () => {
     setOpen('');

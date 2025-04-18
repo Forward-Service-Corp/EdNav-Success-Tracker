@@ -3,7 +3,7 @@ import { useClients } from '../contexts/ClientsContext';
 import { useActivities } from '../contexts/ActivityContext';
 import { generateSentence } from '../utils/generateSentence.tsx';
 
-const ActivityDynamicSelect = ({ setOpen, questions }) => {
+const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
   const { selectedActivity, setSelectedActivity } = useActivities();
   const { selectedClient, setSelectedClient } = useClients();
   const [selectedPath, setSelectedPath] = useState([]);
@@ -31,6 +31,7 @@ const ActivityDynamicSelect = ({ setOpen, questions }) => {
       trackable: trackable,
       selections: multi ? multiSelectValues : null
     };
+
     if (multi) {
       data.path = selectedPath;
       data.statement = generateSentence(selectedClient['navigator'], selectedClient?.name || selectedClient['first_name'] + ' ' + selectedClient['last_name'], multiSelectValues, selectedPath);
@@ -39,23 +40,47 @@ const ActivityDynamicSelect = ({ setOpen, questions }) => {
       data.statement = generateSentence(selectedClient['navigator'], selectedClient?.name || selectedClient['first_name'] + ' ' + selectedClient['last_name'], null, newPath);
     }
 
-    return await fetch('/api/activities', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data)
-    }).then(res => res.json()).then(
-      async (result) => {
-        await setSelectedClient(result.wholeUser);
-        await setSelectedActivity(prev => ({
-          ...prev,
-          activities: result['actionRes']
-        }));
-      },
-      (error) => {
-        console.log(error);
+    try {
+      const response = await fetch('/api/activities', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
       });
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      // Notify parent of success
+      if (onSuccess) onSuccess(result);
+
+      return result;
+    } catch (error) {
+      console.error('Error saving activity:', error);
+      return null;
+    }
+
+    // return await fetch('/api/activities', {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json'
+    //   },
+    //   body: JSON.stringify(data)
+    // }).then(res => res.json()).then(
+    //   async (result) => {
+    //     await setSelectedClient(result.wholeUser);
+    //     await setSelectedActivity(prev => ({
+    //       ...prev,
+    //       activities: result['actionRes']
+    //     }));
+    //   },
+    //   (error) => {
+    //     console.log(error);
+    //   });
   };
 
   useEffect(() => {
