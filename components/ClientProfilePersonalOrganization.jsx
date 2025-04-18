@@ -1,183 +1,194 @@
 import React, { useEffect, useState } from 'react';
 import { useClients } from '@/contexts/ClientsContext';
 import InputVariants from '@/components/InputVariants';
+import { clientFormFields } from '@/lib/clientFormFields';
 
 function ClientProfilePersonalOrganization() {
   const { selectedClient } = useClients();
   const [editing, setEditing] = useState(false);
-  const [feps, setFeps] = useState([]);
-  const [navigators] = useState([
-    { name: 'Andrew McCauley', id: '677e2852b19820275b00c061' },
-    { name: 'Ashleigh Chesney', id: '67b4418653573b52275ce0cb' },
-    { name: 'Corine Boelk', id: '67ef15a26f5242a3b5153f32' },
-    { name: 'Hailey Jester', id: '67b4414e53573b52275ce0ca' },
-    { name: 'Kecia Thompson-Gordon', id: '67b4424f53573b52275ce0cf' },
-    { name: 'Marissa Foth', id: '67e9614a74cc11c0dff9e172' },
-    { name: 'Morgan Sole', id: '67b4418653573b52275ce0cb' },
-    { name: 'Rachael Banerdt', id: '67b441dc53573b52275ce0cd' },
-    { name: 'Rich Basche', id: '67b441ad53573b52275ce0cc' },
-    { name: 'Sara Jackson', id: '67eaa1d0f0d0003549891ba9' },
-    { name: 'Stacy Martinez', id: '67b4410753573b52275ce0c9' },
-    { name: 'Trevor Brunette', id: '67eab2ceb13b898d7f56ec21' }
-  ]);
-
   const [change, setChange] = useState({
     _id: selectedClient?._id || '',
-    name: selectedClient?.name || selectedClient?.first_name + ' ' + selectedClient?.last_name,
+    first_name: selectedClient?.first_name || '',
     last_name: selectedClient?.last_name || '',
+    name: selectedClient?.name || '', // Full name
     email: selectedClient?.email || '',
     contactNumber: selectedClient?.contactNumber || '',
-    first_name: selectedClient?.first_name || '',
-    navigator: selectedClient?.navigator || '',
-    lastGrade: selectedClient?.lastGrade || '',
+    caseNumber: selectedClient?.caseNumber || '',
+    dob: selectedClient?.dob || '',
     fep: selectedClient?.fep || '',
+    navigator: selectedClient?.navigator || '',
+    dateReferred: selectedClient?.dateReferred || '',
+    lastGrade: selectedClient?.lastGrade || '',
+    pin: selectedClient?.pin || '',
     region: selectedClient?.region || '',
     clientStatus: selectedClient?.clientStatus || '',
-    officeCity: selectedClient?.officeCity || ''
+    transcripts: selectedClient?.transcripts || false,
+    county: selectedClient?.county || '',
+    group: selectedClient?.group || '',
+    schoolIfEnrolled: selectedClient?.schoolIfEnrolled || '',
+    ttsDream: selectedClient?.ttsDream || ''
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
-  const handleChange = (e) => {
-    if (e.target.name === 'first_name') {
-      const newName = change.first_name + ' ' + change.last_name;
-      setChange({ ...change, [e.target.name]: e.target.value, name: newName });
-    } else if (e.target.name === 'last_name') {
-      const newName = change.first_name + ' ' + change.last_name;
-      setChange({ ...change, [e.target.name]: e.target.value, name: newName });
-    } else {
-      setChange({ ...change, [e.target.name]: e.target.value });
-    }
-  };
+  // Reset form when editing state changes
   useEffect(() => {
     setChange({
-      ...change,
       _id: selectedClient?._id || '',
-      name: selectedClient?.name || selectedClient?.first_name + ' ' + selectedClient?.last_name,
+      first_name: selectedClient?.first_name || '',
       last_name: selectedClient?.last_name || '',
+      name: selectedClient?.name || '',
       email: selectedClient?.email || '',
       contactNumber: selectedClient?.contactNumber || '',
-      first_name: selectedClient?.first_name || '',
-      navigator: selectedClient?.navigator || '',
-      lastGrade: selectedClient?.lastGrade || '',
+      caseNumber: selectedClient?.caseNumber || '',
+      dob: selectedClient?.dob || '',
       fep: selectedClient?.fep || '',
+      navigator: selectedClient?.navigator || '',
+      dateReferred: selectedClient?.dateReferred || '',
+      lastGrade: selectedClient?.lastGrade || '',
+      pin: selectedClient?.pin || '',
       region: selectedClient?.region || '',
       clientStatus: selectedClient?.clientStatus || '',
-      officeCity: selectedClient?.officeCity || ''
+      transcripts: selectedClient?.transcripts || false,
+      county: selectedClient?.county || '',
+      group: selectedClient?.group || '',
+      schoolIfEnrolled: selectedClient?.schoolIfEnrolled || '',
+      ttsDream: selectedClient?.ttsDream || ''
     });
+    setError('');
+    setSuccessMessage('');
   }, [selectedClient]);
 
-  const fetchFeps = async () => {
-    let feps = [];
-    const response = await fetch(`/api/feps`);
-    const data = await response.json();
-    await data.forEach(fep => {
-      feps.push(fep.name);
-    });
-    setFeps(feps);
-  };
+  const handleChange = (e) => {
+    const { name, value } = e.target;
 
-  useEffect(() => {
-    fetchFeps().then();
-    // fetchNavigators();
-  }, []);
+    if (name === 'first_name' || name === 'last_name') {
+      // Update the full name when first or last name changes
+      const firstName = name === 'first_name' ? value : change.first_name;
+      const lastName = name === 'last_name' ? value : change.last_name;
+      const fullName = `${firstName} ${lastName}`.trim();
+
+      setChange({
+        ...change,
+        [name]: value,
+        name: fullName
+      });
+    } else {
+      setChange({ ...change, [name]: value });
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const response = await fetch('/api/clients', {
-      method: 'POST',
-      body: JSON.stringify(change),
-      headers: {
-        'Content-Type': 'application/json'
+    setIsSubmitting(true);
+    setError('');
+    setSuccessMessage('');
+
+    try {
+      const response = await fetch('/api/clients', {
+        method: 'POST',
+        body: JSON.stringify(change),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        setSuccessMessage('Client information updated successfully!');
+        setEditing(false);
+        // If you have a refresh function in the ClientsContext to reload the client data, you could call it here
+      } else {
+        const errorData = await response.json();
+        setError(errorData.message || 'Failed to update client information');
       }
-    })
-    if (response.ok) {
-      console.log('response', response);
-      setEditing(false);
+    } catch (error) {
+      setError('An error occurred while updating client information');
+      console.error('Error updating client:', error);
+    } finally {
+      setIsSubmitting(false);
     }
-  }
+  };
+
+  // Check if we have required fields for form submission
+  const canSubmit = change.last_name &&
+    change.email &&
+    change.contactNumber &&
+    change.fep &&
+    editing &&
+    !isSubmitting;
 
   return (
-    <div className="grid grid-cols-1 xl:grid-cols-2 w-full gap-6 mt-6">
-      <form onSubmit={handleSubmit}>
-        <div className={` border-1 border-base-300/30 bg-base-200/40 shadow-xl p-6 rounded-lg`}>
-          <button className={`mt-6 btn btn-sm btn-primary text-base-content ${editing ? 'btn-secondary' : 'visible'}`}
-                  type="button" onClick={() => setEditing(!editing)}>{editing ? 'Cancel' : 'Edit'}</button>
+    <form onSubmit={handleSubmit}>
+      <div
+        className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8 border-1 border-base-300/60 bg-base-200/60 shadow-xl p-4 md:p-6 rounded-lg`}>
+        <h1 className={`col-span-full text-xl font-semibold mb-4`}>Personal Details</h1>
 
-          <div className="text-sm w-full mb-6">
-            <dl className="divide-y divide-base-content/10 w-full">
-              <div className="relative ">
-                <InputVariants name={`first_name`} id={`first_name`} placeholder={`First Name`}
-                               value={change.first_name} onChange={handleChange} />
-              </div>
-            </dl>
+        {error && (
+          <div className="col-span-full bg-error/20 text-error px-4 py-2 rounded-md mb-4">
+            {error}
           </div>
+        )}
 
-          <div className="text-sm w-full mb-6">
-            <dl className="divide-y divide-base-content/10 w-full">
-              <div className="relative ">
-                <InputVariants name={`last_name`} id={`last_name`} placeholder={`Last Name`} value={change.last_name}
-                               onChange={handleChange} />
-              </div>
-            </dl>
+        {successMessage && (
+          <div className="col-span-full bg-success/20 text-success px-4 py-2 rounded-md mb-4">
+            {successMessage}
           </div>
+        )}
 
-          <div className="text-sm w-full mb-6">
-            <dl className="divide-y divide-base-content/10 w-full">
-              <div className="relative boorder-0">
-                <InputVariants name={`email`} id={`email`} placeholder={`email...`} value={change.email}
-                               onChange={handleChange} />
-              </div>
-            </dl>
-          </div>
+        {clientFormFields.map((field, index) => (
+          <InputVariants
+            key={index}
+            name={field.name}
+            id={field.name}
+            type={field.type}
+            label={field.label}
+            options={field.options || []}
+            placeholder={field.placeholder}
+            value={change[field.name] || ''}
+            disabled={!editing}
+            handleChange={handleChange}
+          />
+        ))}
 
-          <div className="text-sm w-full mb-6">
-            <dl className="divide-y divide-base-content/10 w-full">
-              <div className="relative ">
-                <InputVariants name={`contactNumber`} id={`contactNumber`} placeholder={`Phone Number`}
-                               value={change.contactNumber} onChange={handleChange} />
-
-              </div>
-            </dl>
-          </div>
-
-          <div className="text-sm w-full mb-6">
-            <select
-              name="fep"
-              value={change.fep}
-              onChange={(value) => handleChange({ target: { name: 'fep', value } })}
-              className="input outline-none border-0 border-b-1 border-base-content/30 relative z-0 rounded-none">
-
-              <option className="text-base-content border-0 p-1 " value="">Select FEP</option>
-              {feps.map((fep, index) => (
-                <option className="text-base-content border-0 p-1 " key={index} value={fep}>{fep}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="text-sm w-full mb-6">
-            <dl className="divide-y divide-base-content/10 w-full">
-              <div className="relative ">
-                <select
-                  name="navigator"
-                  value={change.navigator}
-                  onChange={handleChange}
-                  className="input outline-none border-0 border-b-1 border-base-content/30 relative z-0 rounded-none"
-                >
-                  <option value="">Select Navigator</option>
-                  {navigators?.map((nav, index) => (
-                    <option key={index} value={nav._id}>{nav.name}</option>
-                  ))}
-                </select>
-              </div>
-            </dl>
-          </div>
-
-          <button disabled={!change.last_name || !change.email || !change.contactNumber || !change.fep || !editing}
-                  className="mt-6 btn btn-primary text-base-content disabled:opacity-40" type="submit">Save
-          </button>
+        <div className={`col-span-full flex w-full justify-end items-center gap-4 mt-6`}>
+          {editing ? (
+            <>
+              <button
+                disabled={!canSubmit}
+                className="btn btn-sm btn-outline btn-success disabled:opacity-40"
+                type="submit"
+              >
+                {isSubmitting ? (
+                  <>
+                    <span className="loading loading-spinner loading-xs"></span>
+                    Saving...
+                  </>
+                ) : 'Save'}
+              </button>
+              <button
+                className="btn btn-sm btn-outline btn-warning"
+                type="button"
+                onClick={() => setEditing(false)}
+                disabled={isSubmitting}
+              >
+                Cancel
+              </button>
+            </>
+          ) : (
+            <button
+              className="btn btn-sm btn-outline btn-primary"
+              type="button"
+              onClick={() => setEditing(true)}
+            >
+              Edit
+            </button>
+          )}
         </div>
-      </form>
-    </div>
-  )
+      </div>
+    </form>
+  );
 }
 
 export default ClientProfilePersonalOrganization;

@@ -8,23 +8,28 @@ import { useNavigators } from '../contexts/NavigatorsContext';
 export default function NoteModal({ open, setOpen }) {
   const { selectedClient } = useClients();
   const { selectedNavigator } = useNavigators();
-  const [notes, setNotes] = useState([]);
-  const [openNote, setOpenNote] = useState('');
   const [note, setNote] = useState(
     {
       noteContent: '',
       noteAuthor: selectedNavigator?.name,
       createdAt: new Date(),
-      clientId: selectedClient?._id
+      clientId: selectedClient?._id,
+      isNote: true
     }
   );
 
   const handleSave = async () => {
     console.log(note);
     note.clientId = selectedClient?._id;
-    const response = await fetch('/api/notes', {
+    const response = await fetch('/api/activities', {
       method: 'POST',
-      body: JSON.stringify({ note })
+      body: JSON.stringify({
+        noteContent: note.noteContent,
+        noteAuthor: selectedNavigator?.name,
+        createdAt: new Date(),
+        clientId: selectedClient?._id,
+        isNote: true
+      })
     });
     const data = await response.json();
     console.log(data);
@@ -63,9 +68,9 @@ export default function NoteModal({ open, setOpen }) {
                             onChange={handleChange}></textarea>
                   <div className="flex gap-2">
                     <button disabled={note.noteContent.length === 0} onClick={handleSave}
-                            className="btn btn-sm btn-primary w-fit">Save
+                            className="btn btn-sm btn-outline btn-success ">Save
                     </button>
-                    <button onClick={handleCancel} className="btn btn-sm btn-secondary w-fit">Cancel</button>
+                    <button onClick={handleCancel} className="btn btn-sm btn-outline btn-warning">Cancel</button>
                   </div>
                 </div>
               </div>

@@ -5,6 +5,7 @@ type Client = {
   'caseNumber': number,
   'clientStatus': string,
   'contactNumber': string,
+  'county': string,
   'createdAt': string,
   'dateReferred': string,
   'dob': string,

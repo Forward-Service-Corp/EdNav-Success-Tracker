@@ -45,25 +45,36 @@ export async function POST(request: NextRequest) {
     if (!body.createdAt) {
       body.createdAt = new Date().toISOString()
     }
-    if (body.path.includes('graduated') && body.path.includes('inactive')) {
+    if (body.note.isNote) {
+      const [client] = await Promise.all([clientsCollection.findOne({ _id: new ObjectId(body.note.clientId) })]);
+      if (client) {
+        await actionsCollection.insertOne({ _id: new ObjectId(body.note.clientId) }, body.note);
+        return NextResponse.json({ message: 'Action added successfully', client }, { status: 201 });
+      }
+    }
+    if (body.path.length && body.path?.includes('graduated') && body.path?.includes('inactive')) {
       const [client] = await Promise.all([clientsCollection.findOne({ _id: new ObjectId(body.clientId) })]);
       if (client && client.group.toString().toLocaleLowerCase() === 'youth') {
         await clientsCollection.updateOne({ _id: new ObjectId(body.clientId) }, { $set: { clientStatus: 'graduated' } });
+        return NextResponse.json({ message: 'Action added successfully', client }, { status: 201 });
       }
       if (client && client.group.toString().toLocaleLowerCase() === 'adult') {
         await clientsCollection.updateOne({ _id: new ObjectId(body.clientId) }, { $set: { clientStatus: 'inactive' } });
+        return NextResponse.json({ message: 'Action added successfully', client }, { status: 201 });
       }
     }
-    if(body.path.includes("enrolled in")) {
+    if (body.path?.includes('enrolled in')) {
       const client = await clientsCollection.findOne({ _id: new ObjectId(body.clientId) });
       if (client) {
         await clientsCollection.updateOne({ _id: new ObjectId(body.clientId) }, { $set: { clientStatus: 'active' } });
+        return NextResponse.json({ message: 'Action added successfully', client }, { status: 201 });
       }
     }
-    if (body.path.includes('graduated') || body.path.includes('inactive')) {
+    if (body.path?.includes('graduated') || body.path?.includes('inactive')) {
       const client = await clientsCollection.findOne({_id: new ObjectId(body.clientId)})
       if (client) {
         await clientsCollection.updateOne({ _id: new ObjectId(body.clientId) }, { $set: { clientStatus: 'inactive' } });
+        return NextResponse.json({ message: 'Action added successfully', client }, { status: 201 });
       }
     }
     const query = { _id: new ObjectId(body.clientId) }
