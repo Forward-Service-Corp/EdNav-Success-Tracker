@@ -69,14 +69,16 @@ export default function ClientProfile({ menuOpen, setMenuOpen }) {
     if (!isMounted) return null;
 
     return (
-      <div className={`flex flex-col w-full h-full overflow-y-scroll no-scrollbar`}>
+      <div className={`flex flex-col w-full h-full overflow-y-scroll no-scrollbar relative`}>
           <ClientProfileHeader />
-          <ClientProfileProgress hasTrackableCopy={hasTrackableCopy} hasTrackable={hasTrackable}
-                                 setHasTrackable={setHasTrackable} updated={updated} setUpdated={setUpdated} />
-          <CombinedFeed />
-          <ClientProfilePersonalOrganization />
-          <ClientProfileTABEOrientation />
-          <ClientProfileDetails setMenuOpen={setMenuOpen} menuOpen={menuOpen} />
+          <div className={`mt-[40px]`}>
+              <ClientProfileProgress hasTrackableCopy={hasTrackableCopy} hasTrackable={hasTrackable}
+                                     setHasTrackable={setHasTrackable} updated={updated} setUpdated={setUpdated} />
+              <CombinedFeed />
+              <ClientProfilePersonalOrganization />
+              <ClientProfileTABEOrientation />
+              <ClientProfileDetails setMenuOpen={setMenuOpen} menuOpen={menuOpen} />
+          </div>
       </div>
     )
 }

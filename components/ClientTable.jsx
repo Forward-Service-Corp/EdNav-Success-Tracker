@@ -97,55 +97,52 @@ export default function ClientTable({ menuOpen, setMenuOpen }) {
   // ✅ Prevent hydration mismatch by rendering only after mount
   if (!isMounted) return null;
   return (
-    <div className={``}>
+    <div className={`relative`}>
       <div
-        className=" w-full h-[100px] box-border relative right-0 top-0 left-0 flex-col flex justify-between z-50 text-sm text-base-content no-scrollbar">
+        className="h-[90px] shadow-lg sticky top-0">
         <SearchField menuOpen={menuOpen} setMenuOpen={setMenuOpen} setFilterOpen={setFilterOpen}
-                     filterOpen={filterOpen} setViewMode={setViewMode} setStatusCollapse={setStatusCollapse}
-                     className="fixed left-0 top-0 z-50 shadow-xl" />
+                     filterOpen={filterOpen} setViewMode={setViewMode} setStatusCollapse={setStatusCollapse} />
       </div>
-      <div className={``}>
-        <div className="w-full h-full overflow-y-scroll no-scrollbar">
-          <div className={`overflow-y-scroll w-full no-scrollbar`}>
-            <table className={`overflow-y-scroll w-full ${menuOpen ? '' : ''}`}>
-              <tbody className="w-full overflow-y-scroll">
-              {viewMode === 'grouped' ? (
-                Object.entries(clientsToShow).map(([status, clients], idx) => (
-                  <React.Fragment key={status}>
-                    <tr
-                      className={`${getBGColor(status)} ${selectedClient && selectedClient?.clientStatus === status ? '' : ''} ${statusCollapse.includes(status) ? 'hidden' : ''} ${menuOpen ? '' : ''}`}>
-                      <td onClick={() => handleCollapseChange(status)}
-                          className={`py-2 text-sm flex w-full justify-between items-center cursor-pointer ${menuOpen ? '' : ''}`}>
-                        <span className={`w-6/7 text-left font-bold pl-3`}>{status}</span>
-                        <span className={`w-[30px] mr-3 text-center`}>
+      <div className="w-full h-full overflow-y-scroll no-scrollbar">
+        <div className={`overflow-y-scroll w-full no-scrollbar`}>
+          <table className={`overflow-y-scroll w-full ${menuOpen ? '' : ''}`}>
+            <tbody className="w-full overflow-y-scroll">
+            {viewMode === 'grouped' ? (
+              Object.entries(clientsToShow).map(([status, clients], idx) => (
+                <React.Fragment key={status}>
+                  <tr
+                    className={`${getBGColor(status)} ${selectedClient && selectedClient?.clientStatus === status ? '' : ''} ${statusCollapse.includes(status) ? 'hidden' : ''} ${menuOpen ? '' : ''}`}>
+                    <td onClick={() => handleCollapseChange(status)}
+                        className={`py-2 text-sm flex w-full justify-between items-center cursor-pointer ${menuOpen ? '' : ''}`}>
+                      <span className={`w-6/7 text-left font-bold pl-3`}>{status}</span>
+                      <span className={`w-[30px] mr-3 text-center`}>
                                               {!statusCollapse.includes(status) ?
                                                 <Eye size={27} className={getBGColor(status)} /> :
                                                 <EyeClosed size={27} className={getBGColor(status)} />}
                                           </span>
-                      </td>
-                    </tr>
-                    {clients.map((person, i) => (
-                      <ClientTableItem key={`${idx}-${i}`} person={person} i={i} statusCollapse={statusCollapse} />
-                    ))}
-                  </React.Fragment>
-                ))
-              ) : (
-                Array.isArray(clientsToShow) && clientsToShow.length > 0 ? (
-                  clientsToShow.map((person, i) => (
-                    <ClientTableItem key={i} person={person} i={i} statusCollapse={statusCollapse}
-                                     menuOpen={menuOpen} />
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="5" className="text-center py-4 text-sm text-gray-500">
-                      No clients found.
                     </td>
                   </tr>
-                )
-              )}
-              </tbody>
-            </table>
-          </div>
+                  {clients.map((person, i) => (
+                    <ClientTableItem key={`${idx}-${i}`} person={person} i={i} statusCollapse={statusCollapse} />
+                  ))}
+                </React.Fragment>
+              ))
+            ) : (
+              Array.isArray(clientsToShow) && clientsToShow.length > 0 ? (
+                clientsToShow.map((person, i) => (
+                  <ClientTableItem key={i} person={person} i={i} statusCollapse={statusCollapse}
+                                   menuOpen={menuOpen} />
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="5" className="text-center py-4 text-sm text-gray-500">
+                    No clients found.
+                  </td>
+                </tr>
+              )
+            )}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

@@ -123,7 +123,7 @@ const CombinedFeed = () => {
   };
 
   return (
-    <div className={`profile-section text-xs`}>
+    <div className={`mx-12 mt-12 p-6 bg-base-200 rounded-lg shadow text-xs w-1/2`}>
       <NoteModal open={open} setOpen={setOpen} onSuccess={fetchFeedData} />
       <ActivityModal open={open} setOpen={setOpen} onSuccess={fetchFeedData} />
 
@@ -132,13 +132,13 @@ const CombinedFeed = () => {
         <div className="flex gap-2">
           <button
             onClick={() => setOpen('activity')}
-            className="btn btn-sm btn-primary"
+            className="btn btn-xs btn-primary"
           >
             Add Activity
           </button>
           <button
             onClick={() => setOpen('note')}
-            className="btn btn-sm btn-secondary"
+            className="btn btn-xs btn-secondary"
           >
             Add Note
           </button>
@@ -163,14 +163,14 @@ const CombinedFeed = () => {
         </div>
       )}
 
-      <div className="space-y-4">
+      <div className="space-y-6">
         {feedItems.map((item) => (
           <div
             key={item.itemId}
-            className={`p-4 rounded-lg border-l-4 ${
+            className={`px-4 py-2 border-l-2 ${
               item.type === 'activity'
-                ? 'bg-primary/10 border-primary'
-                : 'bg-secondary/10 border-secondary'
+                ? 'bg-primary/0 border-primary'
+                : 'bg-secondary/0 border-secondary'
             }`}
           >
             {/* Main item content */}

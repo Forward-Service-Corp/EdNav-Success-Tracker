@@ -11,7 +11,8 @@ export default function ClientProfileHeader() {
   const { editing, setEditing } = useEditing();
 
   return (
-    <div className={`px-12 py-6 flex items-center justify-between sticky top-0 z-10 bg-base-300 shadow-lg`}>
+    <div
+      className={`px-3 py-4 flex items-center justify-between sticky top-0 left-0 right-0  z-10 bg-base-300 shadow-lg`}>
       <div className={`flex items-center gap-4`}>
         <ClientProfilePin />
         <div

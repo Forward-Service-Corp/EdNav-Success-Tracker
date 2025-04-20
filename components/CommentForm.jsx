@@ -18,8 +18,8 @@ const CommentForm = ({ parentId, onAddComment }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex items-end gap-2">
-      <div className="flex-grow">
+    <form onSubmit={handleSubmit} className="flex flex-col items-start gap-2">
+      <div className="w-full">
         <textarea
           className="textarea textarea-bordered textarea-sm w-full text-sm"
           placeholder="Add a comment..."
