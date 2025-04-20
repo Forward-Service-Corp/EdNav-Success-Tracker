@@ -4,12 +4,9 @@ import { useClients } from '/contexts/ClientsContext';
 import ClientProfilePersonalOrganization from '@/components/ClientProfilePersonalOrganization';
 import ClientProfileProgress from '@/components/ClientProfileProgress';
 import ClientProfileTABEOrientation from '@/components/ClientProfileTABEOrientation';
-import ClientProfileHeader from '@/components/ClientProfileHeader';
-import { useEditing } from '@/contexts/EditingContext';
 
-export default function ClientProfileDetails() {
+export default function ClientProfileDetails({ menuClosed, setMenuClosed }) {
     const {selectedClient} = useClients();
-    const { setEditing } = useEditing();
     const [actions, setActions] = useState([]); // actions are the activities
     const [hasTrackable, setHasTrackable] = useState([]);
     const [hasTrackableUpdated, setHasTrackableUpdated] = useState(false);
@@ -49,8 +46,7 @@ export default function ClientProfileDetails() {
     }, [actions, selectedClient])
 
     return (
-        <div className="mb-12 ml-6 w-full transition-all duration-500">
-            <ClientProfileHeader setEditing={setEditing} />
+      <div className="">
 
             {selectedClient && selectedClient.group === "Adult" && <ClientProfileProgress hasTrackableCopy={hasTrackableCopy} hasTrackable={hasTrackable}
                                     setHasTrackable={setHasTrackable} updated={updated} setUpdated={setUpdated} />}

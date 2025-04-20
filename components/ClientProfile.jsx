@@ -2,10 +2,14 @@
 import React, { useEffect, useState } from 'react';
 import ClientProfileDetails from './ClientProfileDetails';
 import CombinedFeed from '@/components/CombinedFeed';
+import ClientProfileHeader from '@/components/ClientProfileHeader';
+import { useEditing } from '@/contexts/EditingContext';
+
 
 export default function ClientProfile() {
     const [isMounted, setIsMounted] = useState(false);
     const [, setSelectedNavigator] = useState("");
+    const { setEditing } = useEditing();
 
     useEffect(() => {
         setIsMounted(true); // ✅ Mark component as mounted before interacting with localStorage
@@ -26,14 +30,11 @@ export default function ClientProfile() {
     if (!isMounted) return null;
 
     return (
-      <div className="h-screen overflow-y-scroll no-scrollbar relative w-full">
-          <div className={`flex gap-10 pt-16 pr-6`}>
-              <div className={`w-full mr-6 ${tabState === 'Profile' ? '' : 'hidden'}`}>
-                  <CombinedFeed />
-                  <ClientProfileDetails />
-                </div>
-            </div>
-        </div>
+      <div className="">
+          <ClientProfileHeader setEditing={setEditing} />
+          <CombinedFeed />
+          <ClientProfileDetails />
+      </div>
     )
 }
 

@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import moment from 'moment';
 import { useClients } from '@/contexts/ClientsContext';
-import NoteModal from './NoteModal';
-import ActivityModal from './ActivityModal';
 import CommentForm from './CommentForm'; // We'll create this component
 
 const CombinedFeed = () => {
@@ -123,9 +121,9 @@ const CombinedFeed = () => {
   };
 
   return (
-    <div className="feed-container">
-      <NoteModal open={open} setOpen={setOpen} onSuccess={fetchFeedData} />
-      <ActivityModal open={open} setOpen={setOpen} onSuccess={fetchFeedData} />
+    <div className={``}>
+      {/*<NoteModal open={open} setOpen={setOpen} onSuccess={fetchFeedData} />*/}
+      {/*<ActivityModal open={open} setOpen={setOpen} onSuccess={fetchFeedData} />*/}
 
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-semibold">Notes and Activities</h2>
