@@ -1,13 +1,42 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import moment from 'moment/moment';
 import { useClients } from '@/contexts/ClientsContext';
-import InputVariants from '@/components/InputVariants';
 
 function ClientProfileTabeOrientation() {
   const { selectedClient } = useClients();
   const [tabeOpen, setTabeOpen] = useState(false);
   const [orientationOpen, setOrientationOpen] = useState(false);
-  const [dateValue, setDateValue] = useState('');
+  const [dateValue, setDateValue] = useState({
+    orientation: {
+      referralDate: selectedClient?.orientation?.referralDate || null,
+      completionDate: selectedClient?.orientation?.completionDate || null
+    },
+    tabe: {
+      referralDate: selectedClient?.tabe?.referralDate || null,
+      completionDate: selectedClient?.tabe?.completionDate || null
+    },
+    transcripts: {
+      referralDate: selectedClient?.transcripts?.referralDate || null,
+      completionDate: selectedClient?.transcripts?.completionDate || null
+    }
+  });
+
+  useEffect(() => {
+    setDateValue({
+      orientation: {
+        referralDate: selectedClient?.orientation?.referralDate || null,
+        completionDate: selectedClient?.orientation?.completionDate || null
+      },
+      tabe: {
+        referralDate: selectedClient?.tabe?.referralDate || null,
+        completionDate: selectedClient?.tabe?.completionDate || null
+      },
+      transcripts: {
+        referralDate: selectedClient?.transcripts?.referralDate || null,
+        completionDate: selectedClient?.transcripts?.completionDate || null
+      }
+    });
+  }, [selectedClient]);
 
   const handleChange = (e) => {
     setDateValue(e.target.value);
@@ -39,103 +68,133 @@ function ClientProfileTabeOrientation() {
   }
 
   return (
-    <div className="w-full mt-6 text-sm">
-      {
-        selectedClient && (selectedClient.tabe?.completionDate || selectedClient.orientation?.completionDate || selectedClient?.transcripts === "yes") && (
-          <div
-            className={`grid grid-cols-3 xl:grid-cols-3 w-full border-1 border-base-300/30 bg-base-200/40 shadow-xl rounded-lg py-4 px-4 ${hasValidKey(selectedClient, 'tabe') || hasValidKey(selectedClient, 'orientation') ? 'visible' : 'hidden'}`}>
-            {
-              hasValidKey(selectedClient, 'tabe') ? (
-                <div className={`px-4 border-r-1 border-base-content/10`}>
-                  <div className={`grid grid-cols-1 gap-2`}>
-                    <div className="font-semibold">TABE</div>
-                    <div>
-                      <div className={`text-xs font-light`}>Date Referred</div>
-                      {moment(selectedClient.tabe.referralDate).format('MMMM Do, YYYY')}
-                    </div>
-                    <div>
-                      <div
-                        className={`text-xs font-light ${tabeOpen ? 'invisible h-0 collapse overflow-hidden' : 'visible'}`}>Date
-                        Completed
-                      </div>
-                      {
-                        selectedClient.tabe.completionDate !== ""
-                          ? <div>{moment(selectedClient.tabe.completionDate).format('MMMM Do, YYYY')}</div>
-                          : (<div>
-                            <div onClick={() => setTabeOpen(!tabeOpen)}
-                                 className={`text-secondary underline cursor-pointer ${tabeOpen ? 'invisible h-0 collapse overflow-hidden' : 'visible'}`}>Enter
-                              date
-                            </div>
-                            <div
-                              className={`flex gap-4 items-baseline ${tabeOpen ? 'visible' : 'invisible h-0 collapse overflow-hidden'}`}>
-                              <InputVariants className={``} type={`date`} name={`tabe`}
-                                          value={dateValue} handleChange={handleChange} label="Date Completed" />
-                              <button onClick={handleTabeSave}
-                                      className={`inline text-secondary/50 hover:text-secondary underline text-xs font-light ${tabeOpen ? 'visible' : 'invisible'}`}>Save
-                              </button>
-                            </div>
-                          </div>)
-                      }
-                    </div>
+    <div className="grid grid-cols-1 gap-6 text-xs">
+      <div
+        className={`card card-sm bg-base-200 border-1 border-base-content/10 rounded-lg mr-6 p-6 shadow ${selectedClient.orientation?.referralDate ? '' : 'opacity-50 blur-[2px]'}`}>
+        <div className={`text-2xl`}>Orientation</div>
+        <div className="flex mt-6 gap-3 items-start">
+          <div className={`w-1/2`}>
+            <div className={`flex items-end gap-2 mb-2`}>
+              {
+                hasValidKey(selectedClient?.orientation, 'referralDate') ? (
+                  <div>
+                    <div className={`font-medium text-base-content/60`}>Referral Date</div>
+                    <div className={`text-sm`}>{moment(selectedClient?.orientation?.referralDate).calendar()}</div>
                   </div>
-                </div>
-              ) : ''
-            }
-            {
-              hasValidKey(selectedClient, 'orientation') ? (
-                <div className={`px-4 border-r-1 border-base-content/10`}>
-                  <div className={`grid grid-cols-1 gap-2`}>
-                    <div className="font-semibold">Orientation</div>
-                    <div>
-                      <div className={`text-xs font-light`}>Date Referred</div>
-                      {moment(selectedClient?.orientation.referralDate).format('MMMM Do, YYYY')}
-                    </div>
-                    <div>
-                      <div
-                        className={`text-xs font-light ${tabeOpen ? 'invisible h-0 collapse overflow-hidden' : 'visible'}`}>Date
-                        Completed
-                      </div>
-                      {
-                        selectedClient?.orientation.completionDate
-                          ? <div>{moment(selectedClient.orientation.completionDate).format('MMMM Do, YYYY')}</div>
-                          : (<div>
-                            <div onClick={() => setOrientationOpen(!orientationOpen)}
-                                 className={`text-secondary underline cursor-pointer ${orientationOpen ? 'invisible h-0 collapse overflow-hidden' : 'visible'}`}>Enter
-                              date
-                            </div>
-                            <div
-                              className={`flex gap-4 items-baseline ${orientationOpen ? 'visible' : 'invisible h-0 collapse overflow-hidden'}`}>
-                              <InputVariants className={``} type={`date`} name={`tabe`}
-                                          value={dateValue} handleChange={handleChange} label="Date Completed" />
-                              <button onClick={handleTabeSave}
-                                      className={`inline text-secondary/50 hover:text-secondary underline text-xs font-light ${orientationOpen ? 'visible' : 'invisible'}`}>Save
-                              </button>
-                            </div>
-                          </div>)
-                      }
-                    </div>
+                ) : (
+                  <div>
+                    <div className={`font-medium text-base-content/60`}>Referral Date</div>
+                    <div className={`text-sm`}>TBD</div>
                   </div>
-                </div>
-              ) : ''
-            }
-            {
-              hasValidKey(selectedClient, 'tabe') ? (
-                <div className={`flex justify-center items-start px-6`}>
-                  <div className={`grid grid-cols-1 gap-2`}>
-                    <div className="font-semibold">Transcripts</div>
-                    <div>
-                      <div className={`text-xs font-light`}>Date Obtained</div>
-                      {moment(selectedClient.tabe.referralDate).format('MMMM Do, YYYY')}
-                    </div>
-                  </div>
-                </div>
-              ) : ''
-            }
+                )
+              }
+
+            </div>
           </div>
-        )
-      }
+          <div className={`w-1/2`}>
+            <div className={`flex items-end gap-2 mb-2`}>
+              {
+                hasValidKey(selectedClient?.orientation, 'completionDate') ? (
+                  <div>
+                    <div className={`text-sm font-medium`}>Completion Date</div>
+                    {moment(selectedClient?.orientation?.completionDate).calendar()}
+                  </div>
+                ) : (
+                  <div>
+                    <div className={`font-medium text-base-content/60`}>Completion Date</div>
+                    <div className={`text-sm`}>TBD</div>
+                  </div>
+                )
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        className={`card card-sm bg-base-200 border-1 border-base-content/10 rounded-lg mr-6 p-6 shadow ${selectedClient.tabe?.referralDate ? '' : 'opacity-50 blur-[2px]'}`}>
+        <div className={`text-2xl`}>TABE</div>
+        <div className="flex mt-6 gap-3 items-start">
+          <div className={`w-1/2`}>
+            <div className={`flex items-end gap-2 mb-2`}>
+              {
+                hasValidKey(selectedClient?.tabe, 'referralDate') ? (
+                  <div>
+                    <div className={`text-sm font-medium`}>Referral Date</div>
+                    {moment(selectedClient?.tabe?.referralDate).calendar()}
+                  </div>
+                ) : (
+                  <div>
+                    <div className={`font-medium text-base-content/60`}>Referral Date</div>
+                    <div className={`text-sm`}>TBD</div>
+                  </div>
+                )
+              }
+            </div>
+          </div>
+          <div className={`w-1/2`}>
+            <div className={`flex items-end gap-2 mb-2`}>
+              {
+                hasValidKey(selectedClient?.tabe, 'completionDate') ? (
+                  <div>
+                    <div className={`text-sm font-medium`}>Completion Date</div>
+                    {moment(selectedClient?.tabe?.completionDate).calendar()}
+                  </div>
+                ) : (
+                  <div>
+                    <div className={`font-medium text-base-content/60`}>Completion Date</div>
+                    <div className={`text-sm`}>TBD</div>
+                  </div>
+                )
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        className={`card card-sm bg-base-200 border-1 border-base-content/10 rounded-lg mr-6 p-6 shadow ${selectedClient.transcripts?.referralDate ? '' : 'opacity-50 blur-[2px]'}`}>
+        <div className={`text-2xl`}>Transcripts</div>
+        <div className="flex mt-6 gap-3 items-start">
+          <div className={`w-1/2`}>
+            <div className={`flex items-end gap-2 mb-2`}>
+              {
+                hasValidKey(selectedClient?.transcripts, 'referralDate') ? (
+                  <div>
+                    <div className={`text-sm font-medium`}>Referral Date</div>
+                    {moment(selectedClient?.transcripts?.referralDate).calendar()}
+                  </div>
+                ) : (
+                  <div>
+                    <div className={`font-medium text-base-content/60`}>Referral Date</div>
+                    <div className={`text-sm`}>TBD</div>
+                  </div>
+                )
+              }
+            </div>
+          </div>
+          <div className={`w-1/2`}>
+            <div className={`flex items-end gap-2 mb-2`}>
+              {
+                hasValidKey(selectedClient?.transcripts, 'completionDate') ? (
+                  <div>
+                    <div className={`text-sm font-medium`}>Completion Date</div>
+                    {moment(selectedClient?.transcripts?.completionDate).calendar()}
+                  </div>
+                ) : (
+                  <div>
+                    <div className={`font-medium text-base-content/60`}>Completion Date</div>
+                    <div className={`text-sm`}>TBD</div>
+                  </div>
+                )
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
-  );
+  )
 }
 
 export default ClientProfileTabeOrientation;

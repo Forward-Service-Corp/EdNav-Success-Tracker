@@ -22,17 +22,13 @@ type Client = {
   'officeCity': string,
   'orientation': {
     'completionDate': string,
-    'completionStatus': string,
-    'completionNotes': string,
     'referralDate': string,
   },
-  'pin': number,
-  'region': number,
+  'pin': string,
+  'region': string,
   'schoolIfEnrolled': string,
   'tabe': {
     'completionDate': string,
-    'completionStatus': string,
-    'completionNotes': string,
     'referralDate': string,
   },
   trackable: {
@@ -45,7 +41,10 @@ type Client = {
       }
     ]
   },
-  'transcripts': string,
+  'transcripts': {
+    'completionDate': string,
+    'referralDate': string,
+  },
   'ttsDream': string,
 }
 

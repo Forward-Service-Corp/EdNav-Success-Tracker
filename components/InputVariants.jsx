@@ -63,7 +63,7 @@ export default function InputVariants({ label, name, handleChange, disabled, opt
               className="input w-full"
               name={name}
               onChange={handleChange}
-              value={type === 'date' ? formatDateValue() : (value || '')}
+              defaultValue={type === 'date' ? formatDateValue() : (value || '')}
               disabled={disabled}
               placeholder={placeholder}
             />

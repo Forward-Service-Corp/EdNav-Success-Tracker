@@ -17,7 +17,7 @@ export default function PerfectLayout() {
         <LeftNavEntire />
       </div>
       <div
-        className={`transition-dashboard-panel no-scrollbar bg-base-200 relative z-20 shadow-xl ${menuOpen ? 'w-[450px]' : 'w-[700px]'}`}>
+        className={`transition-dashboard-panel no-scrollbar bg-base-200 relative z-20 shadow-xl ${menuOpen ? 'w-[550px]' : 'w-[700px]'}`}>
         <ClientTable setMenuOpen={setMenuOpen} menuOpen={menuOpen} />
       </div>
       <div

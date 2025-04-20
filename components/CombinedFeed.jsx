@@ -123,12 +123,12 @@ const CombinedFeed = () => {
   };
 
   return (
-    <div className={`mx-12 mt-12 p-6 bg-base-200 rounded-lg shadow text-xs w-1/2`}>
+    <div className={` p-6 bg-base-200 rounded-lg shadow text-xs ml-6 border-1 border-base-content/10`}>
       <NoteModal open={open} setOpen={setOpen} onSuccess={fetchFeedData} />
       <ActivityModal open={open} setOpen={setOpen} onSuccess={fetchFeedData} />
 
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl">Notes and Activities</h2>
+        <h2 className="text-2xl">Feed</h2>
         <div className="flex gap-2">
           <button
             onClick={() => setOpen('activity')}

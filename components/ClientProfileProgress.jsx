@@ -40,108 +40,60 @@ function ClientProfileProgress({ hasTrackable, setHasTrackable, updated, setUpda
   }
 
   return (
-    <div className={`mx-12`}>
-      <div className="card bg-base-200 shadow-sm">
-        <div className="card-body">
-          <div className={`flex items-center justify-between  mt-0 mb-4`}>
-            <div>
-              <div className={`text-2xl`}>{selectedClient?.trackable?.type} Progress
-                - {calculateCompletionPercentage(selectedClient?.trackable?.items)}%
-              </div>
-              <p className={`text-xs text-info`}>If you are having trouble selecting items, please refresh the
-                page.</p>
+    <div className="card bg-base-200 shadow-sm border-1 border-base-content/10 mx-6 rounded-lg">
+      <div className="card-body">
+        <div className={`flex items-center justify-between  mt-0 mb-4`}>
+          <div>
+            <div className={`text-2xl`}>{selectedClient?.trackable?.type} Progress
+              - {calculateCompletionPercentage(selectedClient?.trackable?.items)}%
             </div>
-
-            <div onClick={handleTrackableUpdate}
-                 className={` cursor-pointer text-sm text-secondary font-light underline ${updated ? 'visible' : 'hidden'}`}>Save
-              Progress
-            </div>
+            <p className={`text-xs text-info`}>If you are having trouble selecting items, please refresh the
+              page.</p>
           </div>
-          <div className="card-actions justify-end">
-            <progress className="progress progress-success" value={calculateCompletionPercentage(selectedClient?.trackable?.items)} max="100"></progress>
-            <div className={`flex gap-3 flex-wrap mt-4`}>
-              {
-                hasTrackable?.map((item, index) => {
-                  return (
-                    <button key={index}
-                            disabled={hasTrackableCopy[index]?.completed === true}
-                            className={`text-nowrap cursor-pointer disabled:cursor-not-allowed`}
-                            onClick={() => {
-                              const hasTrackableState = !hasTrackable[index].completed;
-                              setHasTrackable(prevState => {
-                                const newItems = [...prevState];
-                                newItems[index].completed = hasTrackableState;
-                                setUpdated(true);
-                                return newItems;
-                              })
-                            }}>
-                      {item.completed === true ?
-                        <span className={`text-xs border rounded-full pr-2 flex items-center justify-center border-success`}>
+
+          <div onClick={handleTrackableUpdate}
+               className={` cursor-pointer text-sm text-secondary font-light underline ${updated ? 'visible' : 'hidden'}`}>Save
+            Progress
+          </div>
+        </div>
+        <div className="card-actions justify-end">
+          <progress className="progress progress-success"
+                    value={calculateCompletionPercentage(selectedClient?.trackable?.items)} max="100"></progress>
+          <div className={`flex gap-3 flex-wrap mt-4`}>
+            {
+              hasTrackable?.map((item, index) => {
+                return (
+                  <button key={index}
+                          disabled={hasTrackableCopy[index]?.completed === true}
+                          className={`text-nowrap cursor-pointer disabled:cursor-not-allowed`}
+                          onClick={() => {
+                            const hasTrackableState = !hasTrackable[index].completed;
+                            setHasTrackable(prevState => {
+                              const newItems = [...prevState];
+                              newItems[index].completed = hasTrackableState;
+                              setUpdated(true);
+                              return newItems;
+                            });
+                          }}>
+                    {item.completed === true ?
+                      <span
+                        className={`text-xs border rounded-full pr-2 flex items-center justify-center border-success`}>
                           <span className={`mr-1`}>
                             <CheckCircleIcon className={`w-6 h-6 text-success`}/>
                           </span>{item.name}</span> :
-                        <span className={`text-xs border rounded-full pr-2 flex items-center justify-center border-base-content/40`}>
+                      <span
+                        className={`text-xs border rounded-full pr-2 flex items-center justify-center border-base-content/40`}>
                           <span className={`mr-1`}>
                             <span className={`w-5 h-5 m-[2px] text-base-content/40 block border rounded-full`}/></span>
-                          {item.name}
+                        {item.name}
                         </span>}
-                    </button>
-                  )
-                })
-              }
-            </div>
+                  </button>
+                )
+              })
+            }
           </div>
         </div>
       </div>
-      {/*{*/}
-      {/*  hasTrackable && hasTrackableCopy && hasTrackable.length > 0 && (*/}
-      {/*    <div className={`flex-col gap-6`}>*/}
-      {/*      <div className={`flex items-center justify-between  mt-0 mb-4`}>*/}
-      {/*        <div>*/}
-      {/*          <div className={`text-2xl`}>{selectedClient?.trackable?.type} Progress*/}
-      {/*            - {calculateCompletionPercentage(selectedClient?.trackable?.items)}%*/}
-      {/*          </div>*/}
-      {/*          <p className={`text-xs text-info`}>If you are having trouble selecting items, please refresh the*/}
-      {/*            page.</p>*/}
-      {/*        </div>*/}
-
-      {/*        <div onClick={handleTrackableUpdate} className={` cursor-pointer text-sm text-secondary font-light underline ${updated ? 'visible' : 'hidden'}`}>Save Progress</div>*/}
-      {/*      </div>*/}
-      {/*      <progress className="progress progress-success" value={calculateCompletionPercentage(selectedClient?.trackable?.items)} max="100"></progress>*/}
-      {/*      <div className={`flex gap-3 flex-wrap mt-4`}>*/}
-      {/*        {*/}
-      {/*          hasTrackable?.map((item, index) => {*/}
-      {/*            return (*/}
-      {/*              <button key={index}*/}
-      {/*                      disabled={hasTrackableCopy[index]?.completed === true}*/}
-      {/*                      className={`text-nowrap cursor-pointer disabled:cursor-not-allowed`}*/}
-      {/*                      onClick={() => {*/}
-      {/*                        const hasTrackableState = !hasTrackable[index].completed;*/}
-      {/*                        setHasTrackable(prevState => {*/}
-      {/*                          const newItems = [...prevState];*/}
-      {/*                          newItems[index].completed = hasTrackableState;*/}
-      {/*                          setUpdated(true);*/}
-      {/*                          return newItems;*/}
-      {/*                        })*/}
-      {/*                      }}>*/}
-      {/*                {item.completed === true ?*/}
-      {/*                  <span className={`text-xs border rounded-full pr-2 flex items-center justify-center border-success`}>*/}
-      {/*                    <span className={`mr-1`}>*/}
-      {/*                      <CheckCircleIcon className={`w-6 h-6 text-success`}/>*/}
-      {/*                    </span>{item.name}</span> :*/}
-      {/*                  <span className={`text-xs border rounded-full pr-2 flex items-center justify-center border-base-content/40`}>*/}
-      {/*                    <span className={`mr-1`}>*/}
-      {/*                      <span className={`w-5 h-5 m-[2px] text-base-content/40 block border rounded-full`}/></span>*/}
-      {/*                    {item.name}*/}
-      {/*                  </span>}*/}
-      {/*              </button>*/}
-      {/*            )*/}
-      {/*          })*/}
-      {/*        }*/}
-      {/*      </div>*/}
-      {/*    </div>*/}
-      {/*  )*/}
-      {/*}*/}
     </div>
   );
 }

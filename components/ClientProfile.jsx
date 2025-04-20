@@ -1,6 +1,5 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import ClientProfileDetails from './ClientProfileDetails';
 import CombinedFeed from '@/components/CombinedFeed';
 import ClientProfileHeader from '@/components/ClientProfileHeader';
 import { useEditing } from '@/contexts/EditingContext';
@@ -69,15 +68,22 @@ export default function ClientProfile({ menuOpen, setMenuOpen }) {
     if (!isMounted) return null;
 
     return (
-      <div className={`flex flex-col w-full h-full overflow-y-scroll no-scrollbar relative`}>
+      <div className={`w-full h-full overflow-y-scroll no-scrollbar relative`}>
           <ClientProfileHeader />
-          <div className={`mt-[40px]`}>
-              <ClientProfileProgress hasTrackableCopy={hasTrackableCopy} hasTrackable={hasTrackable}
-                                     setHasTrackable={setHasTrackable} updated={updated} setUpdated={setUpdated} />
-              <CombinedFeed />
-              <ClientProfilePersonalOrganization />
-              <ClientProfileTABEOrientation />
-              <ClientProfileDetails setMenuOpen={setMenuOpen} menuOpen={menuOpen} />
+          <div className={`mt-[40px] grid grid-cols-4 gap-4 `}>
+              <div className={`col-span-4 min-h-30 `}>
+                  <ClientProfileProgress hasTrackableCopy={hasTrackableCopy} hasTrackable={hasTrackable}
+                                         setHasTrackable={setHasTrackable} updated={updated} setUpdated={setUpdated} />
+              </div>
+              <div className={`col-span-2 min-h-30 `}>
+                  <CombinedFeed />
+              </div>
+              <div className={`col-span-2 min-h-30 `}>
+                  <ClientProfileTABEOrientation />
+              </div>
+              <div className={`col-span-4 min-h-30 `}>
+                  <ClientProfilePersonalOrganization />
+              </div>
           </div>
       </div>
     )
