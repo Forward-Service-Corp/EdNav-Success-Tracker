@@ -123,7 +123,7 @@ const CombinedFeed = () => {
   };
 
   return (
-    <div className={`profile-section w-full`}>
+    <div className={`profile-section text-xs`}>
       <NoteModal open={open} setOpen={setOpen} onSuccess={fetchFeedData} />
       <ActivityModal open={open} setOpen={setOpen} onSuccess={fetchFeedData} />
 
@@ -174,36 +174,36 @@ const CombinedFeed = () => {
             }`}
           >
             {/* Main item content */}
-            <div className="flex justify-between text-sm text-base-content/70 mb-2">
+            <div className="flex justify-between  text-base-content/70 mb-2">
               <span>{item.type === 'activity' ? 'Activity' : 'Note'} by {item.author}</span>
               <span>{moment(item.date).format('MMM D, YYYY h:mm A')}</span>
             </div>
             <div className="whitespace-pre-wrap break-words">
               {item.content}
             </div>
-            {item.type === 'activity' && item.path && (
-              <div className="mt-2 text-xs text-base-content/70">
-                <span className="font-semibold">Path: </span>
-                {Array.isArray(item.path) ? item.path.join(' > ') : item.path}
-              </div>
-            )}
+            {/*{item.type === 'activity' && item.path && (*/}
+            {/*  <div className="mt-2  text-base-content/70">*/}
+            {/*    <span className="font-semibold">Path: </span>*/}
+            {/*    {Array.isArray(item.path) ? item.path.join(' > ') : item.path}*/}
+            {/*  </div>*/}
+            {/*)}*/}
 
             {/* Comments section */}
             <div className="mt-4 border-t border-base-300 pt-2">
               <button
                 onClick={() => toggleComments(item.itemId)}
-                className="text-sm flex items-center gap-1 text-base-content/60 hover:text-base-content"
+                className=" flex items-center gap-1 text-base-content/60 hover:text-base-content"
               >
                 <span>{expandedComments[item.itemId] ? 'Hide' : 'Show'} comments</span>
-                <span className="text-xs">({item.comments.length})</span>
+                <span className="">({item.comments.length})</span>
               </button>
 
               {expandedComments[item.itemId] && (
                 <div className="mt-2 space-y-2">
                   {item.comments.length > 0 ? (
                     item.comments.map((comment) => (
-                      <div key={comment._id} className="pl-4 border-l-2 border-base-300 text-sm">
-                        <div className="flex justify-between text-xs text-base-content/60">
+                      <div key={comment._id} className="pl-4 border-l-2 border-base-300 ">
+                        <div className="flex justify-between  text-base-content/60">
                           <span>{comment.author}</span>
                           <span>{moment(comment.createdAt).format('MMM D, YYYY h:mm A')}</span>
                         </div>
@@ -213,7 +213,7 @@ const CombinedFeed = () => {
                       </div>
                     ))
                   ) : (
-                    <div className="text-sm text-base-content/60 italic">
+                    <div className=" text-base-content/60 italic">
                       No comments yet
                     </div>
                   )}

@@ -12,8 +12,7 @@ export default function LeftNavEntire({setEditing}) {
     const session = useSession();
     return (
       <div
-        className={`flex flex-col  h-full justify-between bg-base-300 px-4 pb-8 pt-2 gap-4 drop-shadow-lg z-50 no-scrollbar overflow-y-scroll relative whitespace-nowrap`}>
-
+        className={`flex flex-col h-full justify-start bg-base-300 px-4 pb-8 gap-2 z-50 no-scrollbar overflow-y-scroll relative whitespace-nowrap`}>
           <Logo />
           <LeftNavigation setEditing={setEditing} />
 

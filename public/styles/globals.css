@@ -141,7 +141,7 @@ span.activity {
 }
 
 .profile-section {
-    @apply m-12 p-12;
+    @apply p-12;
     /*border: 1px solid #e2e8f0;*/
     /*background-color: #f7fafc;*/
     /*box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);*/
