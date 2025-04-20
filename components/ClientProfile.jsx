@@ -2,16 +2,14 @@
 import React, { useEffect, useState } from 'react';
 import CombinedFeed from '@/components/CombinedFeed';
 import ClientProfileHeader from '@/components/ClientProfileHeader';
-import { useEditing } from '@/contexts/EditingContext';
 import ClientProfileProgress from '@/components/ClientProfileProgress';
 import ClientProfilePersonalOrganization from '@/components/ClientProfilePersonalOrganization';
 import ClientProfileTABEOrientation from '@/components/ClientProfileTABEOrientation';
 import { useClients } from '@/contexts/ClientsContext';
 
-export default function ClientProfile({ menuOpen, setMenuOpen }) {
+export default function ClientProfile() {
     const [isMounted, setIsMounted] = useState(false);
     const [, setSelectedNavigator] = useState("");
-    const { setEditing } = useEditing();
     const { selectedClient } = useClients();
     const [actions, setActions] = useState([]); // actions are the activities
     const [hasTrackable, setHasTrackable] = useState([]);
@@ -26,6 +24,7 @@ export default function ClientProfile({ menuOpen, setMenuOpen }) {
             setSelectedNavigator(storedNavigator);
         }
     }, []);
+
     let getActions;
     getActions = async () => {
         if (!selectedClient) return;
@@ -57,8 +56,6 @@ export default function ClientProfile({ menuOpen, setMenuOpen }) {
             setHasTrackable([]);
         }
     }, [actions, selectedClient]);
-
-    const [tabState] = useState("Profile");
 
     useEffect(() => {
         setIsMounted(true);

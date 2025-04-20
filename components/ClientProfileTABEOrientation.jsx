@@ -4,9 +4,7 @@ import { useClients } from '@/contexts/ClientsContext';
 
 function ClientProfileTabeOrientation() {
   const { selectedClient } = useClients();
-  const [tabeOpen, setTabeOpen] = useState(false);
-  const [orientationOpen, setOrientationOpen] = useState(false);
-  const [dateValue, setDateValue] = useState({
+  const [, setDateValue] = useState({
     orientation: {
       referralDate: selectedClient?.orientation?.referralDate || null,
       completionDate: selectedClient?.orientation?.completionDate || null
@@ -37,31 +35,6 @@ function ClientProfileTabeOrientation() {
       }
     });
   }, [selectedClient]);
-
-  const handleChange = (e) => {
-    setDateValue(e.target.value);
-  };
-
-  const handleTabeSave = async () => {
-    const res = await fetch(`/api/tabe`, {
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        _id: selectedClient._id,
-        completedDate: dateValue,
-      }),
-      method: 'POST'
-    });
-    const data = await res.json();
-    if (data.error) {
-      console.error(data.error);
-    } else {
-      console.log('data', data);
-      setDateValue('');
-      setTabeOpen(false);
-    }
-  };
 
   function hasValidKey(obj, key) {
     return obj && Object.prototype.hasOwnProperty.call(obj, key) && !!obj[key];

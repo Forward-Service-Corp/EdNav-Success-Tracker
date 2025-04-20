@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const CommentForm = ({ parentId, onAddComment }) => {
+const CommentForm = ({ onAddComment }) => {
   const [commentText, setCommentText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 

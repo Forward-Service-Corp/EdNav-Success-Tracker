@@ -8,7 +8,7 @@ import { useEditing } from '@/contexts/EditingContext';
 export default function ClientProfileHeader() {
 
   const { selectedClient, setSelectedClient } = useClients();
-  const { editing, setEditing } = useEditing();
+  const { setEditing } = useEditing();
 
   return (
     <div
