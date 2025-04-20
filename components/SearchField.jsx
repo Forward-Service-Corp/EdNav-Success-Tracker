@@ -3,7 +3,7 @@ import { useFepsLeft } from '../contexts/FepsLeftContext';
 import { MagnifyingGlass } from '@phosphor-icons/react';
 import { Sidebar, Wrench, XCircle } from 'phosphor-react';
 
-function SearchField({ menuClosed, setMenuClosed, filterOpen, setFilterOpen, setViewMode, setStatusCollapse }) {
+function SearchField({ menuOpen, setMenuOpen, filterOpen, setFilterOpen, setViewMode, setStatusCollapse }) {
 
   const { selectedFepLeft, setSelectedFepLeft } = useFepsLeft();
   const toggleGrouped = () => {
@@ -26,7 +26,7 @@ function SearchField({ menuClosed, setMenuClosed, filterOpen, setFilterOpen, set
   };
 
   return (
-    <div className={`w-full h-full flex items-center top-0 gap-4 mb-3 justify-between`}>
+    <div className={`w-full h-full flex items-center top-0 gap-4 mb-3 justify-between `}>
       <div className={`flex h-full w-full items-center justify-start gap-2 bg-base-300 px-6 `}>
         <MagnifyingGlass className={`-mr-8 text-base-content/40`} size={20} />
         <input name={`client-search`} type="text" onChange={(e) => {
@@ -58,7 +58,7 @@ function SearchField({ menuClosed, setMenuClosed, filterOpen, setFilterOpen, set
       <div className="z-100 cursor-pointer absolute flex items-center justify-items-center gap-3 right-3 ">
         <Wrench size={27} className={`text-base-content/50 hover:text-base-content`}
                 onClick={() => setFilterOpen(!filterOpen)} />
-        <Sidebar color={'white'} size={27} onClick={() => setMenuClosed(!menuClosed)} />
+        <Sidebar color={menuOpen ? 'white' : 'red'} size={27} onClick={() => setMenuOpen(!menuOpen)} />
       </div>
     </div>
   );

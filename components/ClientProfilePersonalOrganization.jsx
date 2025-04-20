@@ -120,10 +120,10 @@ function ClientProfilePersonalOrganization() {
     !isSubmitting;
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form className={`profile-section`} onSubmit={handleSubmit}>
       <div
-        className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8 border-1 border-base-300/60 bg-base-200/60 shadow-xl p-4 md:p-6 rounded-lg`}>
-        <h1 className={`col-span-full text-xl font-semibold mb-4`}>Personal Details</h1>
+        className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8`}>
+        <div className={`text-2xl col-span-3`}>Personal Details</div>
 
         {error && (
           <div className="col-span-full bg-error/20 text-error px-4 py-2 rounded-md mb-4">

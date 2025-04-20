@@ -7,32 +7,30 @@ import AddClientForm from './AddClientForm';
 import ClientProfile from './ClientProfile';
 
 export default function PerfectLayout() {
-  const [menuClosed, setMenuClosed] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(true);
   const { editing } = useEditing();
 
   return (
-    <div className={`flex h-screen w-screen no-scrollbar transition-all duration-700`}>
+    <div className={`flex h-screen w-screen no-scrollbar`}>
       {/*NAV AND CLIENT TABLE*/}
-      <div className={`flex w-5/12 `}>
-        <div className={`h-screen w-3/7 overflow-x-hidden overflow-y-scroll no-scrollbar transition-all duration-700 `}>
-          <LeftNavEntire />
-        </div>
-        <div className={`h-screen w-4/7 overflow-x-hidden overflow-y-scroll no-scrollbar transition-all duration-700 `}>
-          <ClientTable setMenuClosed={setMenuClosed} menuClosed={menuClosed} />
-        </div>
+      <div
+        className={`transition-dashboard-panel no-scrollbar bg-base-300 relative z-30 shadow-2xl ${menuOpen ? 'w-[320px]' : 'w-0'}`}>
+        <LeftNavEntire />
+      </div>
+      <div
+        className={`transition-dashboard-panel no-scrollbar bg-base-200 relative z-20 shadow-2xl ${menuOpen ? 'w-[450px]' : 'w-[700px]'}`}>
+        <ClientTable setMenuOpen={setMenuOpen} menuOpen={menuOpen} />
       </div>
 
-      <div className={`flex w-7/12`}>
-        <div
-          className={`h-screen overflow-x-hidden overflow-y-scroll no-scrollbar transition-all duration-600 ${editing === 'client' ? 'translate-x-[0px] w-full' : '-translate-x-[4000px] w-0'}`}>
-          <ClientProfile />
-        </div>
-        <div
-          className={`h-screen overflow-x-clip overflow-y-scroll no-scrollbar transition-all duration-600 ${editing === 'add-client' ? 'translate-x-[0px] w-full' : '-translate-x-[4000px] w-0'}`}>
-          <AddClientForm />
-        </div>
-
+      <div
+        className={`transition-dashboard-panel no-scrollbar relative z-10 ${editing === 'client' ? 'w-full' : 'w-0 overflow-hidden'}`}>
+        <ClientProfile menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
       </div>
+      <div
+        className={`transition-dashboard-panel no-scrollbar relative z-10 ${editing === 'add-client' ? 'w-full' : 'w-0'}`}>
+        <AddClientForm />
+      </div>
+
       {/*CLIENT PROFILE AND ADD NEW CLIENT FORM*/}
 
     </div>

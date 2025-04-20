@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import moment from 'moment';
 import { useClients } from '@/contexts/ClientsContext';
-import CommentForm from './CommentForm'; // We'll create this component
+import CommentForm from './CommentForm';
+import NoteModal from '../components/NoteModal';
+import ActivityModal from '@/components/ActivityModal'; // We'll create this component
 
 const CombinedFeed = () => {
   const { selectedClient } = useClients();
@@ -121,12 +123,12 @@ const CombinedFeed = () => {
   };
 
   return (
-    <div className={``}>
-      {/*<NoteModal open={open} setOpen={setOpen} onSuccess={fetchFeedData} />*/}
-      {/*<ActivityModal open={open} setOpen={setOpen} onSuccess={fetchFeedData} />*/}
+    <div className={`profile-section w-full`}>
+      <NoteModal open={open} setOpen={setOpen} onSuccess={fetchFeedData} />
+      <ActivityModal open={open} setOpen={setOpen} onSuccess={fetchFeedData} />
 
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-semibold">Notes and Activities</h2>
+        <h2 className="text-2xl">Notes and Activities</h2>
         <div className="flex gap-2">
           <button
             onClick={() => setOpen('activity')}

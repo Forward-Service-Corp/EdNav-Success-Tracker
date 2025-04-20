@@ -40,11 +40,11 @@ function ClientProfileProgress({ hasTrackable, setHasTrackable, updated, setUpda
   }
 
   return (
-    <div>
+    <div className={`profile-section`}>
       {
         hasTrackable && hasTrackableCopy && hasTrackable.length > 0 && (
-          <div className={`flex-col gap-6 mt-6 border-1 border-base-300/60 bg-base-200/50 shadow-xl rounded-lg p-6 w-full`}>
-            <div className={`flex items-center justify-between  mt-0 mb-2`}>
+          <div className={`flex-col gap-6 border-1 border-base-300/60 bg-base-200/50 shadow-xl rounded-lg w-full`}>
+            <div className={`flex items-center justify-between  mt-0 mb-4`}>
               <div>
                 <div className={`text-2xl`}>{selectedClient?.trackable?.type} Progress
                   - {calculateCompletionPercentage(selectedClient?.trackable?.items)}%

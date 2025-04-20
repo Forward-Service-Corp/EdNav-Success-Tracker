@@ -364,7 +364,7 @@ function AddClientForm() {
 
   // The rest of your component remains the same, but pass errors to InputVariants
   return (
-    <div className={``}>
+    <div className={`profile-section`}>
       <form onSubmit={handleSubmit}>
         <div className="m-10 grid grid-cols-3 gap-6">
           {formFields.map((field) => {

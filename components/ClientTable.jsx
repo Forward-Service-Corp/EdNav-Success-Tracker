@@ -8,7 +8,7 @@ import { Eye, EyeClosed } from 'phosphor-react';
 import SearchField from './SearchField';
 import { useClients } from '../contexts/ClientsContext';
 
-export default function ClientTable({ menuClosed, setMenuClosed }) {
+export default function ClientTable({ menuOpen, setMenuOpen }) {
   const { clientList } = useClientList();
   const { selectedNavigator } = useNavigators();
   const { selectedFepLeft } = useFepsLeft();
@@ -100,22 +100,22 @@ export default function ClientTable({ menuClosed, setMenuClosed }) {
     <div className={``}>
       <div
         className=" w-full h-[100px] box-border relative right-0 top-0 left-0 flex-col flex justify-between z-50 text-sm text-base-content no-scrollbar">
-        <SearchField menuClosed={menuClosed} setMenuClosed={setMenuClosed} setFilterOpen={setFilterOpen}
+        <SearchField menuOpen={menuOpen} setMenuOpen={setMenuOpen} setFilterOpen={setFilterOpen}
                      filterOpen={filterOpen} setViewMode={setViewMode} setStatusCollapse={setStatusCollapse}
                      className="fixed left-0 top-0 z-50 shadow-xl" />
       </div>
       <div className={``}>
         <div className="w-full h-full overflow-y-scroll no-scrollbar">
           <div className={`overflow-y-scroll w-full no-scrollbar`}>
-            <table className={`overflow-y-scroll w-full ${menuClosed ? '' : ''}`}>
+            <table className={`overflow-y-scroll w-full ${menuOpen ? '' : ''}`}>
               <tbody className="w-full overflow-y-scroll">
               {viewMode === 'grouped' ? (
                 Object.entries(clientsToShow).map(([status, clients], idx) => (
                   <React.Fragment key={status}>
                     <tr
-                      className={`${getBGColor(status)} ${selectedClient && selectedClient?.clientStatus === status ? '' : ''} ${statusCollapse.includes(status) ? 'hidden' : ''} ${menuClosed ? '' : ''}`}>
+                      className={`${getBGColor(status)} ${selectedClient && selectedClient?.clientStatus === status ? '' : ''} ${statusCollapse.includes(status) ? 'hidden' : ''} ${menuOpen ? '' : ''}`}>
                       <td onClick={() => handleCollapseChange(status)}
-                          className={`py-2 text-sm flex w-full justify-between items-center cursor-pointer ${menuClosed ? '' : ''}`}>
+                          className={`py-2 text-sm flex w-full justify-between items-center cursor-pointer ${menuOpen ? '' : ''}`}>
                         <span className={`w-6/7 text-left font-bold pl-3`}>{status}</span>
                         <span className={`w-[30px] mr-3 text-center`}>
                                               {!statusCollapse.includes(status) ?
@@ -133,7 +133,7 @@ export default function ClientTable({ menuClosed, setMenuClosed }) {
                 Array.isArray(clientsToShow) && clientsToShow.length > 0 ? (
                   clientsToShow.map((person, i) => (
                     <ClientTableItem key={i} person={person} i={i} statusCollapse={statusCollapse}
-                                     menuClosed={menuClosed} />
+                                     menuOpen={menuOpen} />
                   ))
                 ) : (
                   <tr>

@@ -8,18 +8,20 @@ import { useEditing } from '@/contexts/EditingContext';
 export default function ClientProfileHeader() {
 
   const { selectedClient, setSelectedClient } = useClients();
-  const { setEditing } = useEditing();
+  const { editing, setEditing } = useEditing();
 
   return (
-    <div
-      className={`flex justify-between px-4 py-6 bg-base-300 gap-4 items-center divide-x divide-accent-content/30 fixed top-0 w-full z-50`}>
-      <ClientProfilePin />
-      <div
-        className={`text-xl`}>{selectedClient && !selectedClient?.name ? selectedClient?.first_name + ' ' + selectedClient?.last_name : selectedClient?.name}</div>
+    <div className={`px-12 py-6 flex items-center justify-between sticky top-0 z-10 bg-base-300 `}>
+      <div className={`flex items-center gap-4`}>
+        <ClientProfilePin />
+        <div
+          className={`text-xl`}>{selectedClient && !selectedClient?.name ? selectedClient?.first_name + ' ' + selectedClient?.last_name : selectedClient?.name}</div>
 
-      <div className={`pr-4`}>
-        <div className={`${getBadgeColor(selectedClient?.clientStatus)}`}>{selectedClient?.clientStatus}</div>
+        <div className={`pr-4`}>
+          <div className={`${getBadgeColor(selectedClient?.clientStatus)}`}>{selectedClient?.clientStatus}</div>
+        </div>
       </div>
+
       <div onClick={() => {
         setEditing('');
         setSelectedClient(null);
