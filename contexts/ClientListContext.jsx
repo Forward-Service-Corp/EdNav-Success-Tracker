@@ -1,9 +1,11 @@
-import React, { createContext, useEffect, useState, useContext } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { useClients } from './ClientsContext';
 
 const ClientListContext = createContext();
 
 export const ClientListProvider = ({ children }) => {
     const [clientList, setClientList] = useState([]);
+    const { selectedClient } = useClients();
 
     useEffect(() => {
         const fetchClientLists = async () => {
@@ -16,7 +18,7 @@ export const ClientListProvider = ({ children }) => {
             }
         };
         fetchClientLists().then();
-    }, []);
+    }, [selectedClient]);
 
     return (
       <ClientListContext.Provider value={{ clientList, setClientList }}>

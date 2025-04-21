@@ -6,7 +6,6 @@ import { useNavigators } from '../contexts/NavigatorsContext';
 import { useClientList } from '../contexts/ClientListContext';
 import { Eye, EyeClosed } from 'phosphor-react';
 import SearchField from './SearchField';
-import { useClients } from '../contexts/ClientsContext';
 
 export default function ClientTable({ menuOpen, setMenuOpen }) {
   const { clientList } = useClientList();
@@ -16,7 +15,6 @@ export default function ClientTable({ menuOpen, setMenuOpen }) {
   const [viewMode, setViewMode] = useState(null);
   const [filterOpen, setFilterOpen] = useState(false);
   const [statusCollapse, setStatusCollapse] = useState([]);
-  const { selectedClient } = useClients(null);
 
   const getBGColor = (status) => {
     switch (status) {

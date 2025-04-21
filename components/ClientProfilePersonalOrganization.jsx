@@ -81,7 +81,8 @@ function ClientProfilePersonalOrganization() {
         )}
 
         {selectedClient && selectedClient._id && Object.keys(change).map((field, index) => (
-          <ClientProfileDetailsInput field={field} change={change} onChange={handleChange} key={index} />
+          <ClientProfileDetailsInput field={field} change={change} setChange={setChange} onChange={handleChange}
+                                     key={index} />
         ))}
       </div>
     </div>

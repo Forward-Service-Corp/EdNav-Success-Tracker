@@ -53,7 +53,11 @@ export default function ClientTableItem({ person, i, statusCollapse, menuOpen, f
                     // noinspection JSCheckFunctionSignatures
                     setEditing("");
                 } else {
-                    setSelectedClient(person);
+                  const nextClient = person;
+                  setSelectedClient(null);
+                  setTimeout(() => {
+                    setSelectedClient(nextClient);
+                  }, 1000);
                     getActivities(person).then();
                     // noinspection JSCheckFunctionSignatures
                     setEditing("client");

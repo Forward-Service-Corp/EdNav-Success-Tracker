@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { EditIcon, SaveIcon, XSquareIcon } from 'lucide-react';
 import { useClients } from '@/contexts/ClientsContext';
+import { adultSchools, youthSchools } from '@/lib/schools';
 
 const counties = ['Brown',
   'Calumet',
@@ -49,10 +50,9 @@ const navigators = [
   'Trevor Brunette'
 ];
 
-function ClientProfileDetailsInput({ field, index, change }) {
-  const { selectedClient } = useClients();
+function ClientProfileDetailsInput({ field, index }) {
+  const { selectedClient, setSelectedClient } = useClients();
   const [updating, setUpdating] = useState(false);
-  const [value, setValue] = useState('');
   const [feps, setFeps] = useState([]);
 
   const fieldLabelMap = {
@@ -91,7 +91,7 @@ function ClientProfileDetailsInput({ field, index, change }) {
     schoolIfEnrolled: 'select',
     ttsDream: 'textarea'
   };
-  console.log(change);
+  // console.log(change);
 
   const fetchFeps = async () => {
     let feps = [];
@@ -109,12 +109,12 @@ function ClientProfileDetailsInput({ field, index, change }) {
 
 // Format date values properly
   const formatDateValue = () => {
-    const value = change[field];
-    if (!value) return '';
+
+    if (!selectedClient[field]) return '';
 
     try {
 
-      const date = new Date(value);
+      const date = new Date(selectedClient[field]);
       if (!isNaN(date.getTime())) {
         return date.toISOString().split('T')[0];
       }
@@ -127,10 +127,14 @@ function ClientProfileDetailsInput({ field, index, change }) {
   };
 
   const fieldType = fieldTypes[field];
-  console.log(fieldType);
 
   const handleChange = (e) => {
-    setValue(e.target.value);
+    setSelectedClient(prev => {
+      return {
+        ...prev,
+        [field]: e.target.value
+      };
+    });
   };
 
   const handleSave = async () => {
@@ -141,17 +145,16 @@ function ClientProfileDetailsInput({ field, index, change }) {
       },
       body: JSON.stringify({
         _id: selectedClient._id,
-        data: { [field]: value }
+        data: { [field]: selectedClient[field] }
       })
-    });
+      }
+    );
 
     const data = await response.json();
     if (data) {
-      alert(
-        `Client has been updated.`
-      );
+      setUpdating(false);
     } else {
-      alert(
+      console.error(
         `There was an error updating the client.`
       );
     }
@@ -159,7 +162,6 @@ function ClientProfileDetailsInput({ field, index, change }) {
 
   const handleCancel = () => {
     setUpdating(false);
-    setValue('');
   };
 
   if (fieldType === 'date') {
@@ -194,25 +196,32 @@ function ClientProfileDetailsInput({ field, index, change }) {
       options = ['1', '2', '3', '4', '5', '6'];
     } else if (field === 'clientStatus') {
       options = ['Active', 'In Progress', 'Graduated', 'Inactive'];
+    } else if (field === 'schoolIfEnrolled') {
+      if (selectedClient?.group === 'Adult') {
+        options = adultSchools;
+      } else {
+        options = youthSchools;
+      }
     }
+
     return (
       <div className={`flex flex-col`} key={index}>
         <label className={`text-xs mb-1`}>{fieldLabelMap[field]}</label>
         <div className={`flex flex-row gap-2`}>
-          <select disabled={!updating} name={field} id={field} defaultValue={change[field]} onChange={handleChange}
+          <select disabled={!updating} name={field} id={field} value={selectedClient[field]} onChange={handleChange}
                   className={`input input-sm`}>
             <option value="">Select {fieldLabelMap[field]}</option>
             {options.map((option, i) => (
               <option key={i} value={option}>{option}</option>
             ))}
           </select>
-          {updating && value !== '' ?
-            <button onClick={handleSave}><SaveIcon className={`text-success`} size={20} /></button> : null}
-          {updating ?
-            <button onClick={handleCancel}><XSquareIcon className={`text-warning`} size={20} /></button> : null}
-          {!updating ?
+          {updating &&
+            <button onClick={handleSave}><SaveIcon className={`text-success`} size={20} /></button>}
+          {updating &&
+            <button onClick={handleCancel}><XSquareIcon className={`text-warning`} size={20} /></button>}
+          {!updating &&
             <button className={`opacity-30 hover:opacity-100`} onClick={() => setUpdating(true)}><EditIcon size={20} />
-            </button> : null}
+            </button>}
         </div>
       </div>
     );
@@ -221,15 +230,16 @@ function ClientProfileDetailsInput({ field, index, change }) {
       <div className={`flex flex-col`} key={index}>
         <label className={`text-xs mb-1`}>{fieldLabelMap[field]}</label>
         <div className={`flex flex-row gap-2`}>
-          <textarea disabled={!updating} name={field} id={field} defaultValue={change[field]} onChange={handleChange}
+          <textarea disabled={!updating} name={field} id={field} defaultValue={selectedClient[field]}
+                    onChange={handleChange}
                     className={`input input-sm`} placeholder={fieldLabelMap[field]} rows={4} />
-          {updating && value !== '' ?
-            <button onClick={handleSave}><SaveIcon className={`text-success`} size={20} /></button> : null}
-          {updating ?
-            <button onClick={handleCancel}><XSquareIcon className={`text-warning`} size={20} /></button> : null}
-          {!updating ?
+          {updating &&
+            <button onClick={handleSave}><SaveIcon className={`text-success`} size={20} /></button>}
+          {updating &&
+            <button onClick={handleCancel}><XSquareIcon className={`text-warning`} size={20} /></button>}
+          {!updating &&
             <button className={`opacity-30 hover:opacity-100`} onClick={() => setUpdating(true)}><EditIcon size={20} />
-            </button> : null}
+            </button>}
         </div>
       </div>
     );
@@ -239,15 +249,15 @@ function ClientProfileDetailsInput({ field, index, change }) {
         <label className={`text-xs mb-1`}>{fieldLabelMap[field]}</label>
         <div className={`flex flex-row gap-2`}>
           <input disabled={!updating} type={fieldTypes[field]} name={field} id={field}
-                 defaultValue={change[field] || ''} onChange={handleChange} className={`input input-sm`}
+                 defaultValue={selectedClient[field] || ''} onChange={handleChange} className={`input input-sm`}
                  placeholder={fieldLabelMap[field]} />
-          {updating && change[field] !== '' ?
-            <button onClick={handleSave}><SaveIcon className={`text-success`} size={20} /></button> : null}
-          {updating ?
-            <button onClick={handleCancel}><XSquareIcon className={`text-warning`} size={20} /></button> : null}
-          {!updating ?
+          {updating &&
+            <button onClick={handleSave}><SaveIcon className={`text-success`} size={20} /></button>}
+          {updating &&
+            <button onClick={handleCancel}><XSquareIcon className={`text-warning`} size={20} /></button>}
+          {!updating &&
             <button className={`opacity-30 hover:opacity-100`} onClick={() => setUpdating(true)}><EditIcon size={20} />
-            </button> : null}
+            </button>}
         </div>
 
       </div>
