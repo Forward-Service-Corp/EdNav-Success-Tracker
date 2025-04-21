@@ -150,7 +150,7 @@ function ClientProfileTabeOrientation() {
           </div>
         </div>
       <div
-        className={`card card-sm bg-base-200 border-1 border-base-content/10 rounded-lg mr-6 p-6 shadow ${selectedClient?.transcripts.referralDate ? '' : 'opacity-50 blur-[2px]'}`}>
+        className={`card card-sm bg-base-200 border-1 border-base-content/10 rounded-lg mr-6 p-6 shadow ${selectedClient?.transcripts?.referralDate ? '' : 'opacity-50 blur-[2px]'}`}>
         <div className={`text-2xl`}>Transcripts</div>
         <div className="flex mt-6 gap-3 items-start">
           <div className={`w-1/2`}>
