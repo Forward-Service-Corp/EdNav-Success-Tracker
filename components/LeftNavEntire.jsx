@@ -17,13 +17,13 @@ export default function LeftNavEntire({setEditing}) {
           <LeftNavigation setEditing={setEditing} />
 
             <div className={`mb-2`}>
-                {session.data.user.level !== 'navigator' ? <NavigatorSelector/> : null}
+              {session?.data?.user?.level !== 'navigator' ? <NavigatorSelector /> : null}
                 <ThemeSwitcher/>
               <div className={`flex flex-col mt-8 p-3 bg-base-200`}>
-                <div className={`text-sm whitespace-nowrap`}>{session.data.user.name}</div>
-                <div className={`text-xs whitespace-nowrap`}>{session.data.user.email}</div>
-                <div className={`text-xs mb-4 whitespace-nowrap`}>{session.data.user.level}</div>
-                    {session.status === 'authenticated' ? <SignOutButton /> : <SignInButton />}
+                <div className={`text-sm whitespace-nowrap`}>{session?.data?.user?.name}</div>
+                <div className={`text-xs whitespace-nowrap`}>{session?.data?.user?.email}</div>
+                <div className={`text-xs mb-4 whitespace-nowrap`}>{session?.data?.user?.level}</div>
+                {session?.status === 'authenticated' ? <SignOutButton /> : <SignInButton />}
                 </div>
             </div>
 

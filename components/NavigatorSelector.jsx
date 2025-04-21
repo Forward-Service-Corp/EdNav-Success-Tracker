@@ -34,7 +34,7 @@ function NavigatorSelector() {
   }
 
   useEffect(() => {
-    getNavigatorData(session.data.user.name).then();
+    getNavigatorData(session?.data?.user?.name).then();
   }, [session])
 
   return (

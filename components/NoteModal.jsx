@@ -2,11 +2,11 @@
 import React, { useState } from 'react';
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
 
-import { useClients } from '@/contexts/ClientsContext';
-import { useNavigators } from '@/contexts/NavigatorsContext';
-// import * as response from 'next-auth/client/__tests__/helpers/mocks';
+import { useClients } from '../contexts/ClientsContext';
+import { useNavigators } from '../contexts/NavigatorsContext';
 
 export default function NoteModal({ open, setOpen, onSuccess }) {
+
   const { selectedClient } = useClients();
   const { selectedNavigator } = useNavigators();
   const [note, setNote] = useState(
@@ -34,7 +34,7 @@ export default function NoteModal({ open, setOpen, onSuccess }) {
         }
       };
 
-      // Send to the correct endpoint - /api/notes instead of /api/activities
+      // Send it to the correct endpoint - /api/notes instead of /api/activities
       const response = await fetch('/api/notes', {
         method: 'POST',
         headers: {
@@ -59,9 +59,15 @@ export default function NoteModal({ open, setOpen, onSuccess }) {
     }
   };
 
-  // const handleSave = async () => {
-  //
-  // };
+  const handleSaveNew = async () => {
+    const response = await fetch('/api/notes', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(note)
+    });
+  };
 
   const handleCancel = () => {
     setOpen('');
