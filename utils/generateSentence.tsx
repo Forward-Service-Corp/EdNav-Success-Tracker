@@ -1,12 +1,10 @@
 // utils/generateSentence.ts
 
 export function generateSentence(navigator: string, client: string, selections: string[], path: string[]) {
-  console.log('generateSentence called with:', { navigator, client, selections, path });
-  
+
   if (!path || path.length === 0) return "No information available.";
 
   const [group, ...rest] = path;
-  console.log('Group:', group, 'Rest of path:', rest);
 
   if (group === "adult") return handleAdult(navigator, client, selections, rest);
   if (group === "youth") return handleYouth(navigator, client, selections, rest);
@@ -15,14 +13,11 @@ export function generateSentence(navigator: string, client: string, selections: 
 }
 
 function handleAdult(navigator: string, client: string, selections: string[], path: string[]) {
-  console.log('handleAdult called with selections:', selections);
-  
+
   if (!path.length) return "An adult has some record.";
 
   const [section, ...rest] = path;
   const joined = rest.join(" → ");
-
-  console.log('Adult section:', section, 'Joined path:', joined);
 
   switch (section) {
     case "enrolled in":
@@ -53,9 +48,7 @@ function handleAdult(navigator: string, client: string, selections: string[], pa
       ]);
 
     case "needs": {
-      console.log('Handling \'needs\' case with selections:', selections);
       const readable = formatList(selections || []);
-      console.log('Formatted needs list:', readable);
       return pickRandom([
         `${navigator} determined that ${client} needs ${readable}.`,
         `${client} expressed needs for ${readable}, noted by ${navigator}.`,
@@ -86,7 +79,6 @@ function handleAdult(navigator: string, client: string, selections: string[], pa
     default:
       // Check if we have selections and this is a multi-select case
       if (selections && selections.length > 0) {
-        console.log('Using selections for default case:', selections);
         const readable = formatList(selections);
         return pickRandom([
           `${navigator} recorded that ${client} selected ${readable} for ${section}.`,
@@ -102,14 +94,11 @@ function handleAdult(navigator: string, client: string, selections: string[], pa
 }
 
 function handleYouth(navigator: string, client: string, selections: string[], path: string[]): string {
-  console.log('handleYouth called with selections:', selections);
-  
+
   if (!path.length) return "A youth has some record.";
 
   const [section, ...rest] = path;
   const joined = rest.join(" → ");
-
-  console.log('Youth section:', section, 'Joined path:', joined);
 
   switch (section) {
     case "attending":
@@ -158,9 +147,7 @@ function handleYouth(navigator: string, client: string, selections: string[], pa
       ]);
 
     case "supportive services": {
-      console.log('Handling \'supportive services\' case with selections:', selections);
       const readable = formatList(selections || []);
-      console.log('Formatted supportive services list:', readable);
       return pickRandom([
         `${navigator} determined that ${client} needs ${readable}.`,
         `${client} expressed needs for ${readable}, noted by ${navigator}.`,
@@ -173,7 +160,6 @@ function handleYouth(navigator: string, client: string, selections: string[], pa
     default:
       // Check if we have selections and this is a multi-select case
       if (selections && selections.length > 0) {
-        console.log('Using selections for default case:', selections);
         const readable = formatList(selections);
         return pickRandom([
           `${navigator} recorded that ${client} selected ${readable} for ${section}.`,
@@ -193,13 +179,11 @@ function pickRandom(choices: string[]): string {
 }
 
 function formatList(items: string[] | null | undefined): string {
-  console.log('formatList called with items:', items);
 
   if (!items || items.length === 0) return 'no specific items';
   if (items.length === 1) return items[0];
   if (items.length === 2) return `${items[0]} and ${items[1]}`;
 
   const result = `${items.slice(0, -1).join(', ')}, and ${items[items.length - 1]}`;
-  console.log('Formatted list result:', result);
   return result;
 }

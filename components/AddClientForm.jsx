@@ -281,7 +281,6 @@ function AddClientForm() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    console.log(name, value);
     // Special handling for phone numbers
     if (name === 'contactNumber') {
       const { formatted } = validation.formatPhoneNumber(value);

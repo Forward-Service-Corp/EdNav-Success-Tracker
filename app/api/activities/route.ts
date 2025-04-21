@@ -47,7 +47,6 @@ export async function POST(request: NextRequest) {
     }
     // Handle direct note submissions (where isNote is true at the top level)
     if (body.isNote === true) {
-      console.log('Processing note submission:', body);
 
       try {
         const clientId = body.clientId;
@@ -191,7 +190,7 @@ export async function POST(request: NextRequest) {
         {
           $set:
             {
-              orientation: {dateReferred: new Date().toISOString(), completedDate: null},
+              orientation: { referralDate: new Date().toISOString(), completionDate: null }
             }
         }
       )
@@ -202,7 +201,7 @@ export async function POST(request: NextRequest) {
         {
           $set:
             {
-              tabe: {dateReferred: new Date().toISOString(), completedDate: null},
+              tabe: { referralDate: new Date().toISOString(), completionDate: null }
             }
         }
       )

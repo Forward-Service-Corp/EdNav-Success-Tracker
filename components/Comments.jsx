@@ -27,10 +27,7 @@ export default function Comments({ actionId, actions }) {
       }
     });
     const data = await res.json();
-    console.log('comment saved', data);
     await setComments(data.comment);
-    await console.log('comments', comments);
-    // await getComments().then(data => setComments(data.comment));
   };
 
   const handleComment = async () => {

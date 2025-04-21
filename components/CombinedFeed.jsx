@@ -23,20 +23,12 @@ const CombinedFeed = () => {
     setError(null);
 
     try {
-      console.log('Fetching feed data for client:', selectedClient._id);
-      
       // Fetch activities, notes, and comments
       const [activitiesRes, notesRes, commentsRes] = await Promise.all([
         fetch(`/api/activities?clientId=${selectedClient._id}`),
         fetch(`/api/notes?clientId=${selectedClient._id}`),
         fetch(`/api/comments?clientId=${selectedClient._id}`)
       ]);
-
-      console.log('API Response status codes:', {
-        activities: activitiesRes.status,
-        notes: notesRes.status,
-        comments: commentsRes.status
-      });
 
       if (!activitiesRes.ok) throw new Error('Failed to fetch activities');
       if (!notesRes.ok) throw new Error('Failed to fetch notes');
@@ -45,8 +37,6 @@ const CombinedFeed = () => {
       const activitiesData = await activitiesRes.json();
       const notesData = await notesRes.json();
       const commentsData = await commentsRes.json();
-
-      console.log('Notes data received:', notesData);
 
       // Extract the activities array from the response
       const activities = activitiesData.data || [];
@@ -89,7 +79,7 @@ const CombinedFeed = () => {
 
       // Combine and sort by date (newest first)
       const combined = [...formattedActivities, ...formattedNotes]
-        .sort((a, b) => new Date(b.date) - new Date(a.date));
+        .sort((a, b) => new Date(a.date) - new Date(b.date));
 
       setFeedItems(combined);
     } catch (err) {
@@ -119,7 +109,7 @@ const CombinedFeed = () => {
           clientId: selectedClient._id,
           commentText,
           createdAt: new Date().toISOString(),
-          author: 'Current User' // Replace with actual user name from auth context
+          author: selectedClient.name
         })
       });
 

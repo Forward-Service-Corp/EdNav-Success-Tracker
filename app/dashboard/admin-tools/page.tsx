@@ -9,7 +9,6 @@ export default async function AdminTools() {
 
   // Check if the user is authenticated and has the proper level
   if (!session?.user?.level || !session.user.level.includes('admin')) {
-    console.log('Unauthorized user');
     return redirect('/dashboard');
   }
 

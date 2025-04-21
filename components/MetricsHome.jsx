@@ -1,5 +1,5 @@
-import React, {useEffect, useState} from "react";
-import {SignIn} from "@/components/sign-in";
+import React, { useEffect, useState } from 'react';
+import { SignIn } from '@/components/sign-in';
 
 
 export default function MetricsHome() {
@@ -14,12 +14,10 @@ export default function MetricsHome() {
             { name: " Graduations Last Month", value: data.graduatedClientsPerMonth[data.graduatedClientsPerMonth.length - 1].count },
             { name: " Referrals Last Month", value: data.clientsReferredPerMonth[data.clientsReferredPerMonth.length - 1].count },
         ]);
-        console.log(data);
     }
 
     useEffect(() => {
-        fetchMetrics().then(
-            () => console.log('Metrics fetched'))
+        fetchMetrics().then();
     }, []);
 
     return (

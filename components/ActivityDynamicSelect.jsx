@@ -34,8 +34,6 @@ const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
     if (multi) {
       // For multi-select, use the current path
       data.path = selectedPath;
-      console.log('Multi-select values:', multiSelectValues);
-      console.log('Selected path for multi-select:', selectedPath);
       data.statement = generateSentence(
         selectedClient['navigator'],
         selectedClient['first_name'] + ' ' + selectedClient['last_name'],
@@ -52,9 +50,6 @@ const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
         newPath
       );
     }
-
-    console.log('Generated statement:', data.statement);
-    console.log('Sending data to API:', data);
 
     try {
       // Use relative URL instead of hardcoded localhost
@@ -102,9 +97,6 @@ const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
         setSelectedPath([autoSelection]);
         setCurrentObject(questions[autoSelection]);
         let options = Object.keys(questions[autoSelection]);
-        if (selectedClient?.trackable?.program === 'GED' || selectedClient?.trackable?.program === 'HSED') {
-          options = options.filter(opt => opt !== 'GED' && opt !== 'HSED');
-        }
         setCurrentOptions(options);
       }
     }
@@ -139,7 +131,6 @@ const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
     if (newObject && typeof newObject === 'object') {
       if (Object.keys(newObject).length > 0 && Object.hasOwn(newObject, 'other')) {
         setCurrentOptions(prevState => {
-          console.log(prevState, newObject, selectedValue, selectedPath);
           return [...prevState, 'hasTextInput'];
         });
         setTextInput('hasTextInput');
@@ -168,9 +159,6 @@ const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
       } else {
         setMultiSelectOptions(null);
         let options = Object.keys(newObject);
-        if (selectedClient?.trackable?.program === 'GED' || selectedClient?.trackable?.program === 'HSED') {
-          options = options.filter(opt => opt !== 'GED' && opt !== 'HSED');
-        }
         setCurrentOptions(options);
       }
     } else if (Array.isArray(newObject)) {
@@ -195,7 +183,6 @@ const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
   };
 
   const handleMultiSelectChange = (option, index) => {
-    console.log(option, index);
     setMultiSelectValues((prev) => {
       if (prev.includes(option)) {
         if (trackable && trackable.items.length > 0) {
@@ -227,10 +214,8 @@ const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
   };
 
   const handleMultiSelectAdvance = async () => {
-    console.log('Multi-select advancing with values:', multiSelectValues);
-    console.log('Current path:', selectedPath);
 
-    // Make sure we're sending true to indicate this is a multi-select submission
+    // Make sure we're sending it true to indicate this is a multi-select submission
     await saveSelectionToMongoDB(selectedPath, true);
     
     setMultiSelectOptions(null);

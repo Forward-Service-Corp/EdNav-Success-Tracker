@@ -29,7 +29,7 @@ function NavigatorSelector() {
       const data = await response.json();
       await setSelectedNavigator(data);
     } catch (error) {
-      console.log(error);
+      console.warn(error);
     }
   }
 

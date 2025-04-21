@@ -51,7 +51,7 @@ const navigators = [
 ];
 
 function ClientProfileDetailsInput({ field, index, feps }) {
-  const { selectedClient } = useClients();
+  const { selectedClient, setSelectedClient } = useClients();
   const [updating, setUpdating] = useState(false);
   const [clientCopy, setClientCopy] = useState({});
 
@@ -145,6 +145,13 @@ function ClientProfileDetailsInput({ field, index, feps }) {
     const data = await response.json();
     if (data) {
       setUpdating(false);
+      setSelectedClient(prev => {
+        return {
+          ...prev,
+          [field]: data.user[field],
+          changed: true
+        };
+      });
     } else {
       console.error(
         `There was an error updating the client.`

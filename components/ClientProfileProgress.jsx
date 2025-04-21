@@ -24,8 +24,6 @@ function ClientProfileProgress({ hasTrackable, setHasTrackable, updated, setUpda
     const data = await res.json();
     if (data.error) {
       console.error(data.error);
-    }else {
-      console.log("data", data);
     }
     setUpdated(false);
   }

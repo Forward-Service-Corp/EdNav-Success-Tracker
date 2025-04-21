@@ -1,11 +1,10 @@
-import {NextRequest, NextResponse} from "next/server";
+import { NextRequest, NextResponse } from 'next/server';
 // import {cookies} from "next/headers";
-import * as jose from "jose";
+import * as jose from 'jose';
 
 let key = new TextEncoder().encode()
 
 export async function encrypt(payload) {
-    console.log(payload)
     return await new jose.SignJWT(payload)
         .setProtectedHeader({
             "alg": 'HS256',

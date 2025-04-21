@@ -13,7 +13,6 @@ export async function GET(request: NextRequest) {
 
     // Filter by clientId if provided
     if (clientId && !activityId) {
-      console.log('Fetching notes for clientId:', clientId);
       try {
         // Try to convert to ObjectId if it's a valid format
         const query = { clientId: clientId };
@@ -21,8 +20,6 @@ export async function GET(request: NextRequest) {
           .find(query)
           .sort({ createdAt: -1 })
           .toArray();
-
-        console.log(`Found ${notes.length} notes for client ${clientId}`);
       } catch (err) {
         console.error('Error processing clientId:', err);
         // Fallback to string comparison if ObjectId conversion fails
@@ -58,9 +55,8 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    console.log('Received note data:', body);
 
-    // Support both nested 'note' object and flat structure
+    // Support both a nested 'note' object and flat structure
     const noteData = body.note || body;
 
     if (!noteData) {
@@ -85,9 +81,7 @@ export async function POST(request: NextRequest) {
       noteToInsert.clientId = noteData.clientId.toString();
     }
 
-    console.log('Inserting note:', noteToInsert);
     const result = await collection.insertOne(noteToInsert);
-    console.log('Note inserted with ID:', result.insertedId);
 
     return NextResponse.json({
       message: 'Note added successfully',

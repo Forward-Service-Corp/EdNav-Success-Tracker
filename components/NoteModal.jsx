@@ -21,7 +21,7 @@ export default function NoteModal({ open, setOpen, onSuccess }) {
 
   const handleSave = async () => {
     try {
-      console.log('Saving note:', note);
+
 
       // Format the note data correctly for the /api/notes endpoint
       const noteData = {
@@ -45,7 +45,7 @@ export default function NoteModal({ open, setOpen, onSuccess }) {
 
       if (response.ok) {
         const data = await response.json();
-        console.log('Note saved successfully:', data);
+
         setOpen('');
         setNote(prev => ({ ...prev, noteContent: '' }));
         if (onSuccess) onSuccess(data);
