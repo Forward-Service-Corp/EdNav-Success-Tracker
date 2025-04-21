@@ -14,13 +14,6 @@ const CommentDebugger = () => {
   const [error, setError] = useState(null);
   const [comments, setComments] = useState([]);
 
-  // Fetch comments when a client changes
-  useEffect(() => {
-    if (selectedClient?._id) {
-      fetchComments().then();
-    }
-  }, [selectedClient]);
-
   const fetchComments = async () => {
     if (!selectedClient?._id) {
       setError("No client selected");
@@ -79,7 +72,7 @@ const CommentDebugger = () => {
           clientId: selectedClient._id,
           commentText,
           createdAt: new Date().toISOString(),
-          author: "Debug User,
+          author: "Debug User",
         }),
       });
 
@@ -127,13 +120,13 @@ const CommentDebugger = () => {
       const response = await fetch("/api/comments/test", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           parentId,
           clientId: selectedClient._id,
           commentText: commentText.trim(),
-          author: "Test API User"
+          author: "Test API User",
         }),
       });
 
@@ -141,13 +134,13 @@ const CommentDebugger = () => {
 
       if (!response.ok) {
         throw new Error(
-          data.error || "Failed to add comment with test endpoint"
+          data.error || "Failed to add comment with test endpoint",
         );
       }
 
       setResult({
         ...data,
-        source: "Test API"
+        source: "Test API",
       });
       await fetchComments();
     } catch (err) {
@@ -157,6 +150,13 @@ const CommentDebugger = () => {
       setIsSubmitting(false);
     }
   };
+
+  // Fetch comments when a client changes
+  useEffect(() => {
+    if (selectedClient?._id) {
+      fetchComments().then();
+    }
+  }, [selectedClient, fetchComments]);
 
   return (
     <div className="bg-base-200 border-base-300 mt-4 rounded-lg border p-4">
