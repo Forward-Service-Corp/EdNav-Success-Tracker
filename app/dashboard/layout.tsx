@@ -12,7 +12,7 @@ export default async function DashboardLayout({
 }) {
   const session = await getServerSession(authOptions);
 
-  // If not logged in, redirect to login
+  // If not logged in, redirect to log in
   if (!session) {
     return redirect('/login');
   }

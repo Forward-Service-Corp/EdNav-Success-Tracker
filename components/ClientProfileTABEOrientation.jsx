@@ -41,7 +41,14 @@ function ClientProfileTabeOrientation() {
   }
 
   return (
-    <div className="grid grid-cols-1 gap-6 text-xs">
+    <div className="grid grid-cols-1 gap-6 text-xs relative">
+      <div
+        className={`absolute flex top-0 right-0 left-0 bottom-0 justify-center items-center ${selectedClient?.orientation?.referralDate || selectedClient?.tabe?.referralDate ? 'invisible' : 'visible'}`}>
+        <div
+          className={`max-w-3/4 text-center text-sm text-base-content bg-base-300/70 p-6 rounded-lg shadow-lg z-50 m-auto`}>
+          Add an activity regarding Orientation, TABE, or Transcripts to activate this area.
+        </div>
+      </div>
       <div
         className={`card card-sm bg-base-200 border-1 border-base-content/10 rounded-lg mr-6 p-6 shadow ${selectedClient?.orientation?.referralDate ? '' : 'opacity-50 blur-[2px]'}`}>
         <div className={`text-2xl`}>Orientation</div>
