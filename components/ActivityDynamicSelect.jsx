@@ -120,8 +120,9 @@ const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
     }
 
     if (newObject && typeof newObject === 'object') {
-      if (Object.keys(newObject).length > 0 && Object.hasOwn(newObject, 'textInput')) {
+      if (Object.keys(newObject).length > 0 && Object.hasOwn(newObject, 'other')) {
         setCurrentOptions(prevState => {
+          console.log(prevState, newObject, selectedValue, selectedPath);
           return [...prevState, 'hasTextInput'];
         });
         setTextInput('hasTextInput');

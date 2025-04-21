@@ -17,7 +17,7 @@ export default function ActivityModal({ open, setOpen, onSuccess }) {
     return cleanedQuestions
   }
 
-  const handleActivitySaved = async (result) => {
+  const handleActivitySaved = async () => {
     // ... any existing success handling
 
     // Call the onSuccess callback to refresh the parent feed
