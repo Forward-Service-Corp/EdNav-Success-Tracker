@@ -17,6 +17,7 @@ export default function ClientProfile() {
     const [hasTrackableCopy, setHasTrackableCopy] = useState([]);
     const [updated, setUpdated] = useState(false);
 
+
     useEffect(() => {
         setIsMounted(true); // ✅ Mark component as mounted before interacting with localStorage
         if (typeof window !== "undefined") {
@@ -68,7 +69,7 @@ export default function ClientProfile() {
       <div className={`w-full h-full overflow-y-scroll no-scrollbar relative`}>
           <ClientProfileHeader />
           <div className={`mt-[30px] grid grid-cols-4 gap-4 `}>
-              <div className={`col-span-4 min-h-30 `}>
+              <div className={`col-span-4 `}>
                   <ClientProfilePersonalOrganization />
               </div>
               <div className={`col-span-4 min-h-30 `}>

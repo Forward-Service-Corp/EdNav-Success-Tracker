@@ -91,7 +91,6 @@ function ClientProfileDetailsInput({ field, index, change, handleChange }) {
             <button className={`opacity-30 hover:opacity-100`} onClick={() => setUpdating(true)}><EditIcon size={20} />
             </button> : null}
         </div>
-
       </div>
     );
   } else if (fieldType === 'select') {

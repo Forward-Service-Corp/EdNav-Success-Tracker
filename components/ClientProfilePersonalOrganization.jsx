@@ -25,6 +25,7 @@ function ClientProfilePersonalOrganization() {
     schoolIfEnrolled: selectedClient?.schoolIfEnrolled || '',
     ttsDream: selectedClient?.ttsDream || ''
   });
+  const [detailsOpen, setDetailsOpen] = useState(false);
 
   // Reset form when editing state changes
   useEffect(() => {
@@ -58,10 +59,17 @@ function ClientProfilePersonalOrganization() {
   };
 
   return (
-    <div className={`bg-base-300 p-6 border-1 border-base-content/10 mx-6 rounded-lg`}>
+    <div
+      className={`bg-base-300 border-1 border-base-content/10 mx-6 rounded-lg transition-all duration-700 ${detailsOpen ? 'p-6' : 'py-4 px-6 h-20 overflow-hidden'} `}>
+      <div className={`flex items-center justify-between mb-6`}>
+        <div className={`text-2xl`}>Personal Details</div>
+        <div className={``} onClick={() => setDetailsOpen(!detailsOpen)}>
+          <button className={`btn btn-soft btn-primary`}>View & Edit</button>
+        </div>
+      </div>
+
       <div
         className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8`}>
-        <div className={`text-2xl col-span-3`}>Personal Details</div>
 
         {error && (
           <div className="col-span-full bg-error/20 text-error px-4 py-2 rounded-md mb-4">
