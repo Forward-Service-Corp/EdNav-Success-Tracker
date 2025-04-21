@@ -16,7 +16,7 @@ export default function ClientProfileHeader() {
       <div className={`flex items-center gap-4`}>
         <ClientProfilePin />
         <div
-          className={`text-xl`}>{selectedClient && !selectedClient?.name ? selectedClient?.first_name + ' ' + selectedClient?.last_name : selectedClient?.name}</div>
+          className={`text-xl`}>{selectedClient?.first_name + ' ' + selectedClient?.last_name}</div>
 
         <div className={`pr-4`}>
           <div className={`${getBadgeColor(selectedClient?.clientStatus)}`}>{selectedClient?.clientStatus}</div>

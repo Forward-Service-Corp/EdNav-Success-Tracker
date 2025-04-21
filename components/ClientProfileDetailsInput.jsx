@@ -1,11 +1,60 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { EditIcon, SaveIcon, XSquareIcon } from 'lucide-react';
 import { useClients } from '@/contexts/ClientsContext';
 
-function ClientProfileDetailsInput({ field, index, change, handleChange }) {
+const counties = ['Brown',
+  'Calumet',
+  'Columbia',
+  'Dane',
+  'Fond du Lac',
+  'Grant',
+  'Green',
+  'Jefferson',
+  'Manitowoc',
+  'Marathon',
+  'Outagamie',
+  'Portage',
+  'Rock',
+  'Shawano',
+  'Sheboygan',
+  'Waupaca',
+  'Waushara',
+  'Winnebago',
+  'Wood'];
+const lastGrades = [
+  '5th',
+  '6th',
+  '7th',
+  '8th',
+  '9th',
+  '10th',
+  '11th',
+  '12th - No Diploma',
+  'Foreign Diploma',
+  'GED',
+  'No Formal Education'
+];
+const navigators = [
+  'Andrew McCauley',
+  'Ashleigh Chesney',
+  'Corine Boelk',
+  'Hailey Jester',
+  'Kecia Thompson-Gordon',
+  'Marissa Foth',
+  'Morgan Sole',
+  'Rachael Banerdt',
+  'Rich Basche',
+  'Sara Jackson',
+  'Stacy Martinez',
+  'Trevor Brunette'
+];
+
+function ClientProfileDetailsInput({ field, index, change }) {
   const { selectedClient } = useClients();
   const [updating, setUpdating] = useState(false);
   const [value, setValue] = useState('');
+  const [feps, setFeps] = useState([]);
+
   const fieldLabelMap = {
     first_name: 'First Name',
     last_name: 'Last Name',
@@ -31,7 +80,6 @@ function ClientProfileDetailsInput({ field, index, change, handleChange }) {
     email: 'email',
     contactNumber: 'text',
     caseNumber: 'text',
-    dob: 'date',
     fep: 'select',
     navigator: 'select',
     dateReferred: 'date',
@@ -40,11 +88,24 @@ function ClientProfileDetailsInput({ field, index, change, handleChange }) {
     region: 'select',
     clientStatus: 'select',
     county: 'select',
-    group: 'select',
     schoolIfEnrolled: 'select',
     ttsDream: 'textarea'
   };
   console.log(change);
+
+  const fetchFeps = async () => {
+    let feps = [];
+    const response = await fetch(`/api/feps`);
+    const data = await response.json();
+    await data.forEach(fep => {
+      feps.push(fep.name);
+    });
+    setFeps(feps);
+  };
+
+  useEffect(() => {
+    fetchFeps().then();
+  }, []);
 
 // Format date values properly
   const formatDateValue = () => {
@@ -68,7 +129,32 @@ function ClientProfileDetailsInput({ field, index, change, handleChange }) {
   const fieldType = fieldTypes[field];
   console.log(fieldType);
 
-  const handleSave = () => {
+  const handleChange = (e) => {
+    setValue(e.target.value);
+  };
+
+  const handleSave = async () => {
+    const response = await fetch(`/api/clients/update`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        _id: selectedClient._id,
+        data: { [field]: value }
+      })
+    });
+
+    const data = await response.json();
+    if (data) {
+      alert(
+        `Client has been updated.`
+      );
+    } else {
+      alert(
+        `There was an error updating the client.`
+      );
+    }
   };
 
   const handleCancel = () => {
@@ -83,8 +169,8 @@ function ClientProfileDetailsInput({ field, index, change, handleChange }) {
         <div className={`flex flex-row gap-2`}>
           <input disabled={!updating} type={fieldType} name={field} id={field} defaultValue={formatDateValue}
                  onChange={handleChange} className={`input input-sm`} placeholder={fieldLabelMap[field]} />
-          {updating && value !== '' ?
-            <button onClick={handleSave}><SaveIcon className={`text-success`} size={20} /></button> : null}
+
+          <button onClick={handleSave}><SaveIcon className={`text-success`} size={20} /></button>
           {updating ?
             <button onClick={handleCancel}><XSquareIcon className={`text-warning`} size={20} /></button> : null}
           {!updating ?
@@ -94,6 +180,21 @@ function ClientProfileDetailsInput({ field, index, change, handleChange }) {
       </div>
     );
   } else if (fieldType === 'select') {
+
+    let options = [];
+    if (field === 'fep') {
+      options = feps;
+    } else if (field === 'navigator') {
+      options = navigators;
+    } else if (field === 'county') {
+      options = counties;
+    } else if (field === 'lastGrade') {
+      options = lastGrades;
+    } else if (field === 'region') {
+      options = ['1', '2', '3', '4', '5', '6'];
+    } else if (field === 'clientStatus') {
+      options = ['Active', 'In Progress', 'Graduated', 'Inactive'];
+    }
     return (
       <div className={`flex flex-col`} key={index}>
         <label className={`text-xs mb-1`}>{fieldLabelMap[field]}</label>
@@ -101,7 +202,7 @@ function ClientProfileDetailsInput({ field, index, change, handleChange }) {
           <select disabled={!updating} name={field} id={field} defaultValue={change[field]} onChange={handleChange}
                   className={`input input-sm`}>
             <option value="">Select {fieldLabelMap[field]}</option>
-            {Array.isArray(change[field]) && change[field].map((option, i) => (
+            {options.map((option, i) => (
               <option key={i} value={option}>{option}</option>
             ))}
           </select>
@@ -140,7 +241,7 @@ function ClientProfileDetailsInput({ field, index, change, handleChange }) {
           <input disabled={!updating} type={fieldTypes[field]} name={field} id={field}
                  defaultValue={change[field] || ''} onChange={handleChange} className={`input input-sm`}
                  placeholder={fieldLabelMap[field]} />
-          {updating && value !== '' ?
+          {updating && change[field] !== '' ?
             <button onClick={handleSave}><SaveIcon className={`text-success`} size={20} /></button> : null}
           {updating ?
             <button onClick={handleCancel}><XSquareIcon className={`text-warning`} size={20} /></button> : null}
