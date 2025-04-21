@@ -1,35 +1,37 @@
-import React, { useState, useEffect } from 'react';
-import { useClients } from '@/contexts/ClientsContext';
+import React, { useEffect, useState } from "react";
+import { useClients } from "@/contexts/ClientsContext";
 
 /**
- * A debugging component to help troubleshoot comment saving issues
+ * A debugging component to help troubleshoot comment-saving issues
  * You can add this temporarily to any page that needs comment debugging
  */
 const CommentDebugger = () => {
   const { selectedClient } = useClients();
-  const [parentId, setParentId] = useState('');
-  const [commentText, setCommentText] = useState('Test comment');
+  const [parentId, setParentId] = useState("");
+  const [commentText, setCommentText] = useState("Test comment");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
   const [comments, setComments] = useState([]);
 
-  // Fetch comments when client changes
+  // Fetch comments when a client changes
   useEffect(() => {
     if (selectedClient?._id) {
-      fetchComments();
+      fetchComments().then();
     }
   }, [selectedClient]);
 
   const fetchComments = async () => {
     if (!selectedClient?._id) {
-      setError('No client selected');
+      setError("No client selected");
       return;
     }
 
     try {
       setError(null);
-      const response = await fetch(`/api/comments?clientId=${selectedClient._id}`);
+      const response = await fetch(
+        `/api/comments?clientId=${selectedClient._id}`,
+      );
 
       if (!response.ok) {
         throw new Error(`Failed to fetch comments: ${response.status}`);
@@ -38,7 +40,7 @@ const CommentDebugger = () => {
       const data = await response.json();
       setComments(Array.isArray(data) ? data : []);
     } catch (err) {
-      console.error('Error fetching comments:', err);
+      console.error("Error fetching comments:", err);
       setError(err.message);
     }
   };
@@ -48,17 +50,17 @@ const CommentDebugger = () => {
     e.preventDefault();
 
     if (!selectedClient?._id) {
-      setError('No client selected');
+      setError("No client selected");
       return;
     }
 
     if (!parentId) {
-      setError('Please enter a parent ID');
+      setError("Please enter a parent ID");
       return;
     }
 
     if (!commentText.trim()) {
-      setError('Please enter comment text');
+      setError("Please enter comment text");
       return;
     }
 
@@ -67,33 +69,33 @@ const CommentDebugger = () => {
     setResult(null);
 
     try {
-      const response = await fetch('/api/comments', {
-        method: 'POST',
+      const response = await fetch("/api/comments", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           parentId,
           clientId: selectedClient._id,
           commentText,
           createdAt: new Date().toISOString(),
-          author: 'Debug User'
-        })
+          author: "Debug User",
+        }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to add comment');
+        throw new Error(data.error || "Failed to add comment");
       }
 
       setResult({
         ...data,
-        source: 'Regular API'
+        source: "Regular API",
       });
       await fetchComments();
     } catch (err) {
-      console.error('Error adding comment:', err);
+      console.error("Error adding comment:", err);
       setError(err.message);
     } finally {
       setIsSubmitting(false);
@@ -103,17 +105,17 @@ const CommentDebugger = () => {
   // Handle submission through the test endpoint
   const handleTestSubmit = async () => {
     if (!selectedClient?._id) {
-      setError('No client selected');
+      setError("No client selected");
       return;
     }
 
     if (!parentId) {
-      setError('Please enter a parent ID');
+      setError("Please enter a parent ID");
       return;
     }
 
     if (!commentText.trim()) {
-      setError('Please enter comment text');
+      setError("Please enter comment text");
       return;
     }
 
@@ -122,32 +124,34 @@ const CommentDebugger = () => {
     setResult(null);
 
     try {
-      const response = await fetch('/api/comments/test', {
-        method: 'POST',
+      const response = await fetch("/api/comments/test", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           parentId,
           clientId: selectedClient._id,
           commentText: commentText.trim(),
-          author: 'Test API User'
-        })
+          author: "Test API User",
+        }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to add comment with test endpoint');
+        throw new Error(
+          data.error || "Failed to add comment with test endpoint",
+        );
       }
 
       setResult({
         ...data,
-        source: 'Test API'
+        source: "Test API",
       });
       await fetchComments();
     } catch (err) {
-      console.error('Error adding comment with test endpoint:', err);
+      console.error("Error adding comment with test endpoint:", err);
       setError(err.message);
     } finally {
       setIsSubmitting(false);
@@ -155,8 +159,8 @@ const CommentDebugger = () => {
   };
 
   return (
-    <div className="p-4 bg-base-200 rounded-lg border border-base-300 mt-4">
-      <h2 className="text-lg font-semibold mb-4">Comment Debugger</h2>
+    <div className="bg-base-200 border-base-300 mt-4 rounded-lg border p-4">
+      <h2 className="mb-4 text-lg font-semibold">Comment Debugger</h2>
 
       {!selectedClient?._id ? (
         <div className="alert alert-warning mb-4">
@@ -164,9 +168,14 @@ const CommentDebugger = () => {
         </div>
       ) : (
         <div className="mb-4">
-          <p><strong>Selected
-            Client:</strong> {selectedClient.name || `${selectedClient.first_name} ${selectedClient.last_name}`}</p>
-          <p><strong>Client ID:</strong> {selectedClient._id}</p>
+          <p>
+            <strong>Selected Client:</strong>{" "}
+            {selectedClient.name ||
+              `${selectedClient.first_name} ${selectedClient.last_name}`}
+          </p>
+          <p>
+            <strong>Client ID:</strong> {selectedClient._id}
+          </p>
         </div>
       )}
 
@@ -183,7 +192,9 @@ const CommentDebugger = () => {
             placeholder="Enter activity or note ID"
           />
           <label className="label">
-            <span className="label-text-alt">This is the MongoDB _id of the parent item</span>
+            <span className="label-text-alt">
+              This is the MongoDB _id of the parent item
+            </span>
           </label>
         </div>
 
@@ -208,7 +219,9 @@ const CommentDebugger = () => {
           >
             {isSubmitting ? (
               <span className="loading loading-spinner loading-xs"></span>
-            ) : 'Add Comment (Regular)'}
+            ) : (
+              "Add Comment (Regular)"
+            )}
           </button>
 
           <button
@@ -239,44 +252,48 @@ const CommentDebugger = () => {
       {result && (
         <div className="mb-4">
           <h3 className="font-medium">Last Result ({result.source}):</h3>
-          <pre className="text-xs bg-base-300 p-2 rounded mt-2 overflow-x-auto">
+          <pre className="bg-base-300 mt-2 overflow-x-auto rounded p-2 text-xs">
             {JSON.stringify(result, null, 2)}
           </pre>
         </div>
       )}
 
       <div>
-        <h3 className="font-medium mb-2">Recent Comments ({comments.length})</h3>
+        <h3 className="mb-2 font-medium">
+          Recent Comments ({comments.length})
+        </h3>
 
         {comments.length === 0 ? (
-          <div className="text-center py-4 text-base-content/70">
+          <div className="text-base-content/70 py-4 text-center">
             No comments found for this client
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="table table-compact w-full">
+            <table className="table-compact table w-full">
               <thead>
-              <tr>
-                <th>ID</th>
-                <th>Parent ID</th>
-                <th>Author</th>
-                <th>Text</th>
-                <th>Created</th>
-              </tr>
+                <tr>
+                  <th>ID</th>
+                  <th>Parent ID</th>
+                  <th>Author</th>
+                  <th>Text</th>
+                  <th>Created</th>
+                </tr>
               </thead>
               <tbody>
-              {comments.map(comment => (
-                <tr key={comment._id} className="hover">
-                  <td className="text-xs">{comment._id}</td>
-                  <td className="text-xs">{comment.parentId}</td>
-                  <td>{comment.author}</td>
-                  <td className="whitespace-normal break-words max-w-xs">
-                    {comment.commentText?.substring(0, 30)}
-                    {comment.commentText?.length > 30 ? '...' : ''}
-                  </td>
-                  <td className="text-xs">{new Date(comment.createdAt).toLocaleString()}</td>
-                </tr>
-              ))}
+                {comments.map((comment) => (
+                  <tr key={comment._id} className="hover">
+                    <td className="text-xs">{comment._id}</td>
+                    <td className="text-xs">{comment.parentId}</td>
+                    <td>{comment.author}</td>
+                    <td className="max-w-xs break-words whitespace-normal">
+                      {comment.commentText?.substring(0, 30)}
+                      {comment.commentText?.length > 30 ? "..." : ""}
+                    </td>
+                    <td className="text-xs">
+                      {new Date(comment.createdAt).toLocaleString()}
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>

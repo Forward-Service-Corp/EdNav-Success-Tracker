@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { Input } from '/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger } from '/components/ui/select';
-import NavigatorSelector from '/components/NavigatorSelector';
-import ClientTable from './ClientTable';
-import { useFepsLeft } from '../contexts/FepsLeftContext';
+import React, { useEffect, useState } from "react";
+import { Input } from "/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger } from "/components/ui/select";
+import NavigatorSelector from "/components/NavigatorSelector";
+import ClientTable from "./ClientTable";
+import { useFepsLeft } from "../contexts/FepsLeftContext";
 
 const FilteredClients = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -49,42 +49,56 @@ const FilteredClients = () => {
     });
 
     return (
-        <div className="p-4 space-y-4">
-            <NavigatorSelector value={selectedNavigator} onChange={setSelectedNavigator} />
+      <div className="space-y-4 p-4">
+        <NavigatorSelector
+          value={selectedNavigator}
+          onChange={setSelectedNavigator}
+        />
 
-            <div className="flex space-x-4">
-                <Input
-                    placeholder="Search by name"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full"
-                />
+        <div className="flex space-x-4">
+          <Input
+            placeholder="Search by name"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full"
+          />
 
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger>Status</SelectTrigger>
-                    <SelectContent>
-                        {['All', 'Active', 'In Progress', 'Graduated', 'Inactive'].map((status: string) => (
-                          <SelectItem key={status} value={status}>{status}</SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger>Status</SelectTrigger>
+            <SelectContent>
+              {["All", "Active", "In Progress", "Graduated", "Inactive"].map(
+                (status) => (
+                  <SelectItem key={status} value={status}>
+                    {status}
+                  </SelectItem>
+                ),
+              )}
+            </SelectContent>
+          </Select>
 
-                <Select value={groupFilter} onValueChange={setGroupFilter}>
-                    <SelectTrigger>Group</SelectTrigger>
-                    <SelectContent>
-                        {['All', 'Adult', 'Youth'].map((group: string) => (
-                            <SelectItem key={group} value={group}>{group}</SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-            </div>
-
-            {loading ? (
-                <div>Loading clients...</div>
-            ) : (
-                <ClientTable clients={filteredClients} searchTerm={searchTerm} statusFilter={statusFilter} groupFilter={groupFilter} />
-            )}
+          <Select value={groupFilter} onValueChange={setGroupFilter}>
+            <SelectTrigger>Group</SelectTrigger>
+            <SelectContent>
+              {["All", "Adult", "Youth"].map((group) => (
+ "All"  "Adult" <"Youth"tem key={group} value={group}>
+                  {group}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
+
+        {loading ? (
+          <div>Loading clients...</div>
+        ) : (
+          <ClientTable
+            clients={filteredClients}
+            searchTerm={searchTerm}
+            statusFilter={statusFilter}
+            groupFilter={groupFilter}
+          />
+        )}
+      </div>
     );
 };
 
