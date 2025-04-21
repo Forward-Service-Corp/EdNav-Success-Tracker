@@ -97,33 +97,61 @@ export default function ClientTable({ menuOpen, setMenuOpen }) {
   // ✅ Prevent hydration mismatch by rendering only after mount
   if (!isMounted) return null;
   return (
-    <div className={`relative`}>
+    <div className={`relative h-full`}>
       <div
-        className="h-[80px] shadow-lg sticky top-0">
+        className="h-[80px] shadow-lg sticky top-0 z-10 bg-base-100 w-full">
         <SearchField menuOpen={menuOpen} setMenuOpen={setMenuOpen} setFilterOpen={setFilterOpen}
                      filterOpen={filterOpen} setViewMode={setViewMode} setStatusCollapse={setStatusCollapse} />
       </div>
-      <div className={`w-full h-full`}>
-        <div className={`overflow-y-scroll w-full no-scrollbar`}>
-          <table className={`w-full ${!filterOpen ? '' : 'mt-[45px]'}`}>
-            <tbody className="w-full">
+      <div className={`w-full h-full relative`}>
+        <div className={`overflow-y-auto max-h-[calc(100vh-80px)] w-full no-scrollbar`}>
+          <table className={`w-full ${!filterOpen ? '' : 'mt-[45px]'} table-auto`}>
+            <thead className="w-full">
+            <tr className="w-full text-left text-xs">
+              <th className={`pl-6`}>
+                Name
+              </th>
+              <th className={`${menuOpen ? 'hidden' : ''}`}>
+                Last Activity
+              </th>
+              <th className={`${menuOpen ? 'hidden' : ''}`}>
+                Group
+              </th>
+              <th className={`${menuOpen ? 'hidden' : ''}`}>
+                FEP
+              </th>
+              <th className={`${menuOpen ? 'hidden' : ''}`}>
+                Region
+              </th>
+              <th className={``}>
+                Pin
+              </th>
+              <th className={`py-2 text-sm items-center cursor-pointer col-span-1`}>
+                Status
+              </th>
+            </tr>
+            </thead>
+            <tbody className="w-full relative h-full">
             {viewMode === 'grouped' ? (
               Object.entries(clientsToShow).map(([status, clients], idx) => (
                 <React.Fragment key={status}>
-                  <tr
-                    className={`${getBGColor(status)} ${statusCollapse.includes(status) ? 'hidden' : ''}`}>
-                    <td onClick={() => handleCollapseChange(status)}
-                        className={`py-2 text-sm flex w-full justify-between items-center cursor-pointer`}>
-                      <span className={`w-6/7 text-left font-bold pl-3`}>{status}</span>
-                      <span className={`w-[30px] mr-3 text-center`}>
-                                              {!statusCollapse.includes(status) ?
-                                                <Eye size={27} className={getBGColor(status)} /> :
-                                                <EyeClosed size={27} className={getBGColor(status)} />}
-                                          </span>
+                  {/*<tr className={`${getBGColor(status)} ${statusCollapse.includes(status) ? 'hidden' : ''}`}>*/}
+                  <tr className={`${getBGColor(status)}`} onClick={() => handleCollapseChange(status)}>
+                    <td className={`py-2 text-sm items-center cursor-pointer`}>
+                      <span className={`ml-6 font-bold`}>{status}</span></td>
+                    <td className={`${menuOpen ? 'hidden' : ''}`}></td>
+                    <td className={`${menuOpen ? 'hidden' : ''}`}></td>
+                    <td className={`${menuOpen ? 'hidden' : ''}`}></td>
+                    <td></td>
+                    <td className={`align-middle`}>
+                      {!statusCollapse.includes(status) ?
+                        <Eye size={27} className={getBGColor(status)} /> :
+                        <EyeClosed size={27} className={getBGColor(status)} />}
                     </td>
                   </tr>
                   {clients.map((person, i) => (
-                    <ClientTableItem key={`${idx}-${i}`} person={person} i={i} statusCollapse={statusCollapse} />
+                    <ClientTableItem key={`${idx}-${i}`} person={person} i={i} statusCollapse={statusCollapse}
+                                     menuOpen={menuOpen} filterOpen={filterOpen} />
                   ))}
                 </React.Fragment>
               ))
@@ -131,7 +159,7 @@ export default function ClientTable({ menuOpen, setMenuOpen }) {
               Array.isArray(clientsToShow) && clientsToShow.length > 0 ? (
                 clientsToShow.map((person, i) => (
                   <ClientTableItem key={i} person={person} i={i} statusCollapse={statusCollapse}
-                                   menuOpen={menuOpen} />
+                                   menuOpen={menuOpen} filterOpen={filterOpen} />
                 ))
               ) : (
                 <tr>

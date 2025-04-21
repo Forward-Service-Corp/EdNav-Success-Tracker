@@ -8,6 +8,7 @@ function SearchField({ menuOpen, setMenuOpen, filterOpen, setFilterOpen, setView
   const { selectedFepLeft, setSelectedFepLeft } = useFepsLeft();
   const toggleGrouped = () => {
     setViewMode('grouped');
+    setStatusCollapse([]);
   };
 
   const togglePinned = () => {
@@ -27,22 +28,29 @@ function SearchField({ menuOpen, setMenuOpen, filterOpen, setFilterOpen, setView
 
   return (
     <div className={`w-full h-full flex items-center top-0 gap-4 mb-3 justify-between `}>
-      <div className={`flex h-full w-full items-center justify-start gap-2 bg-base-300 px-6 `}>
-        <MagnifyingGlass className={`-mr-8 text-base-content/40`} size={20} />
+      <div
+        className={`flex h-full w-full items-center justify-start gap-2 bg-base-300  ${menuOpen ? 'pl-3 pr-20' : 'pl-6'}`}>
+        <MagnifyingGlass className={`-mr-9 text-base-content/40`} size={20} />
         <input name={`client-search`} type="text" onChange={(e) => {
           setSelectedFepLeft(prev => {
             return { ...prev, searchTerm: e.target.value };
           });
         }} value={selectedFepLeft.searchTerm}
                placeholder="Search by name..."
-               className="input pl-10 rounded-none focus:bg-base-300 focus:border-0 focus:outline-0 outline-none ring-0 focus:ring-0 border-0 bg-transparent shadow-none border-b-1 border-base-content/20" />
-        <XCircle className={`-ml-10 ${selectedFepLeft.searchTerm !== '' ? 'visible' : 'hidden'}`} size={30}
+               className="rounded-full border-1 input pl-8 focus:bg-transparent focus:outline-0 outline-none ring-0 focus:ring-0 bg-transparent shadow-none border-base-content/20" />
+        <XCircle onClick={() => {
+          setSelectedFepLeft(prevState => {
+            return { ...prevState, searchTerm: '' };
+          });
+        }} className={`-ml-10 relative z-40 cursor-pointer ${selectedFepLeft.searchTerm !== '' ? 'visible' : 'hidden'}`}
+                 size={26}
                  color={`white`} />
       </div>
       <div
-        className={`search-under-filter ${filterOpen ? 'translate-y-[79px]' : '-translate-y-[84px]'}`}>
+        className={`search-under-filter cursor-pointer ${filterOpen ? 'translate-y-[79px]' : '-translate-y-[84px]'}`}>
         <div className="filter flex items-center gap-1 justify-end">
-          <input className="btn lg:btn-xs btn-sm btn-primary btn-soft filter-reset" type="radio" name="metaframeworks"
+          <input onClick={() => setViewMode('')} className="btn lg:btn-xs btn-sm btn-primary btn-soft filter-reset"
+                 type="radio" name="metaframeworks"
                  aria-label="All" />
           <input onClick={toggleAlpha} className="btn lg:btn-xs btn-sm btn-primary btn-soft" type="radio"
                  name="metaframeworks" aria-label="A-Z" />
@@ -55,7 +63,7 @@ function SearchField({ menuOpen, setMenuOpen, filterOpen, setFilterOpen, setView
         </div>
       </div>
 
-      <div className="z-100 cursor-pointer absolute flex items-center justify-items-center gap-3 right-3 ">
+      <div className="z-100 cursor-pointer absolute flex items-center justify-items-center gap-2 right-3 ">
         <Wrench size={27} className={`${filterOpen ? 'text-primary' : 'text-base-content/30'}`}
                 onClick={() => setFilterOpen(!filterOpen)} />
         <Sidebar className={`${!menuOpen ? 'text-primary' : 'text-base-content/30'}`} size={27}
