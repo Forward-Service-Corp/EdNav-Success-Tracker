@@ -59,7 +59,7 @@ export default function ClientTableItem({ person, i, statusCollapse, menuClosed}
                     setEditing("client");
                 }
             }}
-            className={`${statusCollapse?.includes(person?.clientStatus) ? 'hidden' : 'visible'} hover:bg-base-200 hover:text-base-content hover:border-base-200 cursor-pointer box-border text-base-content ${selectedClient?._id === person._id ? getBorderColor(selectedClient?.clientStatus) : ''} ${selectedClient?._id === person?._id ? 'bg-base-300 text-base-content' : ''}`}>
+            className={`${statusCollapse?.includes(person?.clientStatus) ? 'hidden' : 'visible'} hover:bg-base-200 hover:text-base-content hover:border-base-200 cursor-pointer box-border text-base-content ${selectedClient?._id === person._id ? getBorderColor(selectedClient?.clientStatus) : ''} ${selectedClient?._id === person?._id ? 'bg-base-300 text-base-content ' : ''}`}>
             <td className={`text-xs truncate flex justify-between items-center  ${menuClosed ? 'p-1.5' : ''}`}>
                 <span className={`ml-3 flex-1`}>{person.first_name + " " + person.last_name}</span>
                 {/*<span className={`mr-1`}>{person.latestInteraction}</span>*/}

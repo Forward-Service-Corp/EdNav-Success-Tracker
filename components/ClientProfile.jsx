@@ -66,7 +66,7 @@ export default function ClientProfile() {
     if (!isMounted) return null;
 
     return (
-      <div className={`w-full h-full overflow-y-scroll no-scrollbar relative`}>
+      <div className={`w-full h-full overflow-y-scroll no-scrollbar relative pb-10`}>
           <ClientProfileHeader />
           <div className={`mt-[30px] grid grid-cols-4 gap-4 `}>
               <div className={`col-span-4 `}>

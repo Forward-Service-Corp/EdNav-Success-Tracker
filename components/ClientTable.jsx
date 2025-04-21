@@ -99,21 +99,21 @@ export default function ClientTable({ menuOpen, setMenuOpen }) {
   return (
     <div className={`relative`}>
       <div
-        className="h-[90px] shadow-lg sticky top-0">
+        className="h-[80px] shadow-lg sticky top-0">
         <SearchField menuOpen={menuOpen} setMenuOpen={setMenuOpen} setFilterOpen={setFilterOpen}
                      filterOpen={filterOpen} setViewMode={setViewMode} setStatusCollapse={setStatusCollapse} />
       </div>
-      <div className="w-full h-full overflow-y-scroll no-scrollbar">
+      <div className={`w-full h-full`}>
         <div className={`overflow-y-scroll w-full no-scrollbar`}>
-          <table className={`overflow-y-scroll w-full ${menuOpen ? '' : ''}`}>
-            <tbody className="w-full overflow-y-scroll">
+          <table className={`w-full ${!filterOpen ? '' : 'mt-[45px]'}`}>
+            <tbody className="w-full">
             {viewMode === 'grouped' ? (
               Object.entries(clientsToShow).map(([status, clients], idx) => (
                 <React.Fragment key={status}>
                   <tr
-                    className={`${getBGColor(status)} ${selectedClient && selectedClient?.clientStatus === status ? '' : ''} ${statusCollapse.includes(status) ? 'hidden' : ''} ${menuOpen ? '' : ''}`}>
+                    className={`${getBGColor(status)} ${statusCollapse.includes(status) ? 'hidden' : ''}`}>
                     <td onClick={() => handleCollapseChange(status)}
-                        className={`py-2 text-sm flex w-full justify-between items-center cursor-pointer ${menuOpen ? '' : ''}`}>
+                        className={`py-2 text-sm flex w-full justify-between items-center cursor-pointer`}>
                       <span className={`w-6/7 text-left font-bold pl-3`}>{status}</span>
                       <span className={`w-[30px] mr-3 text-center`}>
                                               {!statusCollapse.includes(status) ?

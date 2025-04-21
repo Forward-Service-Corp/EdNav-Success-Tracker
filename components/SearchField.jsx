@@ -40,7 +40,7 @@ function SearchField({ menuOpen, setMenuOpen, filterOpen, setFilterOpen, setView
                  color={`white`} />
       </div>
       <div
-        className={`absolute bg-secondary/30 backdrop-blur backdrop-grayscale-100 top-0 p-3 right-0 left-0 flex items-center justify-end gap-3 transition-all ease-out duration-700 -z-10 ${filterOpen ? 'translate-y-[64px]' : '-translate-y-[84px]'}`}>
+        className={`search-under-filter ${filterOpen ? 'translate-y-[79px]' : '-translate-y-[84px]'}`}>
         <div className="filter flex items-center gap-1 justify-end">
           <input className="btn lg:btn-xs btn-sm btn-primary btn-soft filter-reset" type="radio" name="metaframeworks"
                  aria-label="All" />
@@ -56,9 +56,10 @@ function SearchField({ menuOpen, setMenuOpen, filterOpen, setFilterOpen, setView
       </div>
 
       <div className="z-100 cursor-pointer absolute flex items-center justify-items-center gap-3 right-3 ">
-        <Wrench size={27} className={`text-base-content/50 hover:text-base-content`}
+        <Wrench size={27} className={`${filterOpen ? 'text-primary' : 'text-base-content/30'}`}
                 onClick={() => setFilterOpen(!filterOpen)} />
-        <Sidebar color={menuOpen ? 'white' : 'red'} size={27} onClick={() => setMenuOpen(!menuOpen)} />
+        <Sidebar className={`${!menuOpen ? 'text-primary' : 'text-base-content/30'}`} size={27}
+                 onClick={() => setMenuOpen(!menuOpen)} />
       </div>
     </div>
   );

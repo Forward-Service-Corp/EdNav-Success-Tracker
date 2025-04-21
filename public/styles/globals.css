@@ -148,3 +148,7 @@ span.activity {
     /*border-radius: 0.5rem;*/
     /*padding: 1rem;*/
 }
+
+.search-under-filter {
+    @apply absolute bg-secondary/30 backdrop-blur backdrop-grayscale-100 top-0 p-3 right-0 left-0 flex items-center justify-end gap-3 transition-all ease-out duration-700 -z-10;
+}

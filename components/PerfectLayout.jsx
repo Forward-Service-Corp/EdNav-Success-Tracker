@@ -17,11 +17,11 @@ export default function PerfectLayout() {
         <LeftNavEntire />
       </div>
       <div
-        className={`transition-dashboard-panel no-scrollbar bg-base-200 relative z-20 shadow-xl ${menuOpen ? 'w-[550px]' : 'w-[700px]'}`}>
+        className={`transition-dashboard-panel no-scrollbar bg-base-200 relative z-20 shadow-xl ${menuOpen ? 'w-[550px]' : 'w-[100%]'}`}>
         <ClientTable setMenuOpen={setMenuOpen} menuOpen={menuOpen} />
       </div>
       <div
-        className={`transition-dashboard-panel no-scrollbar relative z-10 ${editing === 'client' ? 'w-full' : 'w-0 overflow-hidden'}`}>
+        className={`transition-dashboard-panel no-scrollbar relative z-10 ${editing === 'client' ? 'w-full' : 'w-0 '}`}>
         <ClientProfile menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
       </div>
       <div
