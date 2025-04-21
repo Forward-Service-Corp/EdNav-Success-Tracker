@@ -125,7 +125,7 @@ const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
           completed: false
         }));
       }
-      setTrackable({ type: selectedValue, length: items.length, items: items });
+      setTrackable({ program: selectedValue, length: items.length, items: items });
     }
 
     if (newObject && typeof newObject === 'object') {
