@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCollection } from '@/lib/mongodb';
-import { ObjectId } from 'mongodb';
 
 // GET all notes
 export async function GET(request: NextRequest) {
@@ -14,10 +13,24 @@ export async function GET(request: NextRequest) {
 
     // Filter by clientId if provided
     if (clientId && !activityId) {
-      notes = await collection
-        .find({ clientId: new ObjectId(clientId) })
-        .sort({ createdAt: -1 })
-        .toArray();
+      console.log('Fetching notes for clientId:', clientId);
+      try {
+        // Try to convert to ObjectId if it's a valid format
+        const query = { clientId: clientId };
+        notes = await collection
+          .find(query)
+          .sort({ createdAt: -1 })
+          .toArray();
+
+        console.log(`Found ${notes.length} notes for client ${clientId}`);
+      } catch (err) {
+        console.error('Error processing clientId:', err);
+        // Fallback to string comparison if ObjectId conversion fails
+        notes = await collection
+          .find({ clientId: clientId })
+          .sort({ createdAt: -1 })
+          .toArray();
+      }
     }
     // Filter by activityId if provided
     else if (activityId) {
@@ -45,27 +58,41 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { note } = body;
+    console.log('Received note data:', body);
 
-    if (!note) {
+    // Support both nested 'note' object and flat structure
+    const noteData = body.note || body;
+
+    if (!noteData) {
       return NextResponse.json({ error: 'Note data is required' }, { status: 400 });
     }
 
     const collection = await getCollection('notes');
 
+    // Ensure required fields are present
+    if (!noteData.noteContent) {
+      return NextResponse.json({ error: 'Note content is required' }, { status: 400 });
+    }
+
     // Prepare the note object for database insertion
     const noteToInsert = {
-      ...note,
-      createdAt: note.createdAt || new Date().toISOString(),
-      // Convert clientId to ObjectId if it's a string
-      clientId: typeof note.clientId === 'string' ? new ObjectId(note.clientId) : note.clientId
+      ...noteData,
+      createdAt: noteData.createdAt || new Date().toISOString()
     };
 
+    // Make sure clientId is stored as a string for consistent querying
+    if (noteData.clientId) {
+      noteToInsert.clientId = noteData.clientId.toString();
+    }
+
+    console.log('Inserting note:', noteToInsert);
     const result = await collection.insertOne(noteToInsert);
+    console.log('Note inserted with ID:', result.insertedId);
 
     return NextResponse.json({
       message: 'Note added successfully',
-      _id: result.insertedId
+      _id: result.insertedId,
+      note: noteToInsert
     }, { status: 201 });
   } catch (error) {
     console.error('Error adding note:', error);

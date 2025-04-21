@@ -21,32 +21,41 @@ export default function NoteModal({ open, setOpen, onSuccess }) {
 
   const handleSave = async () => {
     try {
-      // setIsSubmitting(true);
-      // ... existing save logic
+      console.log('Saving note:', note);
 
-      if (response['ok']) {
-        console.log(note);
-        note.clientId = selectedClient?._id;
-        const response = await fetch('/api/activities', {
-          method: 'POST',
-          body: JSON.stringify({
-            noteContent: note.noteContent,
-            noteAuthor: selectedNavigator?.name,
-            createdAt: new Date(),
-            clientId: selectedClient?._id,
-            isNote: true
-          })
-        });
+      // Format the note data correctly for the /api/notes endpoint
+      const noteData = {
+        note: {
+          noteContent: note.noteContent,
+          noteAuthor: selectedNavigator?.name,
+          createdAt: new Date().toISOString(),
+          clientId: selectedClient?._id,
+          isNote: true
+        }
+      };
+
+      // Send to the correct endpoint - /api/notes instead of /api/activities
+      const response = await fetch('/api/notes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(noteData)
+      });
+
+      if (response.ok) {
         const data = await response.json();
-        console.log(data);
+        console.log('Note saved successfully:', data);
         setOpen('');
         setNote(prev => ({ ...prev, noteContent: '' }));
-        if (onSuccess) onSuccess();
+        if (onSuccess) onSuccess(data);
+      } else {
+        console.error('Failed to save note:', await response.text());
+        alert('Failed to save note. See console for details.');
       }
     } catch (error) {
-      // ... error handling
-    } finally {
-      // setIsSubmitting(false);
+      console.error('Error saving note:', error);
+      alert('An error occurred while saving the note.');
     }
   };
 

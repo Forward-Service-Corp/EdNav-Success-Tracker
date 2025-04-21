@@ -15,7 +15,7 @@ const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
   const [selectedValue, setSelectedValue] = useState('');
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [trackable, setTrackable] = useState(null);
-  const [textInput, setTextInput] = useState('');
+  const [, setTextInput] = useState('');
 
   const saveSelectionToMongoDB = async (newPath, multi) => {
     setOpen(false);
@@ -32,12 +32,29 @@ const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
     };
 
     if (multi) {
+      // For multi-select, use the current path
       data.path = selectedPath;
-      data.statement = generateSentence(selectedClient['navigator'], selectedClient['first_name'] + ' ' + selectedClient['last_name'], multiSelectValues, selectedPath);
+      console.log('Multi-select values:', multiSelectValues);
+      console.log('Selected path for multi-select:', selectedPath);
+      data.statement = generateSentence(
+        selectedClient['navigator'],
+        selectedClient['first_name'] + ' ' + selectedClient['last_name'],
+        multiSelectValues,
+        selectedPath
+      );
     } else {
+      // For single-select, use the new path
       data.path = newPath;
-      data.statement = generateSentence(selectedClient['navigator'], selectedClient['first_name'] + ' ' + selectedClient['last_name'], null, newPath);
+      data.statement = generateSentence(
+        selectedClient['navigator'],
+        selectedClient['first_name'] + ' ' + selectedClient['last_name'],
+        null,
+        newPath
+      );
     }
+
+    console.log('Generated statement:', data.statement);
+    console.log('Sending data to API:', data);
 
     try {
       // Use relative URL instead of hardcoded localhost
@@ -210,7 +227,12 @@ const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
   };
 
   const handleMultiSelectAdvance = async () => {
-    await saveSelectionToMongoDB(null, true);
+    console.log('Multi-select advancing with values:', multiSelectValues);
+    console.log('Current path:', selectedPath);
+
+    // Make sure we're sending true to indicate this is a multi-select submission
+    await saveSelectionToMongoDB(selectedPath, true);
+    
     setMultiSelectOptions(null);
     setCurrentOptions([]);
     setFinalSelection('Completed Multi-Select');

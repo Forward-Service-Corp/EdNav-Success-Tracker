@@ -23,12 +23,20 @@ const CombinedFeed = () => {
     setError(null);
 
     try {
+      console.log('Fetching feed data for client:', selectedClient._id);
+      
       // Fetch activities, notes, and comments
       const [activitiesRes, notesRes, commentsRes] = await Promise.all([
         fetch(`/api/activities?clientId=${selectedClient._id}`),
         fetch(`/api/notes?clientId=${selectedClient._id}`),
         fetch(`/api/comments?clientId=${selectedClient._id}`)
       ]);
+
+      console.log('API Response status codes:', {
+        activities: activitiesRes.status,
+        notes: notesRes.status,
+        comments: commentsRes.status
+      });
 
       if (!activitiesRes.ok) throw new Error('Failed to fetch activities');
       if (!notesRes.ok) throw new Error('Failed to fetch notes');
@@ -38,9 +46,14 @@ const CombinedFeed = () => {
       const notesData = await notesRes.json();
       const commentsData = await commentsRes.json();
 
+      console.log('Notes data received:', notesData);
+
       // Extract the activities array from the response
       const activities = activitiesData.data || [];
-      const notes = notesData || [];
+
+      // Notes data should be an array already from the API
+      const notes = Array.isArray(notesData) ? notesData : [];
+      
       const comments = commentsData || [];
 
       // Group comments by their parent ID

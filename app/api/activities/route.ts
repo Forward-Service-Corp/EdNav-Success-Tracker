@@ -45,12 +45,85 @@ export async function POST(request: NextRequest) {
     if (!body.createdAt) {
       body.createdAt = new Date().toISOString()
     }
+    // Handle direct note submissions (where isNote is true at the top level)
+    if (body.isNote === true) {
+      console.log('Processing note submission:', body);
+
+      try {
+        const clientId = body.clientId;
+        if (!clientId) {
+          return NextResponse.json({ error: 'Missing clientId for note' }, { status: 400 });
+        }
+
+        // Convert string ID to ObjectId if needed
+        const clientObjectId = typeof clientId === 'string' ? new ObjectId(clientId) : clientId;
+
+        // Find the client
+        const client = await clientsCollection.findOne({ _id: clientObjectId });
+        if (!client) {
+          return NextResponse.json({ error: 'Client not found' }, { status: 404 });
+        }
+
+        // Create the note document
+        const noteDoc = {
+          noteContent: body.noteContent,
+          noteAuthor: body.noteAuthor,
+          createdAt: body.createdAt || new Date().toISOString(),
+          clientId: clientId,
+          isNote: true
+        };
+
+        // Insert the note
+        const insertResult = await notesCollection.insertOne(noteDoc);
+
+        // Update client's last activity
+        await clientsCollection.updateOne(
+          { _id: clientObjectId },
+          { $set: { lastActivity: new Date().toISOString() } }
+        );
+
+        // Get updated notes list
+        const notes = await notesCollection.find({ clientId }).sort({ createdAt: -1 }).toArray();
+
+        return NextResponse.json({
+          message: 'Note added successfully',
+          insertedId: insertResult.insertedId,
+          client,
+          notes
+        }, { status: 201 });
+      } catch (error) {
+        console.error('Error saving note:', error);
+        return NextResponse.json({ error: 'Failed to save note' }, { status: 500 });
+      }
+    }
+
+    // Handle nested note object (legacy format)
     if (body.note && body.note.isNote) {
-      const [client] = await Promise.all([clientsCollection.findOne({ _id: new ObjectId(body.note.clientId) })]);
-      if (client) {
-        await actionsCollection.insertOne(body.note);
-        await clientsCollection.updateOne({ _id: new ObjectId(body.note.clientId) }, { $set: { lastActivity: new Date().toISOString() } });
-        return NextResponse.json({ message: 'Action added successfully', client }, { status: 201 });
+      try {
+        const clientId = body.note.clientId;
+        const client = await clientsCollection.findOne({ _id: new ObjectId(clientId) });
+
+        if (client) {
+          await notesCollection.insertOne(body.note);
+          await clientsCollection.updateOne(
+            { _id: new ObjectId(clientId) },
+            { $set: { lastActivity: new Date().toISOString() } }
+          );
+
+          // Get updated notes list
+          const notes = await notesCollection.find({ clientId }).sort({ createdAt: -1 }).toArray();
+
+          return NextResponse.json({
+            message: 'Note added successfully',
+            client,
+            notes
+          }, { status: 201 });
+        } else {
+          return NextResponse.json({ error: 'Client not found' }, { status: 404 });
+        }
+      } catch (error) {
+        console.error('Error saving note with nested format:', error);
+        return NextResponse.json({ error: 'Failed to save note' }, { status: 500 });
       }
     }
     if (body.path && body.path.length && body.path?.includes('graduated') && body.path?.includes('inactive')) {
