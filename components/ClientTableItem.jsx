@@ -64,7 +64,7 @@ export default function ClientTableItem({ person, i, statusCollapse, menuOpen, f
           }
         }}
         className={` ${statusCollapse?.includes(person?.clientStatus) ? 'hidden' : 'visible'} client-table-item ${selectedClient?._id === person._id ? filterOpen ? 'sticky top-[47px] bottom-0 z-50' : 'sticky top-0 bottom-0 z-50' : 'relative'} ${selectedClient?._id === person?._id ? getBGColor(selectedClient?.clientStatus) : ''}`}>
-      <td className={`px-6 font-medium  max-w-[160px] truncate`}>{person.first_name + ' ' + person.last_name}</td>
+      <td className={`px-6 font-medium  max-w-[160px] truncate`}>{person?.first_name + ' ' + person.last_name}</td>
       <td className={` max-w-[160px] truncate ${menuOpen ? 'hidden' : ''}`}>{person.latestInteraction}</td>
       <td className={` max-w-[160px] truncate ${menuOpen ? 'hidden' : ''}`}>{person.group}</td>
       <td className={` max-w-[160px] truncate ${menuOpen ? 'hidden' : ''}`}>{person.fep}</td>

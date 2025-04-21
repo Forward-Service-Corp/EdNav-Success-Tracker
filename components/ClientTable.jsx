@@ -42,21 +42,21 @@ export default function ClientTable({ menuOpen, setMenuOpen }) {
 
   const filteredClients = clientList?.filter(client => {
     if (selectedNavigator?.name !== 'All') {
-      return client.navigator === selectedNavigator?.name;
+      return client?.navigator === selectedNavigator?.name;
     }
     return client;
   }).filter(client => {
-    const matchesSearch = client.first_name?.toLowerCase().includes(selectedFepLeft.searchTerm.toLowerCase())
-      || client.last_name?.toLowerCase().includes(selectedFepLeft.searchTerm.toLowerCase());
-    const matchesStatus = selectedFepLeft.status === 'All' || client.clientStatus === selectedFepLeft.status;
-    const matchesGroup = selectedFepLeft.age === 'All' || client.group === selectedFepLeft.age;
+    const matchesSearch = client?.first_name?.toLowerCase().includes(selectedFepLeft.searchTerm.toLowerCase())
+      || client?.last_name?.toLowerCase().includes(selectedFepLeft.searchTerm.toLowerCase());
+    const matchesStatus = selectedFepLeft.status === 'All' || client?.clientStatus === selectedFepLeft.status;
+    const matchesGroup = selectedFepLeft.age === 'All' || client?.group === selectedFepLeft.age;
     return matchesSearch && matchesStatus && matchesGroup;
   });
 
   const groupByClientStatus = (clients) => {
     return clients
       .filter(client => {
-        if (selectedNavigator.name !== 'All') return client.navigator === selectedNavigator?.name;
+        if (selectedNavigator.name !== 'All') return client?.navigator === selectedNavigator?.name;
         return client;
       })
       .sort((a, b) => (a.clientStatus > b.clientStatus ? 1 : -1))
