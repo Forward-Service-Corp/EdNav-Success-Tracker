@@ -206,6 +206,20 @@ export async function POST(request: NextRequest) {
         }
       )
     }
+    if (body.trackable?.items?.some((item: {
+      name: string;
+      completed: boolean
+    }) => item.name.toLowerCase() === 'hs transcript' && item.completed)) {
+      user = await clientsCollection.updateOne(
+        query,
+        {
+          $set:
+            {
+              transcripts: { referralDate: new Date().toISOString(), completionDate: null }
+            }
+        }
+      );
+    }
 
     const result = await actionsCollection.insertOne(body)
     const userActions = await actionsCollection.find({ clientId: body.clientId }).sort({ createdAt: -1 }).toArray()

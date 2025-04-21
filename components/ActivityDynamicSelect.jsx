@@ -5,7 +5,7 @@ import { generateSentence } from '@/utils/generateSentence';
 
 const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
   const { selectedActivity, setSelectedActivity } = useActivities();
-  const { selectedClient } = useClients();
+  const { selectedClient, setSelectedClient } = useClients();
   const [selectedPath, setSelectedPath] = useState([]);
   const [currentOptions, setCurrentOptions] = useState(Object.keys(questions));
   const [, setCurrentObject] = useState(questions);
@@ -16,6 +16,40 @@ const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [trackable, setTrackable] = useState(null);
   const [, setTextInput] = useState('');
+
+  // Function to update only trackable items without overwriting entire client
+  const updateClientTrackableItems = (clientToUpdate, serverResponse, selectedValues) => {
+    // Safety check
+    if (!clientToUpdate || !serverResponse) return clientToUpdate;
+
+    // Don't update if no multiselect values
+    if (!selectedValues || !selectedValues.length) return clientToUpdate;
+
+    // Get a set of selected value names for quicker lookup
+    const selectedSet = new Set(selectedValues);
+
+    // Create a new client object with the same properties
+    const updatedClient = { ...clientToUpdate };
+
+    // Only update trackable if it exists
+    if (updatedClient.trackable && updatedClient.trackable.items) {
+      // Create a new array of trackable items
+      updatedClient.trackable = {
+        ...updatedClient.trackable,
+        items: updatedClient.trackable.items.map(item => {
+          // Only override values in the selected set
+          if (selectedSet.has(item.name)) {
+            return { ...item, completed: true };
+          }
+          // Keep other values the same
+          return item;
+        })
+      };
+    }
+
+    // Return the updated client
+    return updatedClient;
+  };
 
   const saveSelectionToMongoDB = async (newPath, multi) => {
     setOpen(false);
@@ -70,9 +104,17 @@ const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
       // Notify parent of success
       if (onSuccess) onSuccess(result);
 
-      // If we have a wholeUser property in the result, update the client
-      if (result.wholeUser) {
-        // setSelectedClient(result.wholeUser); // Uncomment if you need to update the client
+      // SIMPLIFIED CLIENT UPDATE: Use the helper function to only update trackable items
+      if (result.wholeUser && multi && multiSelectValues.length > 0) {
+        // Call our helper function that doesn't overwrite the whole object
+        const updatedClient = updateClientTrackableItems(
+          selectedClient,
+          result.wholeUser,
+          multiSelectValues
+        );
+
+        // Update the client with our carefully constructed object
+        setSelectedClient(updatedClient);
       }
 
       // Update the activity list if actionRes exists
@@ -183,39 +225,35 @@ const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
   };
 
   const handleMultiSelectChange = (option, index) => {
+    // Update multiSelectValues state
     setMultiSelectValues((prev) => {
-      if (prev.includes(option)) {
-        if (trackable && trackable.items.length > 0) {
-          trackable.items[index].completed = !trackable.items[index].completed;
+      const isRemoval = prev.includes(option);
+
+      // If we're removing from multiSelectValues, update the trackable item accordingly
+      if (isRemoval) {
+        if (trackable && trackable.items && trackable.items.length > 0) {
+          // Set to false if removed from selection
+          const updatedItems = [...trackable.items];
+          updatedItems[index] = { ...updatedItems[index], completed: false };
+          setTrackable({ ...trackable, items: updatedItems });
         }
         return prev.filter(item => item !== option);
-      } else {
-        if (!trackable || !trackable?.items) {
-          if (trackable && trackable.items) {
-            trackable.items[index].completed = false;
-          }
+      }
+      // If we're adding to multiSelectValues
+      else {
+        // Always set the trackable item to true when selected
+        if (trackable && trackable.items && trackable.items.length > 0) {
+          const updatedItems = [...trackable.items];
+          updatedItems[index] = { ...updatedItems[index], completed: true };
+          setTrackable({ ...trackable, items: updatedItems });
         }
         return [...prev, option];
       }
     });
-    if (trackable && trackable?.items.length > 0 && trackable?.program !== 'GED' || trackable?.program !== 'HSED') {
-      setTrackable(prev => {
-        if (!prev?.items) return prev;
-
-        const updatedItems = [...prev.items];
-        updatedItems[index] = { ...updatedItems[index], completed: !updatedItems[index].completed };
-
-        return {
-          ...prev,
-          items: updatedItems
-        };
-      });
-    }
   };
 
   const handleMultiSelectAdvance = async () => {
-
-    // Make sure we're sending it true to indicate this is a multi-select submission
+    // Make sure we're sending true to indicate this is a multi-select submission
     await saveSelectionToMongoDB(selectedPath, true);
     
     setMultiSelectOptions(null);
