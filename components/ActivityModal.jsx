@@ -13,7 +13,7 @@ export default function ActivityModal({ open, setOpen, onSuccess }) {
     const {adult, youth} = await questions;
     cleanedQuestions.adult = adult
     cleanedQuestions.youth = youth
-    await setQuestions(cleanedQuestions)
+    setQuestions(cleanedQuestions);
     return cleanedQuestions
   }
 

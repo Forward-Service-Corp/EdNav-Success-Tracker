@@ -26,6 +26,7 @@ function ClientProfilePersonalOrganization() {
     ttsDream: selectedClient?.ttsDream || ''
   });
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const [feps, setFeps] = useState([]);
 
   // Reset form when editing state changes
   useEffect(() => {
@@ -55,6 +56,20 @@ function ClientProfilePersonalOrganization() {
       setChange({ ...change, [name]: value });
   };
 
+  const fetchFeps = async () => {
+    let feps = [];
+    const response = await fetch(`/api/feps`);
+    const data = await response.json();
+    await data.forEach(fep => {
+      feps.push(fep.name);
+    });
+    setFeps(feps);
+  };
+
+  useEffect(() => {
+    fetchFeps().then();
+  }, []);
+
   return (
     <div
       className={`bg-base-300 border-1 border-base-content/10 mx-6 rounded-lg transition-all duration-700 ${detailsOpen ? 'p-6' : 'py-4 px-6 h-20 overflow-hidden'} `}>
@@ -82,6 +97,7 @@ function ClientProfilePersonalOrganization() {
 
         {selectedClient && selectedClient._id && Object.keys(change).map((field, index) => (
           <ClientProfileDetailsInput field={field} change={change} setChange={setChange} onChange={handleChange}
+                                     feps={feps}
                                      key={index} />
         ))}
       </div>

@@ -45,35 +45,56 @@ export async function POST(request: NextRequest) {
     if (!body.createdAt) {
       body.createdAt = new Date().toISOString()
     }
-    if (body.note.isNote) {
+    if (body.note && body.note.isNote) {
       const [client] = await Promise.all([clientsCollection.findOne({ _id: new ObjectId(body.note.clientId) })]);
       if (client) {
-        await actionsCollection.insertOne({ _id: new ObjectId(body.note.clientId) }, body.note);
+        await actionsCollection.insertOne(body.note);
+        await clientsCollection.updateOne({ _id: new ObjectId(body.note.clientId) }, { $set: { lastActivity: new Date().toISOString() } });
         return NextResponse.json({ message: 'Action added successfully', client }, { status: 201 });
       }
     }
-    if (body.path.length && body.path?.includes('graduated') && body.path?.includes('inactive')) {
+    if (body.path && body.path.length && body.path?.includes('graduated') && body.path?.includes('inactive')) {
       const [client] = await Promise.all([clientsCollection.findOne({ _id: new ObjectId(body.clientId) })]);
       if (client && client.group.toString().toLocaleLowerCase() === 'youth') {
-        await clientsCollection.updateOne({ _id: new ObjectId(body.clientId) }, { $set: { clientStatus: 'graduated' } });
+        await clientsCollection.updateOne({ _id: new ObjectId(body.clientId) }, {
+          $set: {
+            clientStatus: 'graduated',
+            lastActivity: new Date().toISOString()
+          }
+        });
         return NextResponse.json({ message: 'Action added successfully', client }, { status: 201 });
       }
       if (client && client.group.toString().toLocaleLowerCase() === 'adult') {
-        await clientsCollection.updateOne({ _id: new ObjectId(body.clientId) }, { $set: { clientStatus: 'inactive' } });
+        await clientsCollection.updateOne({ _id: new ObjectId(body.clientId) }, {
+          $set: {
+            clientStatus: 'inactive',
+            lastActivity: new Date().toISOString()
+          }
+        });
         return NextResponse.json({ message: 'Action added successfully', client }, { status: 201 });
       }
     }
     if (body.path?.includes('enrolled in')) {
       const client = await clientsCollection.findOne({ _id: new ObjectId(body.clientId) });
       if (client) {
-        await clientsCollection.updateOne({ _id: new ObjectId(body.clientId) }, { $set: { clientStatus: 'active' } });
+        await clientsCollection.updateOne({ _id: new ObjectId(body.clientId) }, {
+          $set: {
+            clientStatus: 'active',
+            lastActivity: new Date().toISOString()
+          }
+        });
         return NextResponse.json({ message: 'Action added successfully', client }, { status: 201 });
       }
     }
     if (body.path?.includes('graduated') || body.path?.includes('inactive')) {
       const client = await clientsCollection.findOne({_id: new ObjectId(body.clientId)})
       if (client) {
-        await clientsCollection.updateOne({ _id: new ObjectId(body.clientId) }, { $set: { clientStatus: 'inactive' } });
+        await clientsCollection.updateOne({ _id: new ObjectId(body.clientId) }, {
+          $set: {
+            clientStatus: 'inactive',
+            lastActivity: new Date().toISOString()
+          }
+        });
         return NextResponse.json({ message: 'Action added successfully', client }, { status: 201 });
       }
     }
@@ -119,7 +140,14 @@ export async function POST(request: NextRequest) {
     const notes = await notesCollection.find({ clientId: body.clientId }).sort({ createdAt: -1 }).toArray()
     const wholeUser = await clientsCollection.findOne({_id: new ObjectId(body.clientId)})
 
-    return NextResponse.json({ message: "Action added successfully",wholeUser, userActions, notes, _id: result, user }, { status: 201 })
+    return NextResponse.json({
+      message: 'Action added successfully',
+      wholeUser,
+      userActions,
+      notes,
+      _id: result,
+      user
+    }, { status: 201 });
   } catch (error) {
     console.error("Error adding action:", error)
     return NextResponse.json({ error: "Failed to add action" }, { status: 500 })

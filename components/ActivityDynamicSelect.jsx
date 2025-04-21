@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { useClients } from '../contexts/ClientsContext';
-import { useActivities } from '../contexts/ActivityContext';
-import { generateSentence } from '../utils/generateSentence.tsx';
+import { useClients } from '@/contexts/ClientsContext';
+import { useActivities } from '@/contexts/ActivityContext';
+import { generateSentence } from '@/utils/generateSentence';
 
 const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
   const { selectedActivity, setSelectedActivity } = useActivities();
-  const { selectedClient, setSelectedClient } = useClients();
+  const { selectedClient } = useClients();
   const [selectedPath, setSelectedPath] = useState([]);
   const [currentOptions, setCurrentOptions] = useState(Object.keys(questions));
   const [, setCurrentObject] = useState(questions);
@@ -22,7 +22,6 @@ const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
     const data = {
       clientEmail: selectedClient.email,
       clientId: selectedClient._id,
-      clientName: selectedClient.name || selectedClient['first_name'] + ' ' + selectedClient['last_name'],
       fep: selectedClient.fep,
       navigator: selectedClient['navigator'],
       selectedDate: selectedDate,
@@ -34,13 +33,14 @@ const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
 
     if (multi) {
       data.path = selectedPath;
-      data.statement = generateSentence(selectedClient['navigator'], selectedClient?.name || selectedClient['first_name'] + ' ' + selectedClient['last_name'], multiSelectValues, selectedPath);
+      data.statement = generateSentence(selectedClient['navigator'], selectedClient['first_name'] + ' ' + selectedClient['last_name'], multiSelectValues, selectedPath);
     } else {
       data.path = newPath;
-      data.statement = generateSentence(selectedClient['navigator'], selectedClient?.name || selectedClient['first_name'] + ' ' + selectedClient['last_name'], null, newPath);
+      data.statement = generateSentence(selectedClient['navigator'], selectedClient['first_name'] + ' ' + selectedClient['last_name'], null, newPath);
     }
 
     try {
+      // Use relative URL instead of hardcoded localhost
       const response = await fetch('/api/activities', {
         method: 'POST',
         headers: {
@@ -58,29 +58,24 @@ const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
       // Notify parent of success
       if (onSuccess) onSuccess(result);
 
+      // If we have a wholeUser property in the result, update the client
+      if (result.wholeUser) {
+        // setSelectedClient(result.wholeUser); // Uncomment if you need to update the client
+      }
+
+      // Update the activity list if actionRes exists
+      if (result.userActions) {
+        setSelectedActivity(prev => ({
+          ...prev,
+          activities: result.userActions
+        }));
+      }
+
       return result;
     } catch (error) {
       console.error('Error saving activity:', error);
       return null;
     }
-
-    // return await fetch('/api/activities', {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json'
-    //   },
-    //   body: JSON.stringify(data)
-    // }).then(res => res.json()).then(
-    //   async (result) => {
-    //     await setSelectedClient(result.wholeUser);
-    //     await setSelectedActivity(prev => ({
-    //       ...prev,
-    //       activities: result['actionRes']
-    //     }));
-    //   },
-    //   (error) => {
-    //     console.log(error);
-    //   });
   };
 
   useEffect(() => {
@@ -90,7 +85,7 @@ const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
         setSelectedPath([autoSelection]);
         setCurrentObject(questions[autoSelection]);
         let options = Object.keys(questions[autoSelection]);
-        if (selectedClient?.trackable?.type === 'GED' || selectedClient?.trackable?.type === 'HSED') {
+        if (selectedClient?.trackable?.program === 'GED' || selectedClient?.trackable?.program === 'HSED') {
           options = options.filter(opt => opt !== 'GED' && opt !== 'HSED');
         }
         setCurrentOptions(options);
@@ -123,7 +118,7 @@ const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
       }
       setTrackable({ type: selectedValue, length: items.length, items: items });
     }
-    console.log(newObject);
+
     if (newObject && typeof newObject === 'object') {
       if (Object.keys(newObject).length > 0 && Object.hasOwn(newObject, 'textInput')) {
         setCurrentOptions(prevState => {
@@ -132,7 +127,6 @@ const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
         setTextInput('hasTextInput');
       }
     }
-    console.log(textInput);
 
     if (newObject && Object.keys(newObject).length === 0) {
       setCurrentOptions([]);
@@ -156,7 +150,7 @@ const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
       } else {
         setMultiSelectOptions(null);
         let options = Object.keys(newObject);
-        if (selectedClient?.trackable?.type === 'GED' || selectedClient?.trackable?.type === 'HSED') {
+        if (selectedClient?.trackable?.program === 'GED' || selectedClient?.trackable?.program === 'HSED') {
           options = options.filter(opt => opt !== 'GED' && opt !== 'HSED');
         }
         setCurrentOptions(options);
@@ -168,12 +162,17 @@ const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
       setCurrentOptions([]);
       setFinalSelection(selectedValue);
 
-      const action = await saveSelectionToMongoDB(newPath, false);
-      console.log(
-        action
-      );
-      const savedAction = await action.json();
-      await setSelectedActivity([...selectedActivity.activities, savedAction]);
+      try {
+        const result = await saveSelectionToMongoDB(newPath, false);
+        if (result && selectedActivity && selectedActivity.activities) {
+          setSelectedActivity({
+            ...selectedActivity,
+            activities: [...selectedActivity.activities, result]
+          });
+        }
+      } catch (error) {
+        console.error('Error saving activity:', error);
+      }
     }
   };
 
@@ -194,7 +193,7 @@ const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
         return [...prev, option];
       }
     });
-    if (trackable && trackable?.items.length > 0 && trackable?.type !== 'GED' || trackable?.type !== 'HSED') {
+    if (trackable && trackable?.items.length > 0 && trackable?.program !== 'GED' || trackable?.program !== 'HSED') {
       setTrackable(prev => {
         if (!prev?.items) return prev;
 

@@ -50,10 +50,10 @@ const navigators = [
   'Trevor Brunette'
 ];
 
-function ClientProfileDetailsInput({ field, index }) {
-  const { selectedClient, setSelectedClient } = useClients();
+function ClientProfileDetailsInput({ field, index, feps }) {
+  const { selectedClient } = useClients();
   const [updating, setUpdating] = useState(false);
-  const [feps, setFeps] = useState([]);
+  const [clientCopy, setClientCopy] = useState({});
 
   const fieldLabelMap = {
     first_name: 'First Name',
@@ -91,30 +91,22 @@ function ClientProfileDetailsInput({ field, index }) {
     schoolIfEnrolled: 'select',
     ttsDream: 'textarea'
   };
-  // console.log(change);
-
-  const fetchFeps = async () => {
-    let feps = [];
-    const response = await fetch(`/api/feps`);
-    const data = await response.json();
-    await data.forEach(fep => {
-      feps.push(fep.name);
-    });
-    setFeps(feps);
-  };
 
   useEffect(() => {
-    fetchFeps().then();
-  }, []);
+    if (selectedClient) {
+      const copy = JSON.parse(JSON.stringify(selectedClient));
+      setClientCopy(copy);
+    }
+  }, [selectedClient]);
 
 // Format date values properly
   const formatDateValue = () => {
 
-    if (!selectedClient[field]) return '';
+    if (!clientCopy[field]) return '';
 
     try {
 
-      const date = new Date(selectedClient[field]);
+      const date = new Date(clientCopy[field]);
       if (!isNaN(date.getTime())) {
         return date.toISOString().split('T')[0];
       }
@@ -129,7 +121,7 @@ function ClientProfileDetailsInput({ field, index }) {
   const fieldType = fieldTypes[field];
 
   const handleChange = (e) => {
-    setSelectedClient(prev => {
+    setClientCopy(prev => {
       return {
         ...prev,
         [field]: e.target.value
@@ -144,8 +136,8 @@ function ClientProfileDetailsInput({ field, index }) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        _id: selectedClient._id,
-        data: { [field]: selectedClient[field] }
+        _id: clientCopy._id,
+        data: { [field]: clientCopy[field] }
       })
       }
     );
@@ -197,7 +189,7 @@ function ClientProfileDetailsInput({ field, index }) {
     } else if (field === 'clientStatus') {
       options = ['Active', 'In Progress', 'Graduated', 'Inactive'];
     } else if (field === 'schoolIfEnrolled') {
-      if (selectedClient?.group === 'Adult') {
+      if (clientCopy?.group === 'Adult') {
         options = adultSchools;
       } else {
         options = youthSchools;
@@ -208,7 +200,7 @@ function ClientProfileDetailsInput({ field, index }) {
       <div className={`flex flex-col`} key={index}>
         <label className={`text-xs mb-1`}>{fieldLabelMap[field]}</label>
         <div className={`flex flex-row gap-2`}>
-          <select disabled={!updating} name={field} id={field} value={selectedClient[field]} onChange={handleChange}
+          <select disabled={!updating} name={field} id={field} value={clientCopy[field]} onChange={handleChange}
                   className={`input input-sm`}>
             <option value="">Select {fieldLabelMap[field]}</option>
             {options.map((option, i) => (
@@ -230,7 +222,7 @@ function ClientProfileDetailsInput({ field, index }) {
       <div className={`flex flex-col`} key={index}>
         <label className={`text-xs mb-1`}>{fieldLabelMap[field]}</label>
         <div className={`flex flex-row gap-2`}>
-          <textarea disabled={!updating} name={field} id={field} defaultValue={selectedClient[field]}
+          <textarea disabled={!updating} name={field} id={field} defaultValue={clientCopy[field]}
                     onChange={handleChange}
                     className={`input input-sm`} placeholder={fieldLabelMap[field]} rows={4} />
           {updating &&
@@ -249,7 +241,7 @@ function ClientProfileDetailsInput({ field, index }) {
         <label className={`text-xs mb-1`}>{fieldLabelMap[field]}</label>
         <div className={`flex flex-row gap-2`}>
           <input disabled={!updating} type={fieldTypes[field]} name={field} id={field}
-                 defaultValue={selectedClient[field] || ''} onChange={handleChange} className={`input input-sm`}
+                 defaultValue={clientCopy[field] || ''} onChange={handleChange} className={`input input-sm`}
                  placeholder={fieldLabelMap[field]} />
           {updating &&
             <button onClick={handleSave}><SaveIcon className={`text-success`} size={20} /></button>}
