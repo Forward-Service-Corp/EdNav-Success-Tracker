@@ -4,9 +4,9 @@ import { PinIcon } from 'lucide-react';
 import { useNavigators } from '../contexts/NavigatorsContext';
 import { useEditing } from '../contexts/EditingContext';
 import { useActivities } from '../contexts/ActivityContext';
-import { getBadgeColor, getBorderColor } from '../lib/ColorMap';
+import { getBadgeColor, getBGColor, getBorderColor } from '../lib/ColorMap';
 
-export default function ClientTableItem({ person, i, statusCollapse, menuClosed}) {
+export default function ClientTableItem({ person, i, statusCollapse, menuOpen }) {
     const {setSelectedActivity} = useActivities()
     const {selectedClient, setSelectedClient} = useClients(null);
     const {selectedNavigator} = useNavigators();
@@ -59,15 +59,19 @@ export default function ClientTableItem({ person, i, statusCollapse, menuClosed}
                     setEditing("client");
                 }
             }}
-            className={`${statusCollapse?.includes(person?.clientStatus) ? 'hidden' : 'visible'} hover:bg-base-200 hover:text-base-content hover:border-base-200 cursor-pointer box-border text-base-content ${selectedClient?._id === person._id ? getBorderColor(selectedClient?.clientStatus) : ''} ${selectedClient?._id === person?._id ? 'bg-base-300 text-base-content ' : ''}`}>
-            <td className={`text-xs truncate flex justify-between items-center  ${menuClosed ? 'p-1.5' : ''}`}>
-                <span className={`ml-3 flex-1`}>{person.first_name + " " + person.last_name}</span>
-                {/*<span className={`mr-1`}>{person.latestInteraction}</span>*/}
-                {/*<span className={`mr-1`}>{person.group}</span>*/}
-                {/*<span className={`mr-1`}>{person.clientStatus}</span>*/}
-                <span className={`ml-4`}><PinIcon size={16} className={`${selectedNavigator && selectedNavigator.pinned && selectedNavigator?.pinned.includes(person?._id) ? 'visible' : 'hidden'} text-base-content/70`}/></span>
-                <span className={`mr-1`}><div className={`w-[15px] m-3 2xl:w-fit ${getBadgeColor(person?.clientStatus)}`}>{(screenWidth < 1536 ? statusAbbr1 : "") + (screenWidth >= 1536 ? personStatus : "")}</div></span>
-            </td>
+            className={`${statusCollapse?.includes(person?.clientStatus) ? 'hidden' : 'visible'} client-table-item ${selectedClient?._id === person._id ? getBorderColor(selectedClient?.clientStatus) : ''} ${selectedClient?._id === person?._id ? getBGColor(selectedClient?.clientStatus) : ''}`}>
+          <td className={`pl-6 font-medium`}>{person.first_name + ' ' + person.last_name}</td>
+          <td className={`${menuOpen ? 'hidden' : ''}`}>{person.latestInteraction}</td>
+          <td className={`${menuOpen ? 'hidden' : ''}`}>{person.group}</td>
+          <td className={`${menuOpen ? 'hidden' : ''}`}>{person.fep}</td>
+          <td className={`${menuOpen ? 'hidden' : ''}`}>{person.region}</td>
+          <td className={``}><PinIcon size={20}
+                                      className={`${selectedNavigator && selectedNavigator.pinned && selectedNavigator?.pinned.includes(person?._id) ? 'visible' : 'hidden'} text-base-content/70`} />
+          </td>
+          <td className={``}>
+            <div
+              className={`w-[15px] m-3 2xl:w-fit ${selectedClient?._id === person._id ? 'badge bg-white text-black border-0 text-xs px-3' : getBadgeColor(person?.clientStatus)}`}>{(screenWidth < 1536 ? statusAbbr1 : '') + (screenWidth >= 1536 ? personStatus : '')}</div>
+          </td>
         </tr>
     );
 }

@@ -40,11 +40,12 @@ function ClientProfileProgress({ hasTrackable, setHasTrackable, updated, setUpda
   }
 
   return (
-    <div className="card bg-base-200 shadow-sm border-1 border-base-content/10 mx-6 rounded-lg">
+    <div
+      className={`card bg-base-200 shadow-sm border-1 border-base-content/10 mx-6 rounded-lg  ${selectedClient?.trackable?.program.includes('GED') || selectedClient?.trackable?.program.includes('HSED') ? '' : 'opacity-50 blur-[2px]'}`}>
       <div className="card-body">
         <div className={`flex items-center justify-between  mt-0 mb-4`}>
           <div>
-            <div className={`text-2xl`}>{selectedClient?.trackable?.type} Progress
+            <div className={`text-2xl`}>{selectedClient?.trackable?.program} Progress
               - {calculateCompletionPercentage(selectedClient?.trackable?.items)}%
             </div>
             <p className={`text-xs text-info`}>If you are having trouble selecting items, please refresh the

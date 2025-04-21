@@ -152,3 +152,11 @@ span.activity {
 .search-under-filter {
     @apply absolute bg-secondary/30 backdrop-blur backdrop-grayscale-100 top-0 p-3 right-0 left-0 flex items-center justify-end gap-3 transition-all ease-out duration-700 -z-10;
 }
+
+.client-table-item {
+    @apply hover:bg-base-content/10 hover:text-base-content cursor-pointer box-border px-3;
+}
+
+.client-table-item td {
+    @apply text-sm ;
+}

@@ -32,7 +32,7 @@ type Client = {
     'referralDate': string,
   },
   trackable: {
-    type: string,
+    program: string,
     length: number,
     items: [
       {
