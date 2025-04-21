@@ -1,7 +1,7 @@
 // components/admin/UserManagement.tsx
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -221,7 +221,7 @@ export default function UserManagement() {
                           user.level === 'admin'
                             ? 'bg-warning/20 text-warning-foreground'
                             : user.level === 'IT'
-                              ? 'bg-secondary/20 text-secondary-foreground'
+                              ? 'bg-secondary/20 text-error-foreground'
                               : 'bg-primary/20 text-primary-foreground'
                         }`}>
   {user.level}

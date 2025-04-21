@@ -60,7 +60,7 @@ function ClientProfileProgress({ hasTrackable, setHasTrackable, updated, setUpda
             </div>
 
             <div onClick={handleTrackableUpdate}
-                 className={` cursor-pointer text-sm text-secondary font-light underline ${updated ? 'visible' : 'hidden'}`}>Save
+                 className={` cursor-pointer text-sm text-error font-light underline ${updated ? 'visible' : 'hidden'}`}>Save
               Progress
             </div>
           </div>

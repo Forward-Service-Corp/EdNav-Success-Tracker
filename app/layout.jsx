@@ -21,9 +21,9 @@ export default function RootLayout({ children }) {
               <FepsLeftProvider>
                 <ActivityProvider>
                   <ClientListProvider>
-                  <NavigatorProvider>
-                    {children}
-                  </NavigatorProvider>
+                    <NavigatorProvider>
+                      {children}
+                    </NavigatorProvider>
                   </ClientListProvider>
                 </ActivityProvider>
               </FepsLeftProvider>
@@ -33,7 +33,7 @@ export default function RootLayout({ children }) {
       </ThemesProvider>
     </SessionProvider>
   );
-}
+};
 
 // ✅ Separate wrapper component to safely use `useThemes()`
 function ThemeWrapper({ children }) {

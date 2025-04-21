@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import moment from 'moment';
 import { useClients } from '@/contexts/ClientsContext';
-import CommentForm from './CommentForm';
 import NoteModal from '../components/NoteModal';
-import ActivityModal from '@/components/ActivityModal'; // We'll create this component
+import ActivityModal from '@/components/ActivityModal';
+import CommentDebugger from './CommentDebugger';
+import DirectCommentTest from './DirectCommentTest';
+import EnhancedCommentForm from './EnhancedCommentForm';
+import CommentDisplay from './CommentDisplay';
 
 const CombinedFeed = () => {
   const { selectedClient } = useClients();
@@ -35,6 +38,7 @@ const CombinedFeed = () => {
   }, []);
 
   const fetchFeedData = async () => {
+    console.log('=== FETCH FEED DATA STARTED ===');
     setIsLoading(true);
     setError(null);
 
@@ -42,6 +46,7 @@ const CombinedFeed = () => {
       console.log('Fetching feed data for client:', selectedClient._id);
       
       // Fetch activities, notes, and comments
+      console.log('Making API requests...');
       const [activitiesRes, notesRes, commentsRes] = await Promise.all([
         fetch(`/api/activities?clientId=${selectedClient._id}`),
         fetch(`/api/notes?clientId=${selectedClient._id}`),
@@ -62,17 +67,30 @@ const CombinedFeed = () => {
       const notesData = await notesRes.json();
       const commentsData = await commentsRes.json();
 
-      console.log('Notes data received:', notesData);
+      console.log('Data received:');
+      console.log('- Activities count:', (activitiesData.data || []).length);
+      console.log('- Notes count:', Array.isArray(notesData) ? notesData.length : 'not an array');
+      console.log('- Comments count:', Array.isArray(commentsData) ? commentsData.length : 'not an array');
 
       // Extract the activities array from the response
       const activities = activitiesData.data || [];
 
       // Notes data should be an array already from the API
       const notes = Array.isArray(notesData) ? notesData : [];
-      
-      const comments = commentsData || [];
+
+      // Ensure comments is an array
+      const comments = Array.isArray(commentsData) ? commentsData : [];
+
+      if (comments.length > 0) {
+        console.log('Comment sample:', {
+          _id: comments[0]._id,
+          parentId: comments[0].parentId,
+          commentText: comments[0].commentText?.substring(0, 20) + '...'
+        });
+      }
 
       // Group comments by their parent ID
+      console.log('Grouping comments by parent ID...');
       const commentsByParent = comments.reduce((acc, comment) => {
         const parentId = comment.parentId;
         if (!acc[parentId]) {
@@ -82,31 +100,57 @@ const CombinedFeed = () => {
         return acc;
       }, {});
 
-      // Normalize the data format and attach comments
-      const formattedActivities = activities.map(activity => ({
-        ...activity,
-        type: 'activity',
-        itemId: activity._id,
-        date: activity.selectedDate || activity.createdAt || activity.timestamp,
-        content: activity.statement,
-        author: activity.navigator || 'System',
-        comments: commentsByParent[activity._id] || []
-      }));
+      const parentIdCount = Object.keys(commentsByParent).length;
+      console.log(`Comments grouped by parent ID. Found ${parentIdCount} parents.`);
 
-      const formattedNotes = notes.map(note => ({
-        ...note,
-        type: 'note',
-        itemId: note._id,
-        date: note.createdAt,
-        content: note.noteContent,
-        author: note.noteAuthor || 'Unknown',
-        comments: commentsByParent[note._id] || []
-      }));
+      // Normalize the data format and attach comments
+      console.log('Formatting activities with comments...');
+      const formattedActivities = activities.map(activity => {
+        const itemId = activity._id;
+        const itemComments = commentsByParent[itemId] || [];
+
+        if (itemComments.length > 0) {
+          console.log(`Activity ${itemId}: has ${itemComments.length} comments`);
+        }
+
+        return {
+          ...activity,
+          type: 'activity',
+          itemId,
+          date: activity.selectedDate || activity.createdAt || activity.timestamp,
+          content: activity.statement,
+          author: activity.navigator || 'System',
+          comments: itemComments
+        };
+      });
+
+      console.log('Formatting notes with comments...');
+      const formattedNotes = notes.map(note => {
+        const itemId = note._id;
+        const itemComments = commentsByParent[itemId] || [];
+
+        if (itemComments.length > 0) {
+          console.log(`Note ${itemId}: has ${itemComments.length} comments`);
+        }
+
+        return {
+          ...note,
+          type: 'note',
+          itemId,
+          date: note.createdAt,
+          content: note.noteContent,
+          author: note.noteAuthor || 'Unknown',
+          comments: itemComments
+        };
+      });
 
       // Combine and sort by date (newest first)
       const combined = [...formattedActivities, ...formattedNotes]
         .sort((a, b) => new Date(b.date) - new Date(a.date));
 
+      console.log(`Feed data processed successfully. Total items: ${combined.length}`);
+      console.log('=== FETCH FEED DATA COMPLETED ===');
+      
       setFeedItems(combined);
     } catch (err) {
       console.error('Error fetching feed:', err);
@@ -117,47 +161,112 @@ const CombinedFeed = () => {
   };
 
   const toggleComments = (itemId) => {
-    // When opening a comments section, set the active comment form
-    if (!expandedComments[itemId]) {
-      setActiveCommentForm(itemId);
-    }
-    
-    setExpandedComments(prev => ({
-      ...prev,
-      [itemId]: !prev[itemId]
-    }));
+    console.log('Toggle comments for:', itemId);
+
+    // Toggle the expanded state with a callback to ensure we have the latest state
+    setExpandedComments(prev => {
+      const newState = {
+        ...prev,
+        [itemId]: !prev[itemId]
+      };
+
+      console.log('New expanded state:', newState);
+
+      // If we're expanding this item, set it as the active comment form
+      if (newState[itemId]) {
+        // Small delay to ensure the DOM is updated before focusing
+        setTimeout(() => {
+          console.log('Setting active comment form to:', itemId);
+          setActiveCommentForm(itemId);
+        }, 50);
+      }
+
+      return newState;
+    });
   };
 
   const handleCommentFocus = (itemId) => {
-    setActiveCommentForm(itemId);
+    console.log('Focusing comment form for:', itemId);
+
+    // Make sure the comments section is expanded
+    setExpandedComments(prev => ({
+      ...prev,
+      [itemId]: true // Always make sure it's expanded
+    }));
+
+    // Set active comment form with small delay to ensure DOM is ready
+    setTimeout(() => {
+      console.log('Setting active comment form to:', itemId);
+      setActiveCommentForm(itemId);
+    }, 50);
   };
 
   const handleAddComment = async (itemId, commentText) => {
-    try {
-      const response = await fetch('/api/comments', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          parentId: itemId,
-          clientId: selectedClient._id,
-          commentText,
-          createdAt: new Date().toISOString(),
-          author: 'Current User' // Replace it with the actual username from auth context
-        })
-      });
+    console.log('CombinedFeed.handleAddComment called with:', { itemId, commentText });
 
-      if (!response.ok) {
-        throw new Error('Failed to add comment');
-      }
-
-      // Refresh the feed to show the new comment
-      await fetchFeedData();
-    } catch (err) {
-      console.error('Error adding comment:', err);
-      alert('Failed to add comment. Please try again.');
+    if (!selectedClient?._id) {
+      console.error('No selected client');
+      throw new Error('No client selected');
     }
+
+    if (!itemId) {
+      console.error('No item ID provided');
+      throw new Error('Cannot determine where to add comment');
+    }
+
+    if (!commentText || !commentText.trim()) {
+      console.error('Empty comment text');
+      throw new Error('Comment text cannot be empty');
+    }
+
+    // Create the comment payload
+    const payload = {
+      parentId: itemId,
+      clientId: selectedClient._id,
+      commentText: commentText.trim(),
+      createdAt: new Date().toISOString(),
+      author: 'Current User'
+    };
+
+    console.log('Sending comment payload:', payload);
+
+    // Make the API call
+    const response = await fetch('/api/comments', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    });
+
+    console.log('API response status:', response.status);
+
+    // Handle error responses
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('API error response:', errorData);
+      throw new Error(errorData.error || 'Failed to add comment');
+    }
+
+    // Parse the success response
+    const result = await response.json();
+    console.log('API success response:', result);
+
+    // Refresh the feed data to show the new comment
+    console.log('Refreshing feed data...');
+    await fetchFeedData();
+
+    // Keep the comment section expanded
+    setExpandedComments(prev => ({
+      ...prev,
+      [itemId]: true
+    }));
+
+    // Also make sure this item has the active comment form
+    setActiveCommentForm(itemId);
+
+    console.log('Comment added successfully');
+    return result;
   };
 
   return (
@@ -182,6 +291,26 @@ const CombinedFeed = () => {
           </button>
         </div>
       </div>
+
+      {/* Comment debugging panel - remove this after fixing the issue */}
+      <details className="mb-4 collapse collapse-arrow border border-base-300 rounded-box">
+        <summary className="collapse-title font-medium">
+          Comment System Debugger
+        </summary>
+        <div className="collapse-content">
+          <CommentDebugger />
+        </div>
+      </details>
+
+      {/* Simple direct test - remove this after fixing the issue */}
+      <details className="mb-4 collapse collapse-arrow border border-warning rounded-box">
+        <summary className="collapse-title font-medium">
+          Direct API Test (No Dependencies)
+        </summary>
+        <div className="collapse-content">
+          <DirectCommentTest />
+        </div>
+      </details>
 
       {isLoading && (
         <div className="flex justify-center py-6">
@@ -234,30 +363,28 @@ const CombinedFeed = () => {
               {expandedComments[item.itemId] && (
                 <div className="mt-2 space-y-2">
                   {item.comments.length > 0 ? (
-                    item.comments.map((comment) => (
-                      <div key={comment._id} className="pl-4 border-l-2 border-base-300 ">
-                        <div className="flex justify-between text-base-content/60">
-                          <span>{comment.author}</span>
-                          <span>{moment(comment.createdAt).format('MMM D, YYYY h:mm A')}</span>
-                        </div>
-                        <div className="mt-1">
-                          {comment.commentText}
-                        </div>
-                      </div>
-                    ))
+                    <div className="space-y-3">
+                      {item.comments.map((comment) => (
+                        <CommentDisplay key={comment._id} comment={comment} />
+                      ))}
+                    </div>
                   ) : (
                     <div className="text-base-content/60 italic">
                       No comments yet
                     </div>
                   )}
 
-                  {/* Comment form - only shown when this item is the active comment form */}
+                  {/* Enhanced Comment Form Section */}
                   <div className="mt-3">
                     {activeCommentForm === item.itemId ? (
-                      <CommentForm
-                        parentId={item.itemId}
-                        onAddComment={(text) => handleAddComment(item.itemId, text)}
-                      />
+                      <div className="border border-base-300 p-2 rounded-md">
+                        <h4 className="text-xs font-semibold mb-2">Add a comment</h4>
+                        <EnhancedCommentForm
+                          key={`comment-form-${item.itemId}`}
+                          parentId={item.itemId}
+                          onAddComment={(text) => handleAddComment(item.itemId, text)}
+                        />
+                      </div>
                     ) : (
                       <div
                         className="cursor-pointer text-base-content/60 hover:text-base-content p-2 rounded border border-dashed border-base-300 text-center"

@@ -49,16 +49,16 @@ function SearchField({ menuOpen, setMenuOpen, filterOpen, setFilterOpen, setView
       <div
         className={`search-under-filter cursor-pointer ${filterOpen ? 'translate-y-[79px]' : '-translate-y-[84px]'}`}>
         <div className="filter flex items-center gap-1 justify-end">
-          <input onClick={() => setViewMode('')} className="btn lg:btn-xs btn-sm btn-primary btn-soft filter-reset"
+          <input onClick={() => setViewMode('')} className="btn lg:btn-xs btn-sm btn-successbtn-soft filter-reset"
                  type="radio" name="metaframeworks"
                  aria-label="All" />
-          <input onClick={toggleAlpha} className="btn lg:btn-xs btn-sm btn-primary btn-soft" type="radio"
+          <input onClick={toggleAlpha} className="btn lg:btn-xs btn-sm btn-successbtn-soft" type="radio"
                  name="metaframeworks" aria-label="A-Z" />
-          <input onClick={toggleDate} className="btn lg:btn-xs btn-sm btn-primary btn-soft" type="radio"
+          <input onClick={toggleDate} className="btn lg:btn-xs btn-sm btn-successbtn-soft" type="radio"
                  name="metaframeworks" aria-label="Latest" />
-          <input onClick={toggleGrouped} className="btn lg:btn-xs btn-sm btn-primary btn-soft" type="radio"
+          <input onClick={toggleGrouped} className="btn lg:btn-xs btn-sm btn-successbtn-soft" type="radio"
                  name="metaframeworks" aria-label="Grouped" />
-          <input onClick={togglePinned} className="btn lg:btn-xs btn-sm btn-primary btn-soft" type="radio"
+          <input onClick={togglePinned} className="btn lg:btn-xs btn-sm btn-successbtn-soft" type="radio"
                  name="metaframeworks" aria-label="Pinned" />
         </div>
       </div>

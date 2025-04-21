@@ -27,7 +27,7 @@ export default function ClientTable({ menuOpen, setMenuOpen }) {
       case 'graduated':
         return 'bg-info text-info-content';
       default:
-        return 'bg-primary text-primary-content';
+        return 'bg-success text-success-content';
     }
   };
 

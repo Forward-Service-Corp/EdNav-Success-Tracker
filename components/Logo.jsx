@@ -7,7 +7,7 @@ function Logo() {
       <div className="flex items-center justify-center md:justify-start">
         <Link href="/" className="inline-block">
           <div className="text-[30px] sm:text-[40px] md:text-[50px] font-black italic antialiased -tracking-[2px]">
-            <span className="text-secondary z-10 relative drop-shadow-lg shadow-black">ED</span>
+            <span className="text-error z-10 relative drop-shadow-lg shadow-black">ED</span>
             <span className="text-accent -ml-[4px] sm:-ml-[5px] md:-ml-[6px] z-0 relative">NAV</span>
           </div>
           <div

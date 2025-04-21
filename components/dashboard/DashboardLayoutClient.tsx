@@ -1,7 +1,7 @@
 // components/dashboard/DashboardLayoutClient.tsx
 'use client';
 
-import { ReactNode, useEffect, useState } from 'react';
+import React, { ReactNode, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Home, LogOut, Settings } from 'lucide-react';
 import { Session } from 'next-auth';
@@ -78,7 +78,7 @@ export default function DashboardLayoutClient({
           <nav className="space-y-1">
             <Link
               href="/dashboard"
-              className="flex items-center px-4 py-2 text-foreground rounded-md hover:bg-accent hover:text-accent-foreground"
+              className="flex items-center px-4 py-2 text-foreground rounded-md hover:bg-info hover:text-accent-foreground"
             >
               <Home className="mr-3 h-5 w-5" />
               Dashboard
@@ -87,7 +87,7 @@ export default function DashboardLayoutClient({
             {(session.user.level === 'admin' || session.user.level === 'IT') && (
               <a
                 href="/dashboard/admin-tools"
-                className="flex items-center px-4 py-2 text-foreground rounded-md hover:bg-accent hover:text-accent-foreground"
+                className="flex items-center px-4 py-2 text-foreground rounded-md hover:bg-info hover:text-accent-foreground"
               >
                 <Settings className="mr-3 h-5 w-5" />
                 Admin Tools

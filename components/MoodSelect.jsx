@@ -11,9 +11,9 @@ export default function MoodSelect({mood, setNote}) {
     const getIconBGColor = (status) => {
         switch (status) {
             case "ThumbsUp":
-                return "bg-primary text-primary-content";
+                return 'bg-success text-success-content';
             case "SmileySad":
-                return "bg-accent text-accent-content";
+                return 'bg-info text-accent-content';
             case "Fire":
                 return "bg-error text-error-content";
             case "Question":
@@ -26,7 +26,7 @@ export default function MoodSelect({mood, setNote}) {
     const getIconColor = (status) => {
         switch (status) {
             case "ThumbsUp":
-                return <ThumbsUp size={26} className="text-primary-content"/>;
+                return <ThumbsUp size={26} className="text-success-content" />;
             case "SmileySad":
                 return <SmileySad size={26} className="text-accent-content"/>;
             case "Fire":

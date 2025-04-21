@@ -3,7 +3,7 @@ import { Input } from '/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger } from '/components/ui/select';
 import NavigatorSelector from '/components/NavigatorSelector';
 import ClientTable from './ClientTable';
-import { useFepsLeft } from '@/contexts/FepsLeftContext';
+import { useFepsLeft } from '../contexts/FepsLeftContext';
 
 const FilteredClients = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -22,13 +22,13 @@ const FilteredClients = () => {
                 const response = await fetch(url);
                 const data = await response.json();
 
-                if (Array.isArray(data)) {  // Check if response is an array
+                if (Array.isArray(data)) {  // Check if the response is an array
                     setClients(data);  // Directly set the array of clients
                 } else if (data && Array.isArray(data.clients)) {  // Check if it's an object with clients array
                     setClients(data.clients);
                 } else {
                     console.error('Unexpected response structure:', data);
-                    setClients([]);  // Fallback to empty array if structure is unexpected
+                    setClients([]);  // Fallback to an empty array if the structure is unexpected
                 }
             } catch (error) {
                 console.error('Error fetching clients:', error);
@@ -38,7 +38,7 @@ const FilteredClients = () => {
             }
         };
 
-        fetchClients();
+        fetchClients().then();
     }, [selectedNavigator]);
 
     const filteredClients = clients.filter(client => {
@@ -63,8 +63,8 @@ const FilteredClients = () => {
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
                     <SelectTrigger>Status</SelectTrigger>
                     <SelectContent>
-                        {['All', 'Active', 'In Progress', 'graduated', 'Inactive'].map(status => (
-                            <SelectItem key={status} value={status}>{status}</SelectItem>
+                        {['All', 'Active', 'In Progress', 'Graduated', 'Inactive'].map((status: string) => (
+                          <SelectItem key={status} value={status}>{status}</SelectItem>
                         ))}
                     </SelectContent>
                 </Select>
@@ -72,7 +72,7 @@ const FilteredClients = () => {
                 <Select value={groupFilter} onValueChange={setGroupFilter}>
                     <SelectTrigger>Group</SelectTrigger>
                     <SelectContent>
-                        {['All', 'Adult', 'Youth'].map(group => (
+                        {['All', 'Adult', 'Youth'].map((group: string) => (
                             <SelectItem key={group} value={group}>{group}</SelectItem>
                         ))}
                     </SelectContent>
