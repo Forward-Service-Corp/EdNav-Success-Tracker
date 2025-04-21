@@ -49,11 +49,8 @@ const FilteredClients = () => {
     });
 
     return (
-      <div className="space-y-4 p-4">
-        <NavigatorSelector
-          value={selectedNavigator}
-          onChange={setSelectedNavigator}
-        />
+      <div className="p-4 space-y-4">
+        <NavigatorSelector value={selectedNavigator} onChange={setSelectedNavigator} />
 
         <div className="flex space-x-4">
           <Input
@@ -66,23 +63,17 @@ const FilteredClients = () => {
           <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger>Status</SelectTrigger>
             <SelectContent>
-              {["All", "Active", "In Progress", "Graduated", "Inactive"].map(
-                (status) => (
-                  <SelectItem key={status} value={status}>
-                    {status}
-                  </SelectItem>
-                ),
-              )}
+              {["All", "Active", "In Progress", "Graduated", "Inactive"].map((status: string) => (
+                <SelectItem key={status} value={status}>{status}</SelectItem>
+              ))}
             </SelectContent>
           </Select>
 
           <Select value={groupFilter} onValueChange={setGroupFilter}>
             <SelectTrigger>Group</SelectTrigger>
             <SelectContent>
-              {["All", "Adult", "Youth"].map((group) => (
- "All"  "Adult" <"Youth"tem key={group} value={group}>
-                  {group}
-                </SelectItem>
+              {["All", "Adult", "Youth"].map((group: string) => (
+                <SelectItem key={group} value={group}>{group}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -91,12 +82,8 @@ const FilteredClients = () => {
         {loading ? (
           <div>Loading clients...</div>
         ) : (
-          <ClientTable
-            clients={filteredClients}
-            searchTerm={searchTerm}
-            statusFilter={statusFilter}
-            groupFilter={groupFilter}
-          />
+          <ClientTable clients={filteredClients} searchTerm={searchTerm} statusFilter={statusFilter}
+                       groupFilter={groupFilter} />
         )}
       </div>
     );

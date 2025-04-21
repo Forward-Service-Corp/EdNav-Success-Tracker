@@ -79,7 +79,7 @@ const CommentDebugger = () => {
           clientId: selectedClient._id,
           commentText,
           createdAt: new Date().toISOString(),
-          author: "Debug User",
+          author: "Debug User,
         }),
       });
 
@@ -91,7 +91,7 @@ const CommentDebugger = () => {
 
       setResult({
         ...data,
-        source: "Regular API",
+        source: "Regular API"
       });
       await fetchComments();
     } catch (err) {
@@ -127,13 +127,13 @@ const CommentDebugger = () => {
       const response = await fetch("/api/comments/test", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/json"
         },
         body: JSON.stringify({
           parentId,
           clientId: selectedClient._id,
           commentText: commentText.trim(),
-          author: "Test API User",
+          author: "Test API User"
         }),
       });
 
@@ -141,13 +141,13 @@ const CommentDebugger = () => {
 
       if (!response.ok) {
         throw new Error(
-          data.error || "Failed to add comment with test endpoint",
+          data.error || "Failed to add comment with test endpoint"
         );
       }
 
       setResult({
         ...data,
-        source: "Test API",
+        source: "Test API"
       });
       await fetchComments();
     } catch (err) {
