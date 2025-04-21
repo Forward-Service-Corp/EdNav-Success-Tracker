@@ -67,7 +67,10 @@ export default function ClientProfile() {
     return (
       <div className={`w-full h-full overflow-y-scroll no-scrollbar relative`}>
           <ClientProfileHeader />
-          <div className={`mt-[40px] grid grid-cols-4 gap-4 `}>
+          <div className={`mt-[30px] grid grid-cols-4 gap-4 `}>
+              <div className={`col-span-4 min-h-30 `}>
+                  <ClientProfilePersonalOrganization />
+              </div>
               <div className={`col-span-4 min-h-30 `}>
                   <ClientProfileProgress hasTrackableCopy={hasTrackableCopy} hasTrackable={hasTrackable}
                                          setHasTrackable={setHasTrackable} updated={updated} setUpdated={setUpdated} />
@@ -77,9 +80,6 @@ export default function ClientProfile() {
               </div>
               <div className={`col-span-2 min-h-30 `}>
                   <ClientProfileTABEOrientation />
-              </div>
-              <div className={`col-span-4 min-h-30 `}>
-                  <ClientProfilePersonalOrganization />
               </div>
           </div>
       </div>

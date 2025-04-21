@@ -15,21 +15,21 @@ function AddClientForm() {
   const { setEditing } = useEditing();
   const { setSelectedClient } = useClients(null);
   const [formData, setFormData] = useState({
-    first_name: '',
-    last_name: '',
-    email: '',
-    contactNumber: '',
     caseNumber: '',
-    dob: '',
-    fep: '',
-    navigator: '',
+    clientStatus: 'In Progress',
+    contactNumber: '',
+    county: '',
     dateReferred: '',
+    dob: '',
+    email: '',
+    fep: '',
+    first_name: '',
+    group: '',
     lastGrade: '',
+    last_name: '',
+    navigator: '',
     pin: '',
     region: '',
-    clientStatus: 'In Progress',
-    county: '',
-    group: '',
     schoolIfEnrolled: '',
     ttsDream: ''
   });
@@ -79,23 +79,23 @@ function AddClientForm() {
     'No Formal Education'
   ];
   const formBackup = {
-    first_name: '',
-    last_name: '',
-    email: '',
-    contactNumber: '',
     caseNumber: '',
-    dob: '',
-    fep: '',
-    navigator: '',
+    clientStatus: 'In Progress',
+    contactNumber: '',
     dateReferred: '',
+    dob: '',
+    email: '',
+    fep: '',
+    first_name: '',
+    group: '',
     lastGrade: '',
+    last_name: '',
+    navigator: '',
+    officeCity: '',
     pin: '',
     region: '',
-    clientStatus: 'In Progress',
-    transcripts: false,
-    officeCity: '',
-    group: '',
     schoolIfEnrolled: '',
+    transcripts: false,
     ttsDream: ''
   };
   const fetchFeps = async () => {
@@ -140,31 +140,31 @@ function AddClientForm() {
     }
   }
 
-  // const validateContactInfo = () => {
-  //   const newErrors = { ...errors };
-  //   let valid = true;
-  //
-  //   // Validate email
-  //   if (!formData.email) {
-  //     newErrors.email = 'Email is required';
-  //     valid = false;
-  //   } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(formData.email)) {
-  //     newErrors.email = 'Please enter a valid email address';
-  //     valid = false;
-  //   }
-  //
-  //   // Validate phone number
-  //   if (!formData.contactNumber) {
-  //     newErrors.contactNumber = 'Phone number is required';
-  //     valid = false;
-  //   } else if (!/^\(\d{3}\)\s\d{3}-\d{4}$/.test(formData.contactNumber)) {
-  //     newErrors.contactNumber = 'Please enter a valid phone number (xxx) xxx-xxxx';
-  //     valid = false;
-  //   }
-  //
-  //   setErrors(newErrors);
-  //   return valid;
-  // };
+  const validateContactInfo = () => {
+    const newErrors = { ...errors };
+    let valid = true;
+
+    // Validate email
+    if (!formData.email) {
+      newErrors.email = 'Email is required';
+      valid = false;
+    } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email address';
+      valid = false;
+    }
+
+    // Validate phone number
+    if (!formData.contactNumber) {
+      newErrors.contactNumber = 'Phone number is required';
+      valid = false;
+    } else if (!/^\(\d{3}\)\s\d{3}-\d{4}$/.test(formData.contactNumber)) {
+      newErrors.contactNumber = 'Please enter a valid phone number (xxx) xxx-xxxx';
+      valid = false;
+    }
+
+    setErrors(newErrors);
+    return valid;
+  };
 
   const formFields = [
     {
@@ -245,14 +245,14 @@ function AddClientForm() {
       value: formData.schoolIfEnrolled
     },
     {
-      name: 'officeCity',
-      label: 'Office Location',
+      name: 'county',
+      label: 'County',
       type: 'select',
       required: true,
       options: locations,
       value: formData.officeCity
     },
-    { name: 'ttsDream', label: 'TTS Dream', type: 'textarea', required: true, value: formData.ttsDream, options: null }
+    { name: 'ttsDream', label: 'TTS Dream', type: 'textarea', required: false, value: formData.ttsDream, options: null }
   ];
 
   const validateForm = () => {
@@ -292,6 +292,7 @@ function AddClientForm() {
       }
       return;
     }
+    validateContactInfo();
 
     // Special handling for email
     if (name === 'email' && value) {
@@ -384,7 +385,7 @@ function AddClientForm() {
           })}
         </div>
         <div className="m-10 flex flex-row justify-between">
-          <button type="submit" disabled={errors}
+          <button type="submit" disabled={false}
                   className="btn btn-success btn-soft text-white p-2 rounded-md mt-6 px-6">Submit
           </button>
           <button type="reset" onClick={handleReset}

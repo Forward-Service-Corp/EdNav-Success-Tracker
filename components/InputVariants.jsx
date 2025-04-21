@@ -1,6 +1,16 @@
 import React from 'react';
 
-export default function InputVariants({ label, name, handleChange, disabled, options, value, type, placeholder }) {
+export default function InputVariants({
+                                        label,
+                                        name,
+                                        handleChange,
+                                        disabled,
+                                        options,
+                                        value,
+                                        type,
+                                        placeholder,
+                                        error
+                                      }) {
   // Format date values properly
   const formatDateValue = () => {
     if (!value) return '';
@@ -60,7 +70,7 @@ export default function InputVariants({ label, name, handleChange, disabled, opt
             <legend className="fieldset-legend">{label}</legend>
             <input
               type={type}
-              className="input w-full"
+              className={`input w-full ${error ? 'input-error' : ''}`}
               name={name}
               onChange={handleChange}
               defaultValue={type === 'date' ? formatDateValue() : (value || '')}
@@ -70,6 +80,7 @@ export default function InputVariants({ label, name, handleChange, disabled, opt
           </fieldset>
         </div>
       )}
+      {error && <div className={`text-xs text-error p-1`}>{error}</div>}
     </div>
   );
 }
