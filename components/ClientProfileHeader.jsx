@@ -5,7 +5,7 @@ import { useClients } from "/contexts/ClientsContext";
 import ClientProfilePin from "./ClientProfilePin";
 import { useEditing } from "../contexts/EditingContext";
 
-export default function ClientProfileHeader() {
+export default function ClientProfileHeader({ setOpenPanel }) {
   const { selectedClient, setSelectedClient } = useClients();
   const { setEditing } = useEditing();
 
@@ -27,9 +27,10 @@ export default function ClientProfileHeader() {
       </div>
 
       <div
-       ""nClick={() => {
+        onClick={() => {
           setEditing("");
           setSelectedClient(null);
+          setOpenPanel(false);
         }}
         className={``}
       >

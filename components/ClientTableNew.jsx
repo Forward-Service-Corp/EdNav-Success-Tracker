@@ -7,11 +7,13 @@ import { useNavigators } from "../contexts/NavigatorsContext";
 import { getBadgeColor } from "../lib/ColorMap";
 import Badges from "./Badges";
 import { useFepsLeft } from "/contexts/FepsLeftContext";
+import SearchField from "./SearchField";
 
 export default function ClientTableNew({
   menuOpen,
   setMenuOpen,
   toggleSidebar,
+  setOpenPanel, // added
 }) {
   const { clientList } = useClientList();
   const { selectedNavigator } = useNavigators();
@@ -19,7 +21,7 @@ export default function ClientTableNew({
   const [isMounted, setIsMounted] = useState(false);
   const [viewMode, setViewMode] = useState(null);
   const [filterOpen, setFilterOpen] = useState(false);
-  const [statusCollapse, setStatusCollapse] = useState([]);
+  const [, setStatusCollapse] = useState([]);
   const { setEditing } = useEditing();
   const { selectedClient, setSelectedClient } = useClients({});
 
@@ -99,39 +101,41 @@ export default function ClientTableNew({
   if (!isMounted) return null;
 
   return (
-    <div className={`relative z-0 h-full w-full`}>
+    <div className={`no-scrollbar relative z-0 h-full w-full`}>
       <div
         className={`no-scrollbar absolute top-0 right-0 bottom-0 left-0 overflow-y-scroll`}
       >
-        {/*<div className={`px-3 py-4 flex items-center justify-between sticky top-0 left-0 right-0 h-[80px] bg-base-200 shadow z-50`}>*/}
-        {/*  <SearchField*/}
-        {/*    menuOpen={menuOpen}*/}
-        {/*    setMenuOpen={setMenuOpen}*/}
-        {/*    setFilterOpen={setFilterOpen}*/}
-        {/*    toggleSidebar={toggleSidebar}*/}
-        {/*    filterOpen={filterOpen}*/}
-        {/*    setViewMode={setViewMode}*/}
-        {/*    setStatusCollapse={setStatusCollapse}*/}
-        {/*  />*/}
-        {/*</div>*/}
+        <div
+          className={`bg-base-200 sticky top-0 right-0 left-0 z-50 flex h-[80px] items-center justify-between px-3 py-4 shadow`}
+        >
+          <SearchField
+            menuOpen={menuOpen}
+            setMenuOpen={setMenuOpen}
+            setFilterOpen={setFilterOpen}
+            toggleSidebar={toggleSidebar}
+            filterOpen={filterOpen}
+            setViewMode={setViewMode}
+            setStatusCollapse={setStatusCollapse}
+          />
+        </div>
 
         <div className="no-scrollbar overflow-y-scroll">
           <table className="no-scrollbar table overflow-y-scroll">
             {/* head */}
-            <thead>
-              <tr>
-                <th>
-                  <label>
-                    <input type="checkbox" className="checkbox" />
-                  </label>
-                </th>
-                <th>Name</th>
-                <th>Job</th>
-                <th>Favorite Color</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody className="block max-h-[600px] overflow-y-auto">
+            {/*<thead>*/}
+            {/*  <tr>*/}
+            {/*    <th>*/}
+            {/*      <label>*/}
+            {/*        <input type="checkbox" className="checkbox" />*/}
+            {/*      </label>*/}
+            {/*    </th>*/}
+            {/*    <th>Name</th>*/}
+            {/*    <th>Job</th>*/}
+            {/*    <th>Favorite Color</th>*/}
+            {/*    <th></th>*/}
+            {/*  </tr>*/}
+            {/*</thead>*/}
+            <tbody className="block h-full min-h-[600px] overflow-y-auto">
               {clientsToShow.map((person, i) => (
                 <tr
                   key={i}
@@ -139,35 +143,36 @@ export default function ClientTableNew({
                   onClick={() => {
                     setEditing("client");
                     setSelectedClient(person);
+                    setOpenPanel("profile");
                     handleCollapseChange("Active");
                   }}
                 >
-                  <th
-                    className={`relative ${
-                      selectedClient?._id === person._id
-                        ? filterOpen
-                          ? "animate-pulse-once sticky top-[47px] z-20"
-                          : "animate-pulse-once sticky top-0 z-20"
-                        : ""
-                    } bg-base-100 transition-all duration-300 ease-in-out`}
-                  >
-                    {/* Avatar or icon for selected client */}
-                    {selectedClient?._id === person._id && (
-                      <div className="animate-fadeInZoom absolute top-1 -left-6">
-                        <img
-                          src="/avatar-flair.png"
-                          alt="Selected"
-                          className="border-primary h-6 w-6 rounded-full border-2"
-                        />
-                        {/*<UserCheck className="w-5 h-5 text-primary" />*/}
-                      </div>
-                    )}
-                    <label>
-                      <input type="checkbox" className="checkbox" />
-                    </label>
-                  </th>
+                  {/*<th*/}
+                  {/*  className={`relative ${*/}
+                  {/*    selectedClient?._id === person._id*/}
+                  {/*      ? filterOpen*/}
+                  {/*        ? "animate-pulse-once sticky top-[47px] z-20"*/}
+                  {/*        : "animate-pulse-once sticky top-0 z-20"*/}
+                  {/*      : ""*/}
+                  {/*  } bg-base-100 transition-all duration-300 ease-in-out`}*/}
+                  {/*>*/}
+                  {/*  /!* Avatar or icon for selected client *!/*/}
+                  {/*  {selectedClient?._id === person._id && (*/}
+                  {/*    <div className="animate-fadeInZoom absolute top-1 -left-6">*/}
+                  {/*      <img*/}
+                  {/*        src="/avatar-flair.png"*/}
+                  {/*        alt="Selected"*/}
+                  {/*        className="border-primary h-6 w-6 rounded-full border-2"*/}
+                  {/*      />*/}
+                  {/*      /!*<UserCheck className="w-5 h-5 text-primary" />*!/*/}
+                  {/*    </div>*/}
+                  {/*  )}*/}
+                  {/*  <label>*/}
+                  {/*    <input type="checkbox" className="checkbox" />*/}
+                  {/*  </label>*/}
+                  {/*</th>*/}
                   <td>
-                    <div className="flex items-center gap-3">
+                    <div className="sticky top-80 z-20 flex items-center gap-3">
                       <div className="avatar">
                         <div className="mask mask-squircle h-12 w-12">
                           <img
@@ -202,6 +207,7 @@ export default function ClientTableNew({
                       onClick={() => {
                         setEditing("client");
                         setSelectedClient(person);
+                        setOpenPanel("profile");
                       }}
                       className="btn btn-ghost btn-xs"
                     >

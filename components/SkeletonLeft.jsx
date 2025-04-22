@@ -2,7 +2,7 @@ import { useLoading } from "../contexts/LoadingContext";
 import ThemeSwitcher from "./ThemeSwitcher";
 
 function SkeletonLeft() {
-  const { loading, setLoading } = useLoading();
+  const { loading } = useLoading();
 
   if (loading) {
     return (

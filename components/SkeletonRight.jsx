@@ -2,7 +2,7 @@ import { useLoading } from "../contexts/LoadingContext";
 import { useNotification } from "../contexts/NotificationContext";
 
 function SkeletonRight() {
-  const { loading, setLoading } = useLoading();
+  const { loading } = useLoading();
   const { setNotify } = useNotification(false);
 
   const widths = [

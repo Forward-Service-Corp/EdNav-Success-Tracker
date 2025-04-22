@@ -1,7 +1,7 @@
 import { useLoading } from "../contexts/LoadingContext";
 
 function SkeletonMiddle() {
-  const { loading, setLoading } = useLoading();
+  const { loading } = useLoading();
 
   const otherWidths = [
     "w-18",

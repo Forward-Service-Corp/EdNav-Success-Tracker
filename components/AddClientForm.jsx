@@ -1,140 +1,144 @@
 // components/AddClientForm.jsx
 
-'use client';
-import React, { useEffect, useState } from 'react';
-import { adultSchools, youthSchools } from '/lib/schools';
-import { useClients } from '@/contexts/ClientsContext';
-import InputVariants from '@/components/InputVariants';
-import { useEditing } from '@/contexts/EditingContext';
-import { validation } from '@/lib/validation';
+"use client";
+import React, { useEffect, useState } from "react";
+import { adultSchools, youthSchools } from "/lib/schools";
+import { useClients } from "@/contexts/ClientsContext";
+import InputVariants from "@/components/InputVariants";
+import { useEditing } from "@/contexts/EditingContext";
+import { validation } from "@/lib/validation";
+import { XCircle } from "phosphor-react";
 
-function AddClientForm() {
+function AddClientForm({ setOpenPanel }) {
   const [feps, setFeps] = useState([]);
   const [errors, setErrors] = useState({});
   const [, setNavigators] = useState([]);
   const { setEditing } = useEditing();
   const { setSelectedClient } = useClients(null);
   const [formData, setFormData] = useState({
-    caseNumber: '',
-    clientStatus: 'In Progress',
-    contactNumber: '',
-    county: '',
-    dateReferred: '',
-    dob: '',
-    email: '',
-    fep: '',
-    first_name: '',
-    group: '',
-    lastGrade: '',
-    last_name: '',
-    navigator: '',
-    pin: '',
-    region: '',
-    schoolIfEnrolled: '',
-    ttsDream: ''
+    caseNumber: "",
+    clientStatus: "In Progress",
+    contactNumber: "",
+    county: "",
+    dateReferred: "",
+    dob: "",
+    email: "",
+    fep: "",
+    first_name: "",
+    group: "",
+    lastGrade: "",
+    last_name: "",
+    navigator: "",
+    pin: "",
+    region: "",
+    schoolIfEnrolled: "",
+    ttsDream: ""
   });
   const navigatorNames = [
-    'All',
-    'Stacy Martinez',
-    'Hailey Jester',
-    'Ashleigh Chesney',
-    'Rich Basche',
-    'Rachael Banerdt',
-    'Morgan Sole',
-    'Kecia Thompson-Gorgon',
-    'Andrew McCauley',
-    'Drew McCauley',
-    'Sara Jackson'
+    "All",
+    "Stacy Martinez",
+    "Hailey Jester",
+    "Corine Boelk",
+    "Ashleigh Chesney",
+    "Rich Basche",
+    "Rachael Banerdt",
+    "Morgan Sole",
+    "Marissa Foth",
+    "Kecia Thompson-Gorgon",
+    "Andrew McCauley",
+    "Sara Jackson,
   ];
-  const locations = ['Brown',
-    'Calumet',
-    'Columbia',
-    'Dane',
-    'Fond du Lac',
-    'Grant',
-    'Green',
-    'Jefferson',
-    'Manitowoc',
-    'Marathon',
-    'Outagamie',
-    'Portage',
-    'Rock',
-    'Shawano',
-    'Sheboygan',
-    'Waupaca',
-    'Waushara',
-    'Winnebago',
-    'Wood'];
+  const locations = [
+    "Brown",
+    "Calumet",
+    "Columbia",
+    "Dane",
+    "Fond du Lac",
+    "Grant",
+    "Green",
+    "Jefferson",
+    "Manitowoc",
+    "Marathon",
+    "Outagamie",
+    "Portage",
+    "Rock",
+    "Shawano",
+    "Sheboygan",
+    "Waupaca",
+    "Waushara",
+    "Winnebago",
+    "Wood"
+  ];
   const lastGradeCompletedOptions = [
-    '5th',
-    '6th',
-    '7th',
-    '8th',
-    '9th',
-    '10th',
-    '11th',
-    '12th - No Diploma',
-    'Foreign Diploma',
-    'GED',
-    'No Formal Education'
+    "5th",
+    "6th",
+    "7th",
+    "8th",
+    "9th",
+    "10th",
+    "11th",
+    "12th - No Diploma",
+    "Foreign Diploma",
+    "GED",
+    "No Formal Education"
   ];
   const formBackup = {
-    caseNumber: '',
-    clientStatus: 'In Progress',
-    contactNumber: '',
-    dateReferred: '',
-    dob: '',
-    email: '',
-    fep: '',
-    first_name: '',
-    group: '',
-    lastGrade: '',
-    last_name: '',
-    navigator: '',
-    officeCity: '',
-    pin: '',
-    region: '',
-    schoolIfEnrolled: '',
+    caseNumber: "",
+    clientStatus: "In Progress",
+    contactNumber: "",
+    dateReferred: "",
+    dob: "",
+    email: "",
+    fep: "",
+    first_name: "",
+    group: "",
+    lastGrade: "",
+    last_name: "",
+    navigator: "",
+    officeCity: "",
+    pin: "",
+    region: "",
+    schoolIfEnrolled: "",
     transcripts: false,
-    ttsDream: ''
+    ttsDream: ""
   };
-  const fetchFeps = async () => {
-    let feps = [];
-    const response = await fetch(`/api/feps`);
-    const data = await response.json();
-    await data.forEach(fep => {
-      feps.push(fep.name);
-    });
-    setFeps(feps);
-  };
+  // const fetchFeps = async () => {
+  //   let feps = [];
+  //   const response = await fetch(`/api/feps`);
+  //   const data = await response.json();
+  //   await data.forEach((fep) => {
+  //     feps.push(fep.name);
+  //   });
+  //   setFeps(feps);
+  // };
+  //
+  // const fetchNavigators = async () => {
+  //   const response = await fetch(`/api/education-navigators`);
+  //   const data = await response.json();
+  //   if (data) {
+  //     setNavigators(data);
+  //   }
+  // };
 
-  const fetchNavigators = async () => {
-    const response = await fetch(`/api/education-navigators`);
-    const data = await response.json();
-    if (data) {
-      setNavigators(data);
-    }
-  };
-
-  useEffect(() => {
-    fetchFeps().then();
-    fetchNavigators().then();
-  }, []);
+  // useEffect(() => {
+  //   fetchFeps().then();
+  //   fetchNavigators().then();
+  // }, []);
 
   async function postData() {
     const response = await fetch(`/api/clients`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json'
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(formData)
+      body: JSON.stringify(formData),
     });
     const data = await response.json();
     if (data) {
       setFormData(formBackup);
       setSelectedClient(data);
       alert(
-        `Client ${data.first_name} ${data.last_name} has been added to the database.`
+        `Client ${data.first_name} ${data.last_name} has been added to the database.`,
       );
       setEditing(false);
     }
@@ -146,19 +150,22 @@ function AddClientForm() {
 
     // Validate email
     if (!formData.email) {
-      newErrors.email = 'Email is required';
+      newErrors.email = "Email is required";
       valid = false;
-    } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email address';
+    } else if (
+      !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(formData.email)
+    ) {
+      newErrors.email = "Please enter a valid email address";
       valid = false;
     }
 
     // Validate phone number
     if (!formData.contactNumber) {
-      newErrors.contactNumber = 'Phone number is required';
+      newErrors.contactNumber = "Phone number is required";
       valid = false;
     } else if (!/^\(\d{3}\)\s\d{3}-\d{4}$/.test(formData.contactNumber)) {
-      newErrors.contactNumber = 'Please enter a valid phone number (xxx) xxx-xxxx';
+      newErrors.contactNumber =
+        "Please enter a valid phone number (xxx) xxx-xxxx";
       valid = false;
     }
 
@@ -168,91 +175,138 @@ function AddClientForm() {
 
   const formFields = [
     {
-      name: 'first_name',
-      label: 'First Name',
-      type: 'text',
+      name: "first_name",
+      label: "First Name",
+      type: "text",
       required: true,
       value: formData.first_name,
-      options: null
+      options: null,
     },
-    { name: 'last_name', label: 'Last Name', type: 'text', required: true, value: formData.last_name, options: null },
-    { name: 'email', label: 'Email', type: 'text', required: true, value: formData.email, options: null },
     {
-      name: 'contactNumber',
-      label: 'Contact Number',
-      type: 'text',
+      name: "last_name",
+      label: "Last Name",
+      type: "text",
+      required: true,
+      value: formData.last_name,
+      options: null,
+    },
+    {
+      name: "email",
+      label: "Email",
+      type: "text",
+      required: true,
+      value: formData.email,
+      options: null,
+    },
+    {
+      name: "contactNumber",
+      label: "Contact Number",
+      type: "text",
       required: true,
       value: formData.contactNumber,
-      options: null
+      options: null,
     },
     {
-      name: 'caseNumber',
-      label: 'Case Number',
-      type: 'text',
+      name: "caseNumber",
+      label: "Case Number",
+      type: "text",
       required: true,
       value: formData.caseNumber,
-      options: null
+      options: null,
     },
-    { name: 'pin', label: 'PIN', type: 'text', required: true, value: formData.pin, options: null },
-    { name: 'dob', label: 'Date of Birth', type: 'date', required: true, value: formData.dob, options: null },
-    { name: 'fep', label: 'FEP', type: 'select', required: true, options: feps, value: formData.fep },
     {
-      name: 'navigator',
-      label: 'Navigator',
-      type: 'select',
+      name: "pin",
+      label: "PIN",
+      type: "text",
+      required: true,
+      value: formData.pin,
+      options: null,
+    },
+    {
+      name: "dob",
+      label: "Date of Birth",
+      type: "date",
+      required: true,
+      value: formData.dob,
+      options: null,
+    },
+    {
+      name: "fep",
+      label: "FEP",
+      type: "select",
+      required: true,
+      options: feps,
+      value: formData.fep,
+    },
+    {
+      name: "navigator",
+      label: "Navigator",
+      type: "select",
       required: true,
       options: navigatorNames,
-      value: formData.navigator
+      value: formData.navigator,
     },
     {
-      name: 'dateReferred',
-      label: 'Date Referred',
-      type: 'date',
+      name: "dateReferred",
+      label: "Date Referred",
+      type: "date",
       required: true,
       value: formData.dateReferred,
-      options: null
+      options: null,
     },
     {
-      name: 'lastGrade',
-      label: 'Last Grade Completed',
-      type: 'select',
+      name: "lastGrade",
+      label: "Last Grade Completed",
+      type: "select",
       required: true,
       options: lastGradeCompletedOptions,
-      value: formData.lastGrade
+      value: formData.lastGrade,
     },
     {
-      name: 'region',
-      label: 'Region',
-      type: 'select',
+      name: "region",
+      label: "Region",
+      type: "select",
       required: true,
-      options: ['1', '2', '3', '4', '5', '6'],
-      value: formData.region
+      options: ["1", "2", "3", "4", "5", "6"],
+      value: formData.region,
     },
     {
-      name: 'group',
-      label: 'Age Group',
-      type: 'select',
+      name: "group",
+      label: "Age Group",
+      type: "select",
       required: true,
-      options: ['Adult', 'Youth'],
-      value: formData.group
+      options: ["Adult", "Youth"],
+      value: formData.group,
     },
     {
-      name: 'schoolIfEnrolled',
-      label: 'School (if enrolled)',
-      type: 'select',
+      name: "schoolIfEnrolled",
+      label: "School (if enrolled)",
+      type: "select",
       required: true,
-      options: formData.group === 'Adult' ? formData.group === 'Youth' ? null : adultSchools : youthSchools,
-      value: formData.schoolIfEnrolled
+      options:
+        formData.group === "Adult"
+          ? formData.group === "Youth"
+            ? null
+            : adultSchools
+          : youthSchools,
+      value: formData.schoolIfEnrolled,
     },
     {
-      name: 'county',
-      label: 'County',
-      type: 'select',
+      name: "county",
+      label: "County",
+      type: "select",
       required: true,
       options: locations,
-      value: formData.officeCity
+      value: formData.officeCity,
     },
-    { name: 'ttsDream', label: 'TTS Dream', type: 'textarea', required: false, value: formData.ttsDream, options: null }
+    {
+      name: "ttsDream",
+      label: "TTS Dream",
+      type: "textarea",
+      required: false,
+      value: formData.ttsDream,
+      options: null,
+    },
   ];
 
   const validateForm = () => {
@@ -260,18 +314,18 @@ function AddClientForm() {
 
     Object.keys(formData).forEach((key) => {
       if (!formData[key] && formData[key] !== false) {
-        newErrors[key] = 'This field is required';
+        newErrors[key] = "This field is required";
       }
     });
 
     if (formData.email && !validation.isValidEmail(formData.email)) {
-      newErrors.email = 'Please enter a valid email address';
+      newErrors.email = "Please enter a valid email address";
     }
 
     if (formData.contactNumber) {
       const { isValid } = validation.formatPhoneNumber(formData.contactNumber);
       if (!isValid) {
-        newErrors.contactNumber = 'Please enter a valid 10-digit phone number';
+        newErrors.contactNumber = "Please enter a valid 10-digit phone number";
       }
     }
 
@@ -282,7 +336,7 @@ function AddClientForm() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     // Special handling for phone numbers
-    if (name === 'contactNumber') {
+    if (name === "contactNumber") {
       const { formatted } = validation.formatPhoneNumber(value);
       setFormData({ ...formData, [name]: formatted });
 
@@ -294,7 +348,7 @@ function AddClientForm() {
     validateContactInfo();
 
     // Special handling for email
-    if (name === 'email' && value) {
+    if (name === "email" && value) {
       if (validation.isValidEmail(value)) {
         setErrors({ ...errors, [name]: null });
       }
@@ -307,15 +361,16 @@ function AddClientForm() {
     e.preventDefault();
     postData(formData).then();
     if (!validateForm()) {
-      alert('Please fill in all required fields.');
+      alert("Please fill in all required fields.");
     }
     setFormData(formBackup);
-
+    setOpenPanel(null);
   };
 
   const handleReset = () => {
     setFormData(formBackup);
-    setEditing('');
+    setEditing("");
+    setOpenPanel(null);
   };
 
   const deriveStatusFromClientData = (obj, path = []) => {
@@ -323,25 +378,25 @@ function AddClientForm() {
     let isInactive = false;
 
     const check = (node, currentPath) => {
-      if (typeof node !== 'object' || node === null) return;
+      if (typeof node !== "object" || node === null) return;
 
       for (const [key, value] of Object.entries(node)) {
         const newPath = [...currentPath, key];
 
-        if (key === 'inactive' && value && Object.keys(value).length > 0) {
+        if (key === "inactive" && value && Object.keys(value).length > 0) {
           isInactive = true;
         }
 
         if (
-          newPath.includes('enrolled in') &&
-          newPath.includes('educational activity') &&
+          newPath.includes("enrolled in") &&
+          newPath.includes("educational activity") &&
           Array.isArray(value) &&
           value.length > 0
         ) {
           isInProgress = true;
         }
 
-        if (typeof value === 'object') {
+        if (typeof value === "object") {
           check(value, newPath);
         }
       }
@@ -349,9 +404,9 @@ function AddClientForm() {
 
     check(obj, path);
 
-    if (isInactive) return 'Inactive';
-    if (isInProgress) return 'In Progress';
-    return '';
+    if (isInactive) return "Inactive";
+    if (isInProgress) return "In Progress";
+    return "";
   };
 
   useEffect(() => {
@@ -361,10 +416,12 @@ function AddClientForm() {
     }
   }, [formData]);
 
-
   // The rest of your component remains the same, but pass errors to InputVariants
   return (
     <div className={`profile-section`}>
+      <div className="flex flex-row justify-between">
+        <XCircle size={22} color={`white`} />
+      </div>
       <form onSubmit={handleSubmit}>
         <div className="m-10 grid grid-cols-3 gap-6">
           {formFields.map((field) => {
@@ -384,11 +441,19 @@ function AddClientForm() {
           })}
         </div>
         <div className="m-10 flex flex-row justify-between">
-          <button type="submit" disabled={false}
-                  className="btn btn-success btn-soft text-white p-2 rounded-md mt-6 px-6">Submit
+          <button
+            type="submit"
+            disabled={false}
+            className="btn btn-success btn-soft mt-6 rounded-md p-2 px-6 text-white"
+          >
+            Submit
           </button>
-          <button type="reset" onClick={handleReset}
-                  className="btn btn-error  btn-soft p-2 rounded-md mt-6 px-6">Cancel
+          <button
+            type="reset"
+            onClick={handleReset}
+            className="btn btn-error btn-soft mt-6 rounded-md p-2 px-6"
+          >
+            Cancel
           </button>
         </div>
       </form>

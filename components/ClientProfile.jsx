@@ -7,7 +7,7 @@ import ClientProfilePersonalOrganization from "@/components/ClientProfilePersona
 import ClientProfileTABEOrientation from "@/components/ClientProfileTABEOrientation";
 import { useClients } from "@/contexts/ClientsContext";
 
-export default function ClientProfile() {
+export default function ClientProfile({ setOpenPanel }) {
   const [isMounted, setIsMounted] = useState(false);
   const [, setSelectedNavigator] = useState("");
   const { selectedClient } = useClients();
@@ -68,8 +68,10 @@ export default function ClientProfile() {
 
   return (
     <div className={`relative h-full w-full`}>
-      <div className={`no-scrollbar absolute top-0 bottom-0 overflow-y-scroll`}>
-        <ClientProfileHeader />
+      <div
+        className={`no-scrollbar absolute top-0 right-0 bottom-0 overflow-y-scroll`}
+      >
+        <ClientProfileHeader setOpenPanel={setOpenPanel} />
         <div className={`mt-[30px] grid grid-cols-1 gap-4 md:grid-cols-2`}>
           <div className={`col-span-2`}>
             <ClientProfilePersonalOrganization />
