@@ -33,7 +33,7 @@ export const FepsLeftProvider = ({ children }: { children: ReactNode }) => {
     searchTerm: "",
     age: "All",
     status: "All",
-    menuOpen: nul,
+    menuOpen: null,
   });
 
   return (

@@ -127,7 +127,7 @@ export default function ClientTableNew({
                 clientsToShow?.map((person, i) => (
                   <tr
                     key={i}
-                    className={`w-full cursor-pointer transition-colors duration-300 ${selectedClient?._id === person._id ? getBGColor(person.clientStatus.toLowerCase()) + g""BadgeColor("white") : ""}`}
+                    className={`w-full cursor-pointer transition-colors duration-300 ${selectedClient?._id === person._id ? getBGColor(person.clientStatus.toLowerCase()) + getBadgeColor("white") : ""}`}
                     onClick={() => {
                       setEditing("client");
                       setSelectedClient(person);
