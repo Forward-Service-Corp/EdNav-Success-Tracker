@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  Combobox,
   ComboboxButton,
   ComboboxInput,
   ComboboxOption,
@@ -16,7 +15,7 @@ const people = [
   // More users...
 ];
 
-export default function Combobox() {
+export default function ComboboxMaster() {
   const [query, setQuery] = useState("");
   const [selectedPerson, setSelectedPerson] = useState(null);
 
@@ -28,7 +27,7 @@ export default function Combobox() {
         });
 
   return (
-    <Combobox
+    <ComboboxMaster
       as="div"
       value={selectedPerson}
       onChange={(person) => {
@@ -73,6 +72,6 @@ export default function Combobox() {
           </ComboboxOptions>
         )}
       </div>
-    </Combobox>
+    </ComboboxMaster>
   );
 }
