@@ -19,7 +19,7 @@ export default function Login() {
 
     try {
       const result = await signIn("credentials", {
-        redirect: false,
+        redirect: true,
         email,
         password,
         callbackUrl: "/pages/clients",
