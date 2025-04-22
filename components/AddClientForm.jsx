@@ -6,7 +6,7 @@ import { adultSchools, youthSchools } from "/lib/schools";
 import { useClients } from "../contexts/ClientsContext";
 import InputVariants from "../components/InputVariants";
 import { useEditing } from "../contexts/EditingContext";
-import { validation } from "///lib/validation";
+import { validation } from "../lib/validation";
 import { XCircle } from "phosphor-react";
 
 function AddClientForm({ setOpenPanel }) {
