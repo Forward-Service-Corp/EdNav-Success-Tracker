@@ -22,16 +22,6 @@ export default function ActivityModal({ open, setOpen }) {
     return cleanedQuestions;
   };
 
-  // const handleActivitySaved = async () => {
-  //   // ... any existing success handling
-  //
-  //   // Call the onSuccess callback to refresh the parent feed
-  //   if (onSuccess) onSuccess();
-  //
-  //   // Close the modal
-  //   setOpen('');
-  // };
-
   useEffect(() => {
     getQuestions().then();
   }, []);
@@ -63,7 +53,6 @@ export default function ActivityModal({ open, setOpen }) {
                 <ActivityDynamicSelect
                   setOpen={setOpen}
                   questions={questions}
-                  onSuccess={handleActivitySaved}
                 />
               </div>
             </div>

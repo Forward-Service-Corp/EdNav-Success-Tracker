@@ -1,16 +1,16 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import CombinedFeed from "@/components/CombinedFeed";
-import ClientProfileHeader from "@/components/ClientProfileHeader";
-import ClientProfileProgress from "@/components/ClientProfileProgress";
-import ClientProfilePersonalOrganization from "@/components/ClientProfilePersonalOrganization";
-import ClientProfileTABEOrientation from "@/components/ClientProfileTABEOrientation";
-import { useClients } from "@/contexts/ClientsContext";
+import CombinedFeed from "../components/CombinedFeed";
+import ClientProfileHeader from "../components/ClientProfileHeader";
+import ClientProfileProgress from "../components/ClientProfileProgress";
+import ClientProfilePersonalOrganization from "../components/ClientProfilePersonalOrganization";
+import ClientProfileTABEOrientation from "../components/ClientProfileTABEOrientation";
+import { useClients } from "../contexts/ClientsContext";
 
 export default function ClientProfile({ setOpenPanel }) {
   const [isMounted, setIsMounted] = useState(false);
   const [, setSelectedNavigator] = useState("");
-  const { selectedClient } = useClients();
+  const { selectedClient, setSelectedClient } = useClients();
   const [actions, setActions] = useState([]); // actions are the activities
   const [hasTrackable, setHasTrackable] = useState([]);
   const [hasTrackableUpdated, setHasTrackableUpdated] = useState(false);
@@ -67,9 +67,9 @@ export default function ClientProfile({ setOpenPanel }) {
   if (!isMounted) return null;
 
   return (
-    <div className={`relative h-full w-full`}>
+    <div className={`relative h-full w-full flex-[4]`}>
       <div
-        className={`no-scrollbar absolute top-0 right-0 bottom-0 overflow-y-scroll`}
+        className={`no-scrollbar absolute top-0 right-0 bottom-0 left-0 overflow-y-scroll`}
       >
         <ClientProfileHeader setOpenPanel={setOpenPanel} />
         <div className={`mt-[30px] grid grid-cols-1 gap-4 md:grid-cols-2`}>

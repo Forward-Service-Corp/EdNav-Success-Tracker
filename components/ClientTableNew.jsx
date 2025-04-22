@@ -4,10 +4,11 @@ import { useClientList } from "../contexts/ClientListContext";
 import { useClients } from "../contexts/ClientsContext";
 import { useEditing } from "../contexts/EditingContext";
 import { useNavigators } from "../contexts/NavigatorsContext";
-import { getBadgeColor } from "../lib/ColorMap";
+import { getBadgeColor, getBGColor } from "../lib/ColorMap";
 import Badges from "./Badges";
 import { useFepsLeft } from "/contexts/FepsLeftContext";
 import SearchField from "./SearchField";
+import Avvvatars from "avvvatars-react";
 
 export default function ClientTableNew({
   menuOpen,
@@ -119,103 +120,74 @@ export default function ClientTableNew({
           />
         </div>
 
-        <div className="no-scrollbar overflow-y-scroll">
-          <table className="no-scrollbar table overflow-y-scroll">
-            {/* head */}
-            {/*<thead>*/}
-            {/*  <tr>*/}
-            {/*    <th>*/}
-            {/*      <label>*/}
-            {/*        <input type="checkbox" className="checkbox" />*/}
-            {/*      </label>*/}
-            {/*    </th>*/}
-            {/*    <th>Name</th>*/}
-            {/*    <th>Job</th>*/}
-            {/*    <th>Favorite Color</th>*/}
-            {/*    <th></th>*/}
-            {/*  </tr>*/}
-            {/*</thead>*/}
-            <tbody className="block h-full min-h-[600px] overflow-y-auto">
-              {clientsToShow.map((person, i) => (
-                <tr
-                  key={i}
-                  className={`transition-colors duration-300 ${selectedClient?._id === person._id ? "bg-base-200" : ""}`}
-                  onClick={() => {
-                    setEditing("client");
-                    setSelectedClient(person);
-                    setOpenPanel("profile");
-                    handleCollapseChange("Active");
-                  }}
-                >
-                  {/*<th*/}
-                  {/*  className={`relative ${*/}
-                  {/*    selectedClient?._id === person._id*/}
-                  {/*      ? filterOpen*/}
-                  {/*        ? "animate-pulse-once sticky top-[47px] z-20"*/}
-                  {/*        : "animate-pulse-once sticky top-0 z-20"*/}
-                  {/*      : ""*/}
-                  {/*  } bg-base-100 transition-all duration-300 ease-in-out`}*/}
-                  {/*>*/}
-                  {/*  /!* Avatar or icon for selected client *!/*/}
-                  {/*  {selectedClient?._id === person._id && (*/}
-                  {/*    <div className="animate-fadeInZoom absolute top-1 -left-6">*/}
-                  {/*      <img*/}
-                  {/*        src="/avatar-flair.png"*/}
-                  {/*        alt="Selected"*/}
-                  {/*        className="border-primary h-6 w-6 rounded-full border-2"*/}
-                  {/*      />*/}
-                  {/*      /!*<UserCheck className="w-5 h-5 text-primary" />*!/*/}
-                  {/*    </div>*/}
-                  {/*  )}*/}
-                  {/*  <label>*/}
-                  {/*    <input type="checkbox" className="checkbox" />*/}
-                  {/*  </label>*/}
-                  {/*</th>*/}
-                  <td>
-                    <div className="sticky top-80 z-20 flex items-center gap-3">
-                      <div className="avatar">
-                        <div className="mask mask-squircle h-12 w-12">
-                          <img
-                            src="https://img.daisyui.com/images/profile/demo/2@94.webp"
-                            alt="Avatar Tailwind CSS Component"
-                          />
-                        </div>
-                      </div>
-                      <div>
-                        <div className="font-bold">
-                          {person.first_name} {person.last_name}
-                        </div>
-                        <div className="text-sm opacity-50">
-                          {person.latestInteraction}
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td>
-                    <Badges
-                      color={
-                        selectedClient?._id === person._id
-                          ? "inline-flex items-center rounded-md px-2 py-1 text-xs w-24 font-medium bg-white text-center"
-                          : getBadgeColor(person.clientStatus.toLowerCase())
-                      }
-                      label={person.clientStatus}
-                    />
-                  </td>
-                  <td>Purple</td>
-                  <th>
-                    <button
-                      onClick={() => {
-                        setEditing("client");
+        <div className="no-scrollbar w-full overflow-y-scroll">
+          <table className="no-scrollbar sticky top-80 z-10 table w-full overflow-y-scroll">
+            <tbody className="block h-full min-h-[600px] w-full overflow-y-auto">
+              {clientsToShow &&
+                clientsToShow?.map((person, i) => (
+                  <tr
+                    key={i}
+                    className={`w-full cursor-pointer transition-colors duration-300 ${selectedClient?._id === person._id ? getBGColor(person.clientStatus.toLowerCase()) + g""BadgeColor("white") : ""}`}
+                    onClick={() => {
+                      setEditing("client");
+                      setSelectedClient(person);
+                      setOpenPanel("profile");
+                      handleCollapseChange("Active");
+                      if (selectedClient?._id === person._id) {
+                        setSelectedClient(null);
+                        setOpenPanel(null);
+                      } else {
                         setSelectedClient(person);
-                        setOpenPanel("profile");
-                      }}
-                      className="btn btn-ghost btn-xs"
-                    >
-                      details
-                    </button>
-                  </th>
-                </tr>
-              ))}
+                      }
+                    }}
+                  >
+                    <td className={``}>
+                      <div className="sticky top-80 z-20 flex items-center gap-3">
+                        <div className="avatar">
+                          <div className="mask mask-squircle h-12 w-12">
+                            <Avvvatars
+                              value={person.first_name}
+                              size={36}
+                              displayValue={`${person.first_name.split("")[0]} ${person.last_name.split("")[0]}`}
+                              style={{ borderRadius: "50%" }}
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <div className="font-bold">
+                            {person.first_name} {person.last_name}
+                          </div>
+                          <div className="text-sm opacity-50">
+                            {person.latestInteraction}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <Badges
+                        color={
+                          selectedClient?._id === person._id
+                            ? "inline-flex items-center rounded-md px-2 py-1 text-xs w-24 font-medium bg-white text-center"
+                            : getBadgeColor(person.clientStatus.toLowerCase())
+                        }
+                        label={person.clientStatus}
+                      />
+                    </td>
+                    <td>{person.county}</td>
+                    <th>
+                      <button
+                        onClick={() => {
+                          setEditing("client");
+                          setSelectedClient(person);
+                          setOpenPanel("profile");
+                        }}
+                        className="btn btn-ghost btn-xs"
+                      >
+                        details
+                      </button>
+                    </th>
+                  </tr>
+                ))}
             </tbody>
           </table>
         </div>

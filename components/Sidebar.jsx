@@ -11,7 +11,7 @@ import {
   UserPlusIcon,
   UsersIcon,
 } from "@heroicons/react/24/outline";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import Logo from "./Logo";
 import NavigatorSelector from "./NavigatorSelector";
 import ThemeSwitcher from "./ThemeSwitcher";
@@ -93,13 +93,13 @@ export default function Sidebar({ setOpenPanel }) {
       <div className="flex h-[80px] shrink-0 items-center">
         <Logo />
         <div className="ml-auto">
-          <button
-            onClick={() => setOpenPanel(null)}
-            className="btn btn-sm btn-ghost text-base-content hover:bg-base-300"
-            aria-label="Close Sidebar"
-          >
-            ✕
-          </button>
+          {/*<button*/}
+          {/*  onClick={() => setOpenPanel(null)}*/}
+          {/*  className="btn btn-sm btn-ghost text-base-content hover:bg-base-300 cursor-pointer"*/}
+          {/*  aria-label="Close Sidebar"*/}
+          {/*>*/}
+          {/*  ✕*/}
+          {/*</button>*/}
         </div>
       </div>
       <nav className="flex flex-1 flex-col">
@@ -119,7 +119,7 @@ export default function Sidebar({ setOpenPanel }) {
                     >
                       <item.icon
                         aria-hidden="true"
-                        className="text-base-content/60 size-6 shrink-0"
+                        className="text-base-content/60 size-6 shrink-0 cursor-pointer"
                       ></item.icon>
                       {item.name}
                     </a>
@@ -166,7 +166,26 @@ export default function Sidebar({ setOpenPanel }) {
               ))}
             </ul>
           </li>
-          <li></li>
+          <li>
+            <button
+              className={`btn btn-soft btn-info w-full`}
+              onClick={() => {
+                setOpenPanel("form");
+              }}
+            >
+              + Add a client
+            </button>
+          </li>
+          <li>
+            <button
+              className={`btn btn-soft btn-info w-full`}
+              onClick={() => {
+                signOut("auth0", { callbackUrl: "/login" }).then();
+              }}
+            >
+              Sign Out
+            </button>
+          </li>
           <li>
             <ThemeSwitcher />
           </li>
