@@ -1,11 +1,11 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useLoading } from "../../../contexts/LoadingContext";
+import { useClients } from "../../../contexts/ClientsContext";
 import AddClientForm from "../../../components/AddClientForm";
 import ClientProfile from "../../../components/ClientProfile";
 import ClientTableNew from "../../../components/ClientTableNew";
 import Sidebar from "../../../components/Sidebar";
-import { useLoading } from "../../../contexts/LoadingContext";
-import { useClients } from "../../../contexts/ClientsContext";
 
 function ClientsPage() {
   const { setLoading } = useLoading(false);
@@ -13,7 +13,6 @@ function ClientsPage() {
   const { selectedClient } = useClients();
 
   useEffect(() => {
-    console.log("loading");
     setLoading(false);
   }, []);
 

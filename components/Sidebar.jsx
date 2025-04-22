@@ -120,7 +120,7 @@ export default function Sidebar({ setOpenPanel }) {
                       <item.icon
                         aria-hidden="true"
                         className="text-base-content/60 size-6 shrink-0"
-                      />
+                      ></item.icon>
                       {item.name}
                     </a>
                   ) : (
