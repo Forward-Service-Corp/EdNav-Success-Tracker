@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "fix-js": "eslint-auto-fix"
+    "fix-js": "eslint-auto-fix",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "dependencies": {
     "@auth/mongodb-adapter": "^3.8.0",
@@ -42,6 +44,7 @@
     "@radix-ui/react-toast": "^1.2.6",
     "@radix-ui/react-toggle-group": "^1.1.2",
     "@radix-ui/react-tooltip": "^1.1.8",
+    "@storybook/react": "^8.6.12",
     "@tailwindcss/postcss": "^4.0.13",
     "avvvatars-react": "^0.4.2",
     "bcryptjs": "^3.0.2",
@@ -76,6 +79,14 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
+    "@storybook/addon-essentials": "^8.6.12",
+    "@storybook/addon-interactions": "^8.6.12",
+    "@storybook/addon-onboarding": "^8.6.12",
+    "@storybook/blocks": "^8.6.12",
+    "@storybook/manager-api": "^8.6.12",
+    "@storybook/nextjs": "^8.6.12",
+    "@storybook/test": "^8.6.12",
+    "@storybook/theming": "^8.6.12",
     "@types/bcrypt": "^5.0.2",
     "@types/cookie": "^0.6.0",
     "@types/jsonwebtoken": "^9.0.5",
@@ -88,8 +99,10 @@
     "daisyui": "^5.0.3",
     "eslint": "^9.23.0",
     "eslint-config-next": "^15.2.4",
+    "eslint-plugin-storybook": "^0.12.0",
     "prettier": "^3.5.3",
     "prettier-plugin-tailwindcss": "^0.6.11",
+    "storybook": "^8.6.12",
     "styled-components": "^6.1.17",
     "tailwind-merge": "^3.0.2",
     "tailwindcss": "4.0",

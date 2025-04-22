@@ -24,7 +24,7 @@ type FepsLeftContextType = {
   setSelectedFepLeft: Dispatch<SetStateAction<FEP>>;
 };
 
-const FepsLeftContext = createContext<FepsLeftContextType | null>(
+export const FepsLeftContext = createContext<FepsLeftContextType | null>(
   null as FepsLeftContextType | null,
 );
 

@@ -4,7 +4,7 @@ import { useLoading } from "../../../contexts/LoadingContext";
 import { useClients } from "../../../contexts/ClientsContext";
 import AddClientForm from "../../../components/AddClientForm";
 import ClientProfile from "../../../components/ClientProfile";
-import ClientTableNew from "../../../components/ClientTableNew";
+import ClientTableNew from "../../../components/BKP_ClientTableNew";
 import Sidebar from "../../../components/Sidebar";
 
 function ClientsPage() {

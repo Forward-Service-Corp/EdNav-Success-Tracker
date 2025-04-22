@@ -11,7 +11,7 @@ function ClientProfileTabeOrientation() {
     },
     tabe: {
       referralDate: selectedClient?.tabe?.referralDate || null,
-      completionDate: selectedClient?.tabe?.completionDate || n,
+      completionDate: selectedClient?.tabe?.completionDate || null,
     },
     transcripts: {
       referralDate: selectedClient?.transcripts?.referralDate || null,
@@ -23,7 +23,7 @@ function ClientProfileTabeOrientation() {
     setDateValue({
       orientation: {
         referralDate: selectedClient?.orientation?.referralDate || null,
-        completionDate: selectedClient?.orientation?.completionDate || n,
+        completionDate: selectedClient?.orientation?.completionDate || nu,
       },
       tabe: {
         referralDate: selectedClient?.tabe?.referralDate || null,
@@ -31,7 +31,7 @@ function ClientProfileTabeOrientation() {
       },
       transcripts: {
         referralDate: selectedClient?.transcripts?.referralDate || null,
-        completionDate: selectedClient?.transcripts?.completionDate || n,
+        completionDate: selectedClient?.transcripts?.completionDate || null,
       },
     });
   }, [selectedClient]);
