@@ -11,9 +11,7 @@ function ClientsPage() {
   const { setLoading } = useLoading(false);
   const [openPanel, setOpenPanel] = useState(null);
   const { selectedClient } = useClients();
-  const [, setViewMode] = useState("");
-  const [, setStatusCollapse] = useState(null);
-  const [menuOpen, setMenuOpen] = useState();
+  const [, setMenuOpen] = useState();
 
   useEffect(() => {
     setLoading(false);
@@ -25,34 +23,16 @@ function ClientsPage() {
     }
   }, [selectedClient]);
 
-  const toggleGrouped = () => {
-    setViewMode("grouped");
-    setStatusCollapse([]);
-  };
-
-  const togglePinned = () => {
-    setViewMode("pinned");
-    setStatusCollapse([]);
-  };
-
-  const toggleAlpha = () => {
-    setViewMode("alpha");
-    setStatusCollapse([]);
-  };
-
-  const toggleDate = () => {
-    setViewMode("date");
-    setStatusCollapse([]);
-  };
-
   return (
     <div className="flex h-screen w-screen gap-2 overflow-hidden p-2">
       <div
-        className={`bg-base-200 max-w-[240px] ${menuOpen ? "flex-[1]" : "flex-[0]"}`}
+        className={`bg-base-200 w-[340px] px-8`}
+        // className={`bg-base-200 max-w-[240px] ${menuOpen ? "flex-[1]" : "flex-[0]"}`}
       >
         <Sidebar setOpenPanel={setOpenPanel} />
       </div>
-      <div className={`bg-base-100 ${menuOpen ? "flex-[1]" : "flex-[2]"}`}>
+      <div className={`bg-base-100 flex-[2]`}>
+        {/*<div className={`bg-base-100 ${menuOpen ? "flex-[1]" : "flex-[2]"}`}>*/}
         <ClientTableNew setOpenPanel={setOpenPanel} setMenuOpen={setMenuOpen} />
       </div>
       {openPanel === "profile" ? (

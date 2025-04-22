@@ -58,16 +58,16 @@ export default function Login() {
           <div>
             <label
               htmlFor="email"
-              className="block font-medium text-neutral-600"
+              className="text-base-content/50 block font-medium"
             >
-              Email or Username
+              Email
             </label>
             <input
               id="email"
               name="email"
               type="text"
               required
-              className="border-base-300 mt-1 block rounded-md border px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none"
+              className="input input-md input-info focus:input-bordered mt-3 w-full"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
@@ -76,7 +76,7 @@ export default function Login() {
           <div>
             <label
               htmlFor="password"
-              className="block font-medium text-neutral-600"
+              className="text-base-content/50 block font-medium"
             >
               Password
             </label>
@@ -85,7 +85,7 @@ export default function Login() {
               name="password"
               type="password"
               required
-              className="border-base-300 mt-1 block rounded-md border px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none"
+              className="input input-md input-info focus:input-bordered mt-3 w-full"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
@@ -95,7 +95,7 @@ export default function Login() {
             <button
               type="submit"
               disabled={loading}
-              className="flex justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 font-medium text-white shadow-sm hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none disabled:opacity-50"
+              className="btn btn-soft btn-info mt-3 w-full"
             >
               {loading ? "Logging in..." : "Log in"}
             </button>
