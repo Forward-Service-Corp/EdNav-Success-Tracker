@@ -1,6 +1,11 @@
 "use client";
 import React, { useState } from "react";
-import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from "@headlessui/react";
+import {
+  Dialog,
+  DialogBackdrop,
+  DialogPanel,
+  DialogTitle,
+} from "@headlessui/react";
 
 import { useClients } from "../contexts/ClientsContext";
 import { useNavigators } from "../contexts/NavigatorsContext";
@@ -13,7 +18,7 @@ export default function NoteModal({ open, setOpen, onSuccess }) {
     noteAuthor: selectedNavigator?.name,
     createdAt: new Date(),
     clientId: selectedClient?._id,
-    isNote: true
+    isNote: true,
   });
 
   const handleSave = async () => {
@@ -25,7 +30,7 @@ export default function NoteModal({ open, setOpen, onSuccess }) {
           noteAuthor: selectedNavigator?.name,
           createdAt: new Date().toISOString(),
           clientId: selectedClient?._id,
-          isNote: tru
+          isNote: tru,
         },
       };
 
@@ -33,9 +38,9 @@ export default function NoteModal({ open, setOpen, onSuccess }) {
       const response = await fetch("/api/notes", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(noteData
+        body: JSON.stringify(noteData),
       });
 
       if (response.ok) {

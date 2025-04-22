@@ -1,6 +1,16 @@
-import { Disclosure, DisclosureButton, DisclosurePanel } from "@headlessui/react";
+import {
+  Disclosure,
+  DisclosureButton,
+  DisclosurePanel,
+} from "@headlessui/react";
 import { ChevronRightIcon } from "@heroicons/react/20/solid";
-import { ChartPieIcon, FolderIcon, HomeIcon, UserPlusIcon, UsersIcon } from "@heroicons/react/24/outline";
+import {
+  ChartPieIcon,
+  FolderIcon,
+  HomeIcon,
+  UserPlusIcon,
+  UsersIcon,
+} from "@heroicons/react/24/outline";
 import { useSession } from "next-auth/react";
 import Logo from "./Logo";
 import NavigatorSelector from "./NavigatorSelector";
@@ -14,10 +24,10 @@ function classNames(...classes) {
 export default function Sidebar({ setOpenPanel }) {
   const { setSelectedFepLeft } = useFepsLeft();
 
-  const handleFilters = ({ name, val }: { name: null, val: null }) => {
-    setSelectedFepLeft(prevState => ({
+  const handleFilters = ({ name, val }) => {
+    setSelectedFepLeft((prevState) => ({
       ...prevState,
-      [name]: val
+      [name]: val,
     }));
   };
 
@@ -28,25 +38,54 @@ export default function Sidebar({ setOpenPanel }) {
       icon: UsersIcon,
       current: false,
       children: [
-        { name: "All", onClick: () => handleFilters({ name: "status", val: "All" }) },
-        { name: "Active", onClick: () => handleFilters({ name: "status", val: "Active" }) },
-        { name: "In Progress", onClick: () => handleFilters({ name: "status", val: "In Progress" }) },
-        { name: "Graduated", onClick: () => handleFilters({ name: "status", val: "Graduated" }) },
-        { name: "Inactive", onClick: () => handleFilters({ name: "status", val: "Inactive" }) }
-      ]
+        {
+          name: "All",
+          onClick: () => handleFilters({ name: "status", val: "All" }),
+        },
+        {
+          name: "Active",
+          onClick: () => handleFilters({ name: "status", val: "Active" }),
+        },
+        {
+          name: "In Progress",
+          onClick: () => handleFilters({ name: "status", val: "In Progress" }),
+        },
+        {
+          name: "Graduated",
+          onClick: () => handleFilters({ name: "status", val: "Graduated" }),
+        },
+        {
+          name: "Inactive",
+          onClick: () => handleFilters({ name: "status", val: "Inactive" }),
+        },
+      ],
     },
     {
       name: "Age",
       icon: FolderIcon,
       current: false,
       children: [
-        { name: "All", onClick: () => handleFilters({ name: "age", val: "All" }) },
-        { name: "Adult", onClick: () => handleFilters({ name: "age", val: "Adult" }) },
-        { name: "Youth", onClick: () => handleFilters({ name: "age", val: "Youth" }) }
-      ]
+        {
+          name: "All",
+          onClick: () => handleFilters({ name: "age", val: "All" }),
+        },
+        {
+          name: "Adult",
+          onClick: () => handleFilters({ name: "age", val: "Adult" }),
+        },
+        {
+          name: "Youth",
+          onClick: () => handleFilters({ name: "age", val: "Youth" }),
+        },
+      ],
     },
-    { name: "Add a client", onClick: () => setOpenPanel("form"), icon: UserPlusIcon, current: false },
-    { name: "Logout", href: "/logout", icon: ChartPieIcon, current: false }
+    {
+      name: "Add a client",
+      onClick: () => setOpenPanel("form"),
+      icon: UserPlusIcon,
+      current: false,
+    },
+    { name: "Logout", href: "/logout", icon: ChartPieIcon, current: false },
   ];
   const { data: session } = useSession();
   return (
@@ -70,8 +109,9 @@ export default function Sidebar({ setOpenPanel }) {
               {navigation.map((item) => (
                 <li key={item.name}>
                   {!item.children ? (
-                    <a onClick={() => item.onClick}
-                       aria-current={item.current ? "page" : undefined}
+                    <a
+                      onClick={() => item.onClick}
+                      aria-current={item.current ? "page" : undefined}
                       className={classNames(
                         item.current ? "bg-base-200" : "hover:bg-base-200",
                         "group text-base-content flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold",
@@ -126,8 +166,7 @@ export default function Sidebar({ setOpenPanel }) {
               ))}
             </ul>
           </li>
-          <li>
-          </li>
+          <li></li>
           <li>
             <ThemeSwitcher />
           </li>
@@ -136,7 +175,6 @@ export default function Sidebar({ setOpenPanel }) {
               <NavigatorSelector />
             ) : null}
           </li>
-
         </ul>
       </nav>
     </div>

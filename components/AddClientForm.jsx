@@ -3,16 +3,15 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { adultSchools, youthSchools } from "/lib/schools";
-import { useClients } from "@/contexts/ClientsContext";
-import InputVariants from "@/components/InputVariants";
-import { useEditing } from "@/contexts/EditingContext";
-import { validation } from "@/lib/validation";
+import { useClients } from "../contexts/ClientsContext";
+import InputVariants from "../components/InputVariants";
+import { useEditing } from "../contexts/EditingContext";
+import { validation } from "///lib/validation";
 import { XCircle } from "phosphor-react";
 
 function AddClientForm({ setOpenPanel }) {
-  const [feps, setFeps] = useState([]);
+  const [feps] = useState([]);
   const [errors, setErrors] = useState({});
-  const [, setNavigators] = useState([]);
   const { setEditing } = useEditing();
   const { setSelectedClient } = useClients(null);
   const [formData, setFormData] = useState({
@@ -32,7 +31,7 @@ function AddClientForm({ setOpenPanel }) {
     pin: "",
     region: "",
     schoolIfEnrolled: "",
-    ttsDream: ""
+    ttsDream: "",
   });
   const navigatorNames = [
     "All",
@@ -46,7 +45,7 @@ function AddClientForm({ setOpenPanel }) {
     "Marissa Foth",
     "Kecia Thompson-Gorgon",
     "Andrew McCauley",
-    "Sara Jackson,
+    "Sara Jackson",
   ];
   const locations = [
     "Brown",
@@ -67,7 +66,7 @@ function AddClientForm({ setOpenPanel }) {
     "Waupaca",
     "Waushara",
     "Winnebago",
-    "Wood"
+    "Wood",
   ];
   const lastGradeCompletedOptions = [
     "5th",
@@ -80,7 +79,7 @@ function AddClientForm({ setOpenPanel }) {
     "12th - No Diploma",
     "Foreign Diploma",
     "GED",
-    "No Formal Education"
+    "No Formal Education",
   ];
   const formBackup = {
     caseNumber: "",
@@ -100,7 +99,7 @@ function AddClientForm({ setOpenPanel }) {
     region: "",
     schoolIfEnrolled: "",
     transcripts: false,
-    ttsDream: ""
+    ttsDream: "",
   };
   // const fetchFeps = async () => {
   //   let feps = [];
