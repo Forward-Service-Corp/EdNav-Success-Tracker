@@ -2,20 +2,8 @@ import React from "react";
 import { useFepsLeft } from "../contexts/FepsLeftContext";
 import { MagnifyingGlass } from "@phosphor-icons/react";
 import { Sidebar, Wrench, XCircle } from "phosphor-react";
-import {
-  toggleAlpha,
-  toggleDate,
-  toggleGrouped,
-  togglePinned,
-} from "../lib/colorMap";
 
-function SearchField({
-  menuOpen,
-  setMenuOpen,
-  filterOpen,
-  setFilterOpen,
-  setViewMode,
-}) {
+function SearchField({ menuOpen, filterOpen, setFilterOpen, setViewMode }) {
   const { selectedFepLeft, setSelectedFepLeft } = useFepsLeft();
 
   return (
@@ -59,28 +47,24 @@ function SearchField({
             aria-label="All"
           />
           <input
-            onClick={toggleAlpha}
             className="btn lg:btn-xs btn-sm btn-success btn-soft"
             type="radio"
             name="metaframeworks"
             aria-label="A-Z"
           />
           <input
-            onClick={toggleDate}
             className="btn lg:btn-xs btn-sm btn-success btn-soft"
             type="radio"
             name="metaframeworks"
             aria-label="Latest"
           />
           <input
-            onClick={toggleGrouped}
             className="btn lg:btn-xs btn-sm btn-success btn-soft"
             type="radio"
             name="metaframeworks"
             aria-label="Grouped"
           />
           <input
-            onClick={togglePinned}
             className="btn lg:btn-xs btn-sm btn-success btn-soft"
             type="radio"
             name="metaframeworks"
