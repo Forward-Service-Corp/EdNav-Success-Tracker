@@ -166,7 +166,7 @@ function ClientProfileDetailsInput({ field, index, feps }) {
   if (fieldType === 'date') {
     return (
       <div className={`flex flex-col`} key={index}>
-        <label className={`text-xs mb-1`}>{fieldLabelMap[field]}</label>
+        <label className={` mb-1`}>{fieldLabelMap[field]}</label>
         <div className={`flex flex-row gap-2`}>
           <input disabled={!updating} type={fieldType} name={field} id={field} defaultValue={formatDateValue}
                  onChange={handleChange} className={`input input-sm`} placeholder={fieldLabelMap[field]} />
@@ -205,7 +205,7 @@ function ClientProfileDetailsInput({ field, index, feps }) {
 
     return (
       <div className={`flex flex-col`} key={index}>
-        <label className={`text-xs mb-1`}>{fieldLabelMap[field]}</label>
+        <label className={` mb-1`}>{fieldLabelMap[field]}</label>
         <div className={`flex flex-row gap-2`}>
           <select disabled={!updating} name={field} id={field} value={clientCopy[field]} onChange={handleChange}
                   className={`input input-sm`}>
@@ -227,7 +227,7 @@ function ClientProfileDetailsInput({ field, index, feps }) {
   } else if (fieldType === 'textarea') {
     return (
       <div className={`flex flex-col`} key={index}>
-        <label className={`text-xs mb-1`}>{fieldLabelMap[field]}</label>
+        <label className={` mb-1`}>{fieldLabelMap[field]}</label>
         <div className={`flex flex-row gap-2`}>
           <textarea disabled={!updating} name={field} id={field} defaultValue={clientCopy[field]}
                     onChange={handleChange}
@@ -245,7 +245,7 @@ function ClientProfileDetailsInput({ field, index, feps }) {
   } else {
     return (
       <div className={`flex flex-col`} key={index}>
-        <label className={`text-xs mb-1`}>{fieldLabelMap[field]}</label>
+        <label className={` mb-1`}>{fieldLabelMap[field]}</label>
         <div className={`flex flex-row gap-2`}>
           <input disabled={!updating} type={fieldTypes[field]} name={field} id={field}
                  defaultValue={clientCopy[field] || ''} onChange={handleChange} className={`input input-sm`}

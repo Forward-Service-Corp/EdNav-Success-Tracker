@@ -1,9 +1,9 @@
-"use client"
+'use client';
 
-import * as React from "react"
-import { cva, type VariantProps } from "class-variance-authority"
+import * as React from 'react';
+import { cva, type VariantProps } from 'class-variance-authority';
 
-import { cn } from "@/lib/utils"
+import { cn } from '@/lib/utils';
 
 const sidebarGroupVariants = cva("flex flex-col space-y-1", {
   variants: {
@@ -27,7 +27,7 @@ SidebarGroup.displayName = "SidebarGroup"
 
 const SidebarGroupLabel = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
-    <div ref={ref} className={cn("px-2 py-1.5 text-sm font-semibold leading-none", className)} {...props} />
+    <div ref={ref} className={cn('px-2 py-1.5  font-semibold leading-none', className)} {...props} />
   ),
 )
 SidebarGroupLabel.displayName = "SidebarGroupLabel"
@@ -83,7 +83,7 @@ const SidebarMenuItem = React.forwardRef<
 SidebarMenuItem.displayName = "SidebarMenuItem"
 
 const sidebarMenuButtonVariants = cva(
-  "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium transition-colors outline-none data-[active=true]:bg-base-200",
+  'flex  items-center gap-2 rounded-md px-2 py-1.5  font-medium transition-colors outline-none data-[active=true]:bg-base-200',
   {
     variants: {
       size: {
@@ -128,7 +128,7 @@ const SidebarMenuAction = React.forwardRef<
 SidebarMenuAction.displayName = "SidebarMenuAction"
 
 const SidebarSeparator = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => <div ref={ref} className={cn("h-px w-full bg-base-300", className)} {...props} />,
+  ({ className, ...props }, ref) => <div ref={ref} className={cn('h-px  bg-base-300', className)} {...props} />
 )
 SidebarSeparator.displayName = "SidebarSeparator"
 
@@ -390,7 +390,7 @@ const SidebarMenuBadge = React.forwardRef<HTMLSpanElement, React.HTMLAttributes<
     <span
       ref={ref}
       className={cn(
-        "ml-auto inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+        'ml-auto inline-flex items-center rounded-full px-2.5 py-0.5  font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
         className,
       )}
       {...props}
@@ -416,7 +416,7 @@ const SidebarMenuSubButton = React.forwardRef<HTMLButtonElement, React.ButtonHTM
     <button
       ref={ref}
       className={cn(
-        "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium transition-colors hover:bg-base-200 data-[active=true]:bg-base-200",
+        'flex  items-center gap-2 rounded-md px-2 py-1.5  font-medium transition-colors hover:bg-base-200 data-[active=true]:bg-base-200',
         className,
       )}
       {...props}

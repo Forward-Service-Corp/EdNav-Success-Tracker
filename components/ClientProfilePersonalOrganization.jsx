@@ -72,7 +72,7 @@ function ClientProfilePersonalOrganization() {
 
   return (
     <div
-      className={`bg-base-300 border-1 border-base-content/10 mx-6 rounded-lg transition-all duration-700 ${detailsOpen ? 'p-6' : 'py-4 px-6 h-20 overflow-hidden'} `}>
+      className={`bg-base-200 border-1 border-base-content/10 mx-6 rounded-lg transition-all duration-700 ${detailsOpen ? 'p-6' : 'py-4 px-6 h-20 overflow-hidden'} `}>
       <div className={`flex items-center justify-between mb-6`}>
         <div className={`text-2xl`}>Personal Details</div>
         <div onClick={() => setDetailsOpen(!detailsOpen)}>

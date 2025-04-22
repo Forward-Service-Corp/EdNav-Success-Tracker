@@ -12,7 +12,7 @@ export default function ClientProfileHeader() {
 
   return (
     <div
-      className={`px-3 py-4 flex items-center justify-between sticky top-0 left-0 right-0 h-20  z-10 bg-base-300 shadow-lg`}>
+      className={`px-3 py-4 flex items-center justify-between sticky top-0 left-0 right-0 h-[80px] bg-base-300 shadow-lg`}>
       <div className={`flex items-center gap-4`}>
         <ClientProfilePin />
         <div

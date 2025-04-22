@@ -63,9 +63,8 @@ export default function DashboardLayoutClient({
 
   return (
     <div className="min-h-screen bg-background bg-base-100 flex">
-      {/* Sidebar - now with slide the effect */}
       <div
-        className={`fixed bg-base-200 inset-y-0 left-0 z-30 w-64 transform transition-transform duration-300 ease-in-out ${
+        className={`fixed bg-base-200 inset-y-0 left-0 w-64 transform transition-transform duration-300 ease-in-out ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
         onMouseEnter={handleSidebarMouseEnter}
@@ -100,7 +99,7 @@ export default function DashboardLayoutClient({
       {/* Thin hover area to trigger the sidebar when closed */}
       {!sidebarOpen && (
         <div
-          className="fixed inset-y-0 left-0 w-2 bg-base-200 border-0 z-20"
+          className="fixed inset-y-0 left-0 w-2 bg-base-200 border-0"
           onMouseEnter={() => setSidebarOpen(true)}
         />
       )}
@@ -115,12 +114,12 @@ export default function DashboardLayoutClient({
           <div className="flex items-center">
             <div className="ml-3 relative">
               <div className="flex items-center space-x-4">
-                <span className="hidden md:inline-block text-sm font-medium text-muted-foreground">
+                <span className="hidden md:inline-block  font-medium text-muted-foreground">
                   {session.user.name}
                 </span>
                 <button
                   onClick={handleSignOut}
-                  className="inline-flex items-center text-sm font-medium text-foreground hover:text-primary"
+                  className="inline-flex items-center  font-medium text-foreground hover:text-primary"
                 >
                   <LogOut className="h-5 w-5 mr-1" />
                   <span className="hidden md:inline-block">Logout</span>

@@ -37,7 +37,7 @@ export default function InputVariants({
             <legend className="fieldset-legend">{label}</legend>
             <select
               value={value || ''}
-              className="select w-full"
+              className="select "
               disabled={disabled}
               name={name}
               onChange={handleChange}
@@ -70,7 +70,7 @@ export default function InputVariants({
             <legend className="fieldset-legend">{label}</legend>
             <input
               type={type}
-              className={`input w-full ${error ? 'input-error' : ''}`}
+              className={`input  ${error ? 'input-error' : ''}`}
               name={name}
               onChange={handleChange}
               defaultValue={type === 'date' ? formatDateValue() : (value || '')}
@@ -80,7 +80,7 @@ export default function InputVariants({
           </fieldset>
         </div>
       )}
-      {error && <div className={`text-xs text-error p-1`}>{error}</div>}
+      {error && <div className={` text-error p-1`}>{error}</div>}
     </div>
   );
 }

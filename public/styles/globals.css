@@ -111,11 +111,9 @@ body {
     margin: 0;
     padding: 0;
     font-family: 'Helvetica Neue', sans-serif;
+    font-size: 14px;
 }
 
-span.activity {
-    font-weight: 600;
-}
 &:focus, &:focus-within {
      box-shadow: none !important;
      outline: 0;
@@ -145,5 +143,8 @@ span.activity {
 }
 
 .client-table-item td {
-    @apply text-sm ;
+}
+
+.top-bars {
+    @apply sticky top-0 left-0 right-0 h-[80px] flex items-center justify-between p-3;
 }

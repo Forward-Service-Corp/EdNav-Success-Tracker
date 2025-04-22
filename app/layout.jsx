@@ -9,6 +9,7 @@ import { ActivityProvider } from '../contexts/ActivityContext';
 import { NavigatorProvider } from '../contexts/NavigatorsContext';
 import { SessionProvider } from 'next-auth/react';
 import { ClientListProvider } from '../contexts/ClientListContext';
+import { NotificationProvider } from '../contexts/NotificationContext';
 
 export default function RootLayout({ children }) {
 
@@ -21,9 +22,11 @@ export default function RootLayout({ children }) {
               <FepsLeftProvider>
                 <ActivityProvider>
                   <ClientListProvider>
-                    <NavigatorProvider>
-                      {children}
-                    </NavigatorProvider>
+                  <NavigatorProvider>
+                    <NotificationProvider>
+                    {children}
+                    </NotificationProvider>
+                  </NavigatorProvider>
                   </ClientListProvider>
                 </ActivityProvider>
               </FepsLeftProvider>
@@ -33,7 +36,7 @@ export default function RootLayout({ children }) {
       </ThemesProvider>
     </SessionProvider>
   );
-};
+}
 
 // ✅ Separate wrapper component to safely use `useThemes()`
 function ThemeWrapper({ children }) {
@@ -46,13 +49,13 @@ function ThemeWrapper({ children }) {
 
   return (
     <html suppressContentEditableWarning lang="en" data-theme={selectedTheme} suppressHydrationWarning
-          className={`font-family-sans tracking-wider bg-base-100 text-base-content antialiased`}>
+          className={`font-family-sans no-scrollbar text-base-content text-xs`}>
     <head>
       <title></title>
       <meta charSet="utf-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1" />
     </head>
-    <body className={`font-serif`}>{isMounted && children}</body>
+    <body>{isMounted && children}</body>
     </html>
   );
 }

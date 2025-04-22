@@ -147,9 +147,7 @@ const CombinedFeed = () => {
       if (!response.ok) {
         throw new Error('Failed to add comment');
       }
-      const data = await response.json();
-      // console.log('Comment data:', data);
-      // Refresh the feed to show the new comment
+
       await fetchFeedData();
       setCommentText('');
     } catch (err) {
@@ -159,7 +157,7 @@ const CombinedFeed = () => {
   };
 
   return (
-    <div className={` p-6 bg-base-200 rounded-lg shadow text-xs ml-6 border-1 border-base-content/10`}>
+    <div className={` p-6 bg-base-200 rounded-lg shadow  ml-6 border-1 border-base-content/10`}>
       <NoteModal open={open} setOpen={setOpen} onSuccess={fetchFeedData} />
       <ActivityModal open={open} setOpen={setOpen} onSuccess={fetchFeedData} />
 
@@ -257,7 +255,7 @@ const CombinedFeed = () => {
                       //   onAddComment={(text) => handleAddComment(item.itemId, text)}
                       // />
                       <textarea onChange={e => setCommentText(e.target.value)} value={commentText}
-                                className="textarea textarea-bordered w-full" placeholder="Add a comment..." />
+                                className="textarea textarea-bordered " placeholder="Add a comment..." />
                     ) : (
                       <div
                         className="cursor-pointer text-base-content/60 hover:text-base-content p-2 rounded border border-dashed border-base-300 text-center"

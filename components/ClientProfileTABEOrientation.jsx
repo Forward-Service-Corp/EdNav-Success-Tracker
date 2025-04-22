@@ -41,12 +41,12 @@ function ClientProfileTabeOrientation() {
   }
 
   return (
-    <div className="grid grid-cols-1 gap-6 text-xs relative">
+    <div className="grid grid-cols-1 gap-6  relative">
       <div className={`relative`}>
         <div
           className={`absolute flex top-0 right-0 left-0 bottom-0 justify-center items-center ${selectedClient?.orientation?.referralDate ? 'invisible' : 'visible'}`}>
           <div
-            className={`max-w-3/4 text-center text-sm text-base-content bg-base-300/70 p-6 rounded-lg shadow-lg z-50 m-auto`}>
+            className={`max-w-3/4 text-center  text-base-content bg-base-300/70 p-6 rounded-lg shadow m-auto`}>
             Add an activity regarding Orientation to activate this area.
           </div>
       </div>
@@ -60,12 +60,12 @@ function ClientProfileTabeOrientation() {
                 hasValidKey(selectedClient?.orientation, 'referralDate') ? (
                   <div>
                     <div className={`font-medium text-base-content/60`}>Referral Date</div>
-                    <div className={`text-sm`}>{moment(selectedClient?.orientation?.referralDate).calendar()}</div>
+                    <div className={``}>{moment(selectedClient?.orientation?.referralDate).calendar()}</div>
                   </div>
                 ) : (
                   <div>
                     <div className={`font-medium text-base-content/60`}>Referral Date</div>
-                    <div className={`text-sm`}>TBD</div>
+                    <div className={``}>TBD</div>
                   </div>
                 )
               }
@@ -77,13 +77,13 @@ function ClientProfileTabeOrientation() {
               {
                 hasValidKey(selectedClient?.orientation, 'completionDate') ? (
                   <div>
-                    <div className={`text-sm font-medium`}>Completion Date</div>
+                    <div className={` font-medium`}>Completion Date</div>
                     {moment(selectedClient?.orientation?.completionDate).calendar()}
                   </div>
                 ) : (
                   <div>
                     <div className={`font-medium text-base-content/60`}>Completion Date</div>
-                    <div className={`text-sm`}>TBD</div>
+                    <div className={``}>TBD</div>
                   </div>
                 )
               }
@@ -94,9 +94,9 @@ function ClientProfileTabeOrientation() {
       </div>
       <div className={`relative`}>
         <div
-          className={`absolute flex top-0 right-0 left-0 bottom-0 justify-center items-center z-50 ${selectedClient?.tabe?.referralDate ? 'invisible' : 'visible'}`}>
+          className={`absolute flex top-0 right-0 left-0 bottom-0 justify-center items-center ${selectedClient?.tabe?.referralDate ? 'invisible' : 'visible'}`}>
           <div
-            className={`max-w-3/4 text-center text-sm text-base-content bg-base-300/70 p-6 rounded-lg shadow-lg z-50 m-auto`}>
+            className={`max-w-3/4 text-center text-base-content bg-base-300 p-6 rounded-lg shadow m-auto`}>
             Add an activity regarding TABE to activate this area.
           </div>
         </div>
@@ -109,13 +109,13 @@ function ClientProfileTabeOrientation() {
               {
                 hasValidKey(selectedClient?.tabe, 'referralDate') ? (
                   <div>
-                    <div className={`text-sm font-medium`}>Referral Date</div>
+                    <div className={` font-medium`}>Referral Date</div>
                     {moment(selectedClient?.tabe?.referralDate).calendar()}
                   </div>
                 ) : (
                   <div>
                     <div className={`font-medium text-base-content/60`}>Referral Date</div>
-                    <div className={`text-sm`}>TBD</div>
+                    <div className={``}>TBD</div>
                   </div>
                 )
               }
@@ -126,13 +126,13 @@ function ClientProfileTabeOrientation() {
               {
                 hasValidKey(selectedClient?.tabe, 'completionDate') ? (
                   <div>
-                    <div className={`text-sm font-medium`}>Completion Date</div>
+                    <div className={` font-medium`}>Completion Date</div>
                     {moment(selectedClient?.tabe?.completionDate).calendar()}
                   </div>
                 ) : (
                   <div>
                     <div className={`font-medium text-base-content/60`}>Completion Date</div>
-                    <div className={`text-sm`}>TBD</div>
+                    <div className={``}>TBD</div>
                   </div>
                 )
               }
@@ -143,14 +143,14 @@ function ClientProfileTabeOrientation() {
       </div>
       <div className={`relative`}>
         <div
-          className={`absolute flex top-0 right-0 left-0 bottom-0 justify-center items-center z-50 ${selectedClient?.transcripts?.referralDate ? 'invisible' : 'visible'}`}>
+          className={`absolute flex top-0 right-0 left-0 bottom-0 justify-center items-center ${selectedClient?.transcripts?.referralDate ? 'invisible' : 'visible'}`}>
           <div
-            className={`max-w-3/4 text-center text-sm text-base-content bg-base-300/70 p-6 rounded-lg shadow-lg z-50 m-auto`}>
+            className={`max-w-3/4 text-center text-base-content bg-base-300/70 p-6 rounded shadow m-auto`}>
             Add an activity regarding Transcripts to activate this area.
           </div>
         </div>
       <div
-        className={`card card-sm bg-base-200 border-1 border-base-content/10 rounded-lg mr-6 p-6 shadow ${selectedClient?.transcripts?.referralDate ? '' : 'opacity-50 blur-[2px]'}`}>
+        className={`card card-sm bg-base-200 border-1 border-base-content/10 rounded mr-6 p-6 shadow ${selectedClient?.transcripts?.referralDate ? '' : 'opacity-50 blur-[2px]'}`}>
         <div className={`text-2xl`}>Transcripts</div>
         <div className="flex mt-6 gap-3 items-start">
           <div className={`w-1/2`}>
@@ -158,13 +158,13 @@ function ClientProfileTabeOrientation() {
               {
                 hasValidKey(selectedClient?.transcripts, 'referralDate') ? (
                   <div>
-                    <div className={`text-sm font-medium`}>Referral Date</div>
+                    <div className={` font-medium`}>Referral Date</div>
                     {moment(selectedClient?.transcripts?.referralDate).calendar()}
                   </div>
                 ) : (
                   <div>
                     <div className={`font-medium text-base-content/60`}>Referral Date</div>
-                    <div className={`text-sm`}>TBD</div>
+                    <div className={``}>TBD</div>
                   </div>
                 )
               }
@@ -175,13 +175,13 @@ function ClientProfileTabeOrientation() {
               {
                 hasValidKey(selectedClient?.transcripts, 'completionDate') ? (
                   <div>
-                    <div className={`text-sm font-medium`}>Completion Date</div>
+                    <div className={` font-medium`}>Completion Date</div>
                     {moment(selectedClient?.transcripts?.completionDate).calendar()}
                   </div>
                 ) : (
                   <div>
                     <div className={`font-medium text-base-content/60`}>Completion Date</div>
-                    <div className={`text-sm`}>TBD</div>
+                    <div className={``}>TBD</div>
                   </div>
                 )
               }

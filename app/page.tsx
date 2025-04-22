@@ -10,7 +10,7 @@ export default function Home() {
 
   if (status === 'loading') {
     return (
-      <div className="w-full h-screen flex justify-center items-center">
+      <div className=" h-screen flex justify-center items-center">
         <p>Loading...</p>
       </div>
     );
@@ -18,7 +18,7 @@ export default function Home() {
 
   if (status !== 'authenticated') {
     return (
-      <div className="w-full h-screen flex justify-center items-center">
+      <div className=" h-screen flex justify-center items-center">
         <div className="text-center">
           <Image className="mx-auto" src="/images/logo.png" width={160} height={160} alt="EDNAV" priority />
           <SignIn />

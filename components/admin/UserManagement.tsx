@@ -217,7 +217,7 @@ export default function UserManagement() {
                       <TableCell>{user.email}</TableCell>
                       <TableCell>{user.username || '-'}</TableCell>
                       <TableCell>
-                        <span className={`px-2 py-1 rounded text-xs ${
+                        <span className={`px-2 py-1 rounded  ${
                           user.level === 'admin'
                             ? 'bg-warning/20 text-warning-foreground'
                             : user.level === 'IT'

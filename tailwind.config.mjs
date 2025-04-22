@@ -16,4 +16,5 @@ export default withMT({
     },
   },
   plugins: [],
+  safelist: Array.from({ length: 17 }, (_, i) => `h-${i + 33}`)
 });

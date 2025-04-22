@@ -27,9 +27,9 @@ function SearchField({ menuOpen, setMenuOpen, filterOpen, setFilterOpen, setView
   };
 
   return (
-    <div className={`w-full h-full flex items-center top-0 gap-4 mb-3 justify-between `}>
+    <div className={` h-full flex items-center top-0 gap-4 mb-3 justify-between `}>
       <div
-        className={`flex h-full w-full items-center justify-start gap-2 bg-base-300  ${menuOpen ? 'pl-3 pr-20' : 'pl-6'}`}>
+        className={`flex h-full  items-center justify-start gap-2 bg-base-300  ${menuOpen ? 'pl-3 pr-20' : 'pl-6'}`}>
         <MagnifyingGlass className={`-mr-9 text-base-content/40`} size={20} />
         <input name={`client-search`} type="text" onChange={(e) => {
           setSelectedFepLeft(prev => {
@@ -42,7 +42,7 @@ function SearchField({ menuOpen, setMenuOpen, filterOpen, setFilterOpen, setView
           setSelectedFepLeft(prevState => {
             return { ...prevState, searchTerm: '' };
           });
-        }} className={`-ml-10 relative z-40 cursor-pointer ${selectedFepLeft.searchTerm !== '' ? 'visible' : 'hidden'}`}
+        }} className={`-ml-10 cursor-pointer ${selectedFepLeft.searchTerm !== '' ? 'visible' : 'hidden'}`}
                  size={26}
                  color={`white`} />
       </div>
@@ -63,7 +63,7 @@ function SearchField({ menuOpen, setMenuOpen, filterOpen, setFilterOpen, setView
         </div>
       </div>
 
-      <div className="z-100 cursor-pointer absolute flex items-center justify-items-center gap-2 right-3 ">
+      <div className="cursor-pointer absolute flex items-center justify-items-center gap-2 right-3 ">
         <Wrench size={27} className={`${filterOpen ? 'text-primary' : 'text-base-content/30'}`}
                 onClick={() => setFilterOpen(!filterOpen)} />
         <Sidebar className={`${!menuOpen ? 'text-primary' : 'text-base-content/30'}`} size={27}

@@ -118,7 +118,7 @@ export default function SystemSettings() {
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="space-y-4">
-          <h3 className="text-lg font-medium">General Settings</h3>
+          <h3 className=" font-medium">General Settings</h3>
 
           <div className="grid gap-2">
             <Label htmlFor="siteName">Site Name</Label>
@@ -145,12 +145,12 @@ export default function SystemSettings() {
         <Separator />
 
         <div className="space-y-4">
-          <h3 className="text-lg font-medium">Maintenance Settings</h3>
+          <h3 className=" font-medium">Maintenance Settings</h3>
 
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label htmlFor="maintenanceMode">Maintenance Mode</Label>
-              <p className="text-sm text-muted-foreground">
+              <p className=" text-muted-foreground">
                 When enabled, only admin users can access the site
               </p>
             </div>
@@ -176,12 +176,12 @@ export default function SystemSettings() {
         <Separator />
 
         <div className="space-y-4">
-          <h3 className="text-lg font-medium">User Settings</h3>
+          <h3 className=" font-medium">User Settings</h3>
 
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label htmlFor="allowRegistration">Allow User Registration</Label>
-              <p className="text-sm text-muted-foreground">
+              <p className=" text-muted-foreground">
                 Allow new users to register accounts
               </p>
             </div>
@@ -201,7 +201,7 @@ export default function SystemSettings() {
               onChange={handleInputChange}
               disabled
             />
-            <p className="text-xs text-muted-foreground">
+            <p className=" text-muted-foreground">
               Changing this requires code changes for security reasons
             </p>
           </div>

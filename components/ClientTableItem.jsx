@@ -63,7 +63,7 @@ export default function ClientTableItem({ person, i, statusCollapse, menuOpen, f
             setEditing('client');
           }
         }}
-        className={` ${statusCollapse?.includes(person?.clientStatus) ? 'hidden' : 'visible'} client-table-item ${selectedClient?._id === person._id ? filterOpen ? 'sticky top-[47px] bottom-0 z-50' : 'sticky top-0 bottom-0 z-50' : 'relative'} ${selectedClient?._id === person?._id ? getBGColor(selectedClient?.clientStatus) : ''}`}>
+        className={` ${statusCollapse?.includes(person?.clientStatus) ? 'hidden' : 'visible'} client-table-item ${selectedClient?._id === person._id ? filterOpen ? 'sticky top-[47px] bottom-0' : 'sticky top-0 bottom-0' : 'relative'} ${selectedClient?._id === person?._id ? getBGColor(selectedClient?.clientStatus) : ''}`}>
       <td className={`px-6 font-medium  max-w-[160px] truncate`}>{person?.first_name + ' ' + person.last_name}</td>
       <td className={` max-w-[160px] truncate ${menuOpen ? 'hidden' : ''}`}>{person.latestInteraction}</td>
       <td className={` max-w-[160px] truncate ${menuOpen ? 'hidden' : ''}`}>{person.group}</td>
@@ -74,7 +74,7 @@ export default function ClientTableItem({ person, i, statusCollapse, menuOpen, f
       </td>
       <td className={``}>
         <div
-          className={`w-[15px] m-3 2xl:w-fit ${selectedClient?._id === person._id ? 'badge bg-white text-black border-0 text-xs px-3' : getBadgeColor(person?.clientStatus)}`}>{(screenWidth < 1536 ? statusAbbr1 : '') + (screenWidth >= 1536 ? personStatus : '')}</div>
+          className={`w-[15px] m-3 2xl:w-fit ${selectedClient?._id === person._id ? 'badge bg-white text-black border-0  px-3' : getBadgeColor(person?.clientStatus)}`}>{(screenWidth < 1536 ? statusAbbr1 : '') + (screenWidth >= 1536 ? personStatus : '')}</div>
       </td>
     </tr>
   );

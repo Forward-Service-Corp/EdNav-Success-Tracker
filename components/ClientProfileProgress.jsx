@@ -42,12 +42,12 @@ function ClientProfileProgress({ hasTrackable, setHasTrackable, updated, setUpda
       <div
         className={`absolute flex top-0 right-0 left-0 bottom-0 justify-center items-center  ${selectedClient?.trackable?.program === 'GED' || selectedClient?.trackable?.program === 'HSED' ? 'invisible' : 'visible'}`}>
         <div
-          className={`max-w-3/4 text-center text-sm text-base-content bg-base-300/70 p-6 rounded-lg shadow-lg z-50 m-auto`}>Add
+          className={`max-w-3/4 text-center text-base-content bg-base-300 p-6 rounded shadow m-auto`}>Add
           an activity regarding GED or HSED to activate this area.
         </div>
       </div>
       <div
-        className={`card bg-base-200 shadow-sm border-1 border-base-content/10 mx-6 rounded-lg relative  ${selectedClient?.trackable?.program === 'GED' || selectedClient?.trackable?.program === 'HSED' ? '' : 'opacity-50 blur-[2px]'}`}>
+        className={`card bg-base-200 shadow-sm border-1 border-base-content/10 mx-6 rounded relative  ${selectedClient?.trackable?.program === 'GED' || selectedClient?.trackable?.program === 'HSED' ? '' : 'opacity-50 blur-[2px]'}`}>
 
         <div className="card-body">
           <div className={`flex items-center justify-between  mt-0 mb-4`}>
@@ -55,12 +55,12 @@ function ClientProfileProgress({ hasTrackable, setHasTrackable, updated, setUpda
               <div className={`text-2xl`}>{selectedClient?.trackable?.program} Progress
                 - {calculateCompletionPercentage(selectedClient?.trackable?.items)}%
               </div>
-              <p className={`text-xs text-info`}>If you are having trouble selecting items, please refresh the
+              <p className={` text-info`}>If you are having trouble selecting items, please refresh the
                 page.</p>
             </div>
 
             <div onClick={handleTrackableUpdate}
-                 className={` cursor-pointer text-sm text-error font-light underline ${updated ? 'visible' : 'hidden'}`}>Save
+                 className={` cursor-pointer  text-secondary font-light underline ${updated ? 'visible' : 'hidden'}`}>Save
               Progress
             </div>
           </div>
@@ -85,12 +85,12 @@ function ClientProfileProgress({ hasTrackable, setHasTrackable, updated, setUpda
                             }}>
                       {item.completed === true ?
                         <span
-                          className={`text-xs border rounded-full pr-2 flex items-center justify-center border-success`}>
+                          className={` border rounded-full pr-2 flex items-center justify-center border-success`}>
                           <span className={`mr-1`}>
                             <CheckCircleIcon className={`w-6 h-6 text-success`} />
                           </span>{item.name}</span> :
                         <span
-                          className={`text-xs border rounded-full pr-2 flex items-center justify-center border-base-content/40`}>
+                          className={` border rounded-full pr-2 flex items-center justify-center border-base-content/40`}>
                           <span className={`mr-1`}>
                             <span className={`w-5 h-5 m-[2px] text-base-content/40 block border rounded-full`} /></span>
                           {item.name}
