@@ -21,7 +21,7 @@ const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
   const updateClientTrackableItems = (
     clientToUpdate,
     serverResponse,
-    selectedValues
+    selectedValues,
   ) => {
     // Safety check
     if (!clientToUpdate || !serverResponse) return clientToUpdate;
@@ -66,7 +66,7 @@ const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
       selection: selectedValue,
       timestamp: new Date(),
       trackable: trackable,
-      selections: multi ? multiSelectValues : null
+      selections: multi ? multiSelectValues : null,
     };
 
     if (multi) {
@@ -76,7 +76,7 @@ const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
         selectedClient["navigator"],
         selectedClient["first_name"] + " " + selectedClient["last_name"],
         multiSelectValues,
-        selectedPath
+        selectedPath,
       );
     } else {
       // For single-select, use the new path
@@ -85,7 +85,7 @@ const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
         selectedClient["navigator"],
         selectedClient["first_name"] + " " + selectedClient["last_name"],
         null,
-        newPath
+        newPath,
       );
     }
 
@@ -96,7 +96,10 @@ const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ data: data },
+        body: JSON.stringify({ data: data }),
+        redirect: "follow",
+        referrerPolicy: "no-referrer",
+        dataType: "json",
       });
 
       if (!response.ok) {
@@ -114,7 +117,7 @@ const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
         const updatedClient = updateClientTrackableItems(
           selectedClient,
           result.wholeUser,
-          multiSelectValues
+          multiSelectValues,
         );
 
         // Update the client with our carefully constructed object
@@ -125,7 +128,7 @@ const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
       if (result.userActions) {
         setSelectedActivity((prev) => ({
           ...prev,
-          activities: result.userActions
+          activities: result.userActions,
         }));
       }
 
@@ -161,7 +164,7 @@ const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
     setSelectedValue("");
     const newObject = newPath.reduce(
       (acc, key) => (acc && acc[key] ? acc[key] : null),
-      questions
+      questions,
     );
     setCurrentObject(newObject);
 
@@ -171,13 +174,13 @@ const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
       if (Array.isArray(nextLevel) && nextLevel.length > 0) {
         items = nextLevel.map((item) => ({
           name: item,
-          completed: false
+          completed: false,
         }));
       }
       setTrackable({
         program: selectedValue,
         length: items.length,
-        items: items
+        items: items,
       });
     }
 
@@ -229,7 +232,7 @@ const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
         if (result && selectedActivity && selectedActivity.activities) {
           setSelectedActivity({
             ...selectedActivity,
-            activities: [...selectedActivity.activities, result]
+            activities: [...selectedActivity.activities, result],
           });
         }
       } catch (error) {
