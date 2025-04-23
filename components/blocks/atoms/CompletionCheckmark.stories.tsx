@@ -13,7 +13,7 @@ const meta: Meta<typeof CompletionCheckmark> = {
     },
   },
     tags: ["#ohYeahPizza", "tracker"],
-    args:
+    args: null
   },
 };
 

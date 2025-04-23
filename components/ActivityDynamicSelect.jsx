@@ -94,9 +94,9 @@ const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
       const response = await fetch("/api/activities", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(data
+        body: JSON.stringify({ data: data },
       });
 
       if (!response.ok) {
