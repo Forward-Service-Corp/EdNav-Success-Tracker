@@ -7,7 +7,7 @@ import { ClientsProvider } from "../contexts/ClientsContext";
 import { EditingProvider } from "../contexts/EditingContext";
 import { FepsLeftProvider } from "../contexts/FepsLeftContext";
 import { LoadingProvider } from "../contexts/LoadingContext";
-import { NavigatorProvider } from "../contexts/NavigatorsContext";
+import { NavigatorsProvider } from "../contexts/NavigatorsContext";
 import { NotificationProvider } from "../contexts/NotificationContext";
 import { ThemesProvider, useThemes } from "../contexts/ThemesContext";
 import "../public/styles/globals.css";
@@ -23,9 +23,9 @@ export default function RootLayout({ children }) {
                 <FepsLeftProvider>
                   <ActivityProvider>
                     <ClientListProvider>
-                      <NavigatorProvider>
+                      <NavigatorsProvider>
                         <NotificationProvider>{children}</NotificationProvider>
-                      </NavigatorProvider>
+                      </NavigatorsProvider>
                     </ClientListProvider>
                   </ActivityProvider>
                 </FepsLeftProvider>

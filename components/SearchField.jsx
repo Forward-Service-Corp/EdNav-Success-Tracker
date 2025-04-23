@@ -1,5 +1,5 @@
 import React from "react";
-import { useFepsLeft } from "../contexts/FepsLeftContext";
+import { useFepsLeft } from "@/contexts/FepsLeftContext";
 import { MagnifyingGlass } from "@phosphor-icons/react";
 import { Sidebar, Wrench, XCircle } from "phosphor-react";
 

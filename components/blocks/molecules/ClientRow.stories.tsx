@@ -1,49 +1,19 @@
-// /components/blocks/molecules/ClientRow.stories.tsx
-
-import { ClientsContext } from "@/contexts/ClientsContext";
-import { EditingContext } from "@/contexts/EditingContext";
 import type { Meta, StoryObj } from "@storybook/react";
 import ClientRow from "./ClientRow";
 
 const meta: Meta<typeof ClientRow> = {
   title: "Tracker/Molecules/ClientRow",
   component: ClientRow,
-  tags: ["#ohYeahPizza", "molecule", "tracker"],
-  decorators: [
-    (Story) => (
-      <EditingContext.Provider
-        value={{
-          editing: "false",
-          setEditing: () => {},
-        }}
-      >
-        <ClientsContext.Provider
-          value={{
-            setSelectedClient: () => {},
-            selectedClient: null,
-          }}
-        >
-          <table>
-            <tbody>
-              <Story />
-            </tbody>
-          </table>
-        </ClientsContext.Provider>
-      </EditingContext.Provider>
-    ),
-  ],
-  args: {
-    person: {
-      first_name: "Jordan",
-      last_name: "Knight",
-      latestInteraction: "Today",
-      clientStatus: "Graduated",
-      county: "Milwaukee",
-      _id: "123",
+  parameters: {
+    docs: {
+      description: {
+        component:
+          "Each row in your table, like a well-behaved student in a classroom, waiting to be clicked. Shows avatar, name, status, county, and a 'details' button",
+      },
     },
-    selected: false,
-    setOpenPanel: () => {},
   },
+  tags: ["#ohYeahPizza", "tracker"],
+  args: {},
 };
 
 export default meta;

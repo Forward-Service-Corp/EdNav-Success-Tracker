@@ -4,10 +4,6 @@ import SuccessMessage from "./SuccessMessage";
 const meta: Meta<typeof SuccessMessage> = {
   title: "Tracker/Atoms/SuccessMessage",
   component: SuccessMessage,
-  tags: ["#ohYeahPizza", "atom", "tracker"],
-  args: {
-    message: "Success!",
-  },
   parameters: {
     docs: {
       description: {
@@ -16,6 +12,8 @@ const meta: Meta<typeof SuccessMessage> = {
       },
     },
   },
+  tags: ["#ohYeahPizza", "tracker"],
+  args: {},
 };
 
 export default meta;

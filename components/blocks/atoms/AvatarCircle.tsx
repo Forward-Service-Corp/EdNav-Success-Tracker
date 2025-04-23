@@ -20,9 +20,9 @@ const AvatarCircle: React.FC<AvatarCircleProps> = ({
     <div className="avatar">
       <div className="mask mask-squircle h-12 w-12">
         <Avvvatars
-          value={firstName}
-          size={size}
-          displayValue={initials}
+          value={firstName || ""}
+          size={size || 36}
+          displayValue={initials || "rs"}
         ></Avvvatars>
       </div>
     </div>

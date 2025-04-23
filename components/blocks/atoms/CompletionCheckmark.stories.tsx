@@ -1,29 +1,24 @@
+import type { Meta, StoryObj } from "@storybook/react";
 import { CompletionCheckmark } from "./CompletionCheckmark";
 
-export default {
+const meta: Meta<typeof CompletionCheckmark> = {
   title: "Tracker/Atoms/CompletionCheckmark",
   component: CompletionCheckmark,
-  tags: ["#ohYeahPizza", "atom", "tracker", "checkmark"],
-  argTypes: {
-    completed: {
-      control: "boolean",
-      description: "Whether the task is marked as complete",
-      defaultValue: false,
+    parameters: {
+      docs: {
+        description: {
+          component:
+            "A tiny visual cue to indicate that something has been completed—like a green light for data."
+        }
     },
+  },
+    tags: ["#ohYeahPizza", "tracker"],
+    args:
   },
 };
 
-const Template = (args: { completed: boolean }) => (
-  <CompletionCheckmark {...args} />
-);
 
-type StoryType = typeof Template & { args: { completed: boolean } };
-export const Incomplete = Template.bind({}) as StoryType;
-Incomplete.args = {
-  completed: false,
-};
+export default meta;
+type Story = StoryObj<typeof CompletionCheckmark>;
 
-export const Complete = Template.bind({}) as StoryType;
-Complete.args = {
-  completed: true,
-};
+export const Default: Story = {};

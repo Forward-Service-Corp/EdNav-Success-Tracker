@@ -10,7 +10,7 @@ export const ClientListProvider = ({ children }) => {
   useEffect(() => {
     const fetchClientLists = async () => {
       try {
-        const res = await fetch("/api/clients"); // replace with real API
+        const res = await fetch("/api/clients"); // replace it with real API
         const data = await res.json();
         setClientList(data);
       } catch (err) {

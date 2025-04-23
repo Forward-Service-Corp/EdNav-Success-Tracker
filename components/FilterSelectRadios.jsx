@@ -15,7 +15,7 @@ function FilterSelectRadios() {
         className={`text-base-content grid w-full grid-cols-3 gap-8 text-xs font-light tracking-widest`}
       >
         <label
-          htmlFor={`filter-radio-1 `}
+          htmlFor={`filter-radio-1`}
           className={`flex flex-col items-center justify-around`}
         >
           All

@@ -13,13 +13,13 @@ function FilterSelectRadiosAge() {
     <div className="text-base-content flex items-center justify-around gap-2 text-xs font-light tracking-widest">
       <label
         className={`flex flex-col items-center justify-center`}
-        htmlFor={`filter-radio-1`}
+        htmlFor={`filter-radio-6`}
       >
         <p>All</p>
         <input
           value="All"
           onClick={handleFilterChange}
-          id={`filter-radio-1`}
+          id={`filter-radio-6`}
           type="radio"
           name="filter-radio-age"
           className="radio radio-base-content mt-3"
@@ -29,13 +29,13 @@ function FilterSelectRadiosAge() {
 
       <label
         className={`flex flex-col items-center justify-center`}
-        htmlFor={`filter-radio-2`}
+        htmlFor={`filter-radio-7`}
       >
         <p>Adult</p>
         <input
-          value="Adults"
+          value="Adult"
           onClick={handleFilterChange}
-          id={`filter-radio-2`}
+          id={`filter-radio-7`}
           type="radio"
           name="filter-radio-age"
           className="radio radio-success mt-3"
@@ -44,13 +44,13 @@ function FilterSelectRadiosAge() {
 
       <label
         className={`flex flex-col items-center justify-center`}
-        htmlFor={`filter-radio-3`}
+        htmlFor={`filter-radio-8`}
       >
         <p>Youth</p>
         <input
           value="Youth"
           onClick={handleFilterChange}
-          id={`filter-radio-3`}
+          id={`filter-radio-8`}
           type="radio"
           name="filter-radio-age"
           className="radio radio-info mt-3"

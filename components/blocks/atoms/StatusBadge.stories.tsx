@@ -1,12 +1,9 @@
-// /components/blocks/atoms/StatusBadge.stories.tsx
-
 import type { Meta, StoryObj } from "@storybook/react";
 import StatusBadge from "./StatusBadge";
 
 const meta: Meta<typeof StatusBadge> = {
   title: "Tracker/Atoms/StatusBadge",
   component: StatusBadge,
-  tags: ["#ohYeahPizza", "atom", "tracker"],
   parameters: {
     docs: {
       description: {
@@ -15,18 +12,11 @@ const meta: Meta<typeof StatusBadge> = {
       },
     },
   },
-  args: {
-    status: "Active",
-    isSelected: false,
-  },
+  tags: ["#ohYeahPizza", "tracker"],
+  args: {},
 };
 
 export default meta;
 type Story = StoryObj<typeof StatusBadge>;
 
 export const Default: Story = {};
-export const Selected: Story = {
-  args: {
-    isSelected: true,
-  },
-};

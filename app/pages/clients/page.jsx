@@ -48,7 +48,6 @@ function ClientsPage() {
       </div>
 
       <div className={`bg-base-100 flex-[2]`}>
-        {/*<div className={`bg-base-100 ${menuOpen ? "flex-[1]" : "flex-[2]"}`}>*/}
         <ClientTableNew setOpenPanel={setOpenPanel} setMenuOpen={setMenuOpen} />
       </div>
       {openPanel === "profile" ? (

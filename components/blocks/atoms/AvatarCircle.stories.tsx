@@ -1,17 +1,19 @@
-// /components/blocks/atoms/Avatar.stories.tsx
-
 import type { Meta, StoryObj } from "@storybook/react";
 import AvatarCircle from "./AvatarCircle";
 
 const meta: Meta<typeof AvatarCircle> = {
-  title: "Tracker/Atoms/Avatar",
+  title: "Tracker/Atoms/AvatarCircle",
   component: AvatarCircle,
-  tags: ["#ohYeahPizza", "atom", "tracker"],
-  args: {
-    firstName: "Jane",
-    lastName: "Doe",
-    size: 36,
+  parameters: {
+    docs: {
+      description: {
+        component:
+          "This is the tiny block responsible for displaying users' initials in a neat circle. Like the artist formerly known as Prince, all you need is one letter to make a statement.",
+      },
+    },
   },
+  tags: ["#ohYeahPizza", "tracker"],
+  args: {},
 };
 
 export default meta;

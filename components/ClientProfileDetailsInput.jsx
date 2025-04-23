@@ -56,6 +56,7 @@ function ClientProfileDetailsInput({ field, index, feps }) {
   const { selectedClient, setSelectedClient } = useClients();
   const [updating, setUpdating] = useState(false);
   const [clientCopy, setClientCopy] = useState({});
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const fieldLabelMap = {
     first_name: "First Name",
@@ -90,13 +91,14 @@ function ClientProfileDetailsInput({ field, index, feps }) {
     region: "select",
     clientStatus: "select",
     county: "select",
-    schoolIfEnrolled: "select",
     ttsDream: "textarea",
   };
 
   useEffect(() => {
     if (selectedClient) {
       const copy = JSON.parse(JSON.stringify(selectedClient));
+      delete copy.schoolIfEnrolled;
+      delete copy["schoolIfEnrolled"];
       setClientCopy(copy);
     }
   }, [selectedClient]);
@@ -144,6 +146,8 @@ function ClientProfileDetailsInput({ field, index, feps }) {
     const data = await response.json();
     if (data) {
       setUpdating(false);
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 3000);
       setSelectedClient((prev) => {
         return {
           ...prev,
@@ -162,38 +166,45 @@ function ClientProfileDetailsInput({ field, index, feps }) {
 
   if (fieldType === "date") {
     return (
-      <div className={`flex flex-col`} key={index}>
-        <label className={`mb-1`}>{fieldLabelMap[field]}</label>
-        <div className={`flex flex-row gap-2`}>
-          <input
-            disabled={!updating}
-            type={fieldType}
-            name={field}
-            id={field}
-            defaultValue={formatDateValue}
-            onChange={handleChange}
-            className={`input input-sm`}
-            placeholder={fieldLabelMap[field]}
-          />
+      <>
+        {showSuccess && (
+          <div className="alert alert-success my-4 shadow-lg">
+            <span>Changes saved successfully!</span>
+          </div>
+        )}
+        <div className={`flex flex-col`} key={index}>
+          <label className={`mb-1`}>{fieldLabelMap[field]}</label>
+          <div className={`flex flex-row gap-2`}>
+            <input
+              disabled={!updating}
+              type={fieldType}
+              name={field}
+              id={field}
+              defaultValue={formatDateValue()}
+              onChange={handleChange}
+              className={`input input-sm`}
+              placeholder={fieldLabelMap[field]}
+            />
 
-          <button onClick={handleSave}>
-            <SaveIcon className={`text-success`} size={20} />
-          </button>
-          {updating ? (
-            <button onClick={handleCancel}>
-              <XSquareIcon className={`text-warning`} size={20} />
+            <button onClick={handleSave}>
+              <SaveIcon className={`text-success`} size={20} />
             </button>
-          ) : null}
-          {!updating ? (
-            <button
-              className={`opacity-30 hover:opacity-100`}
-              onClick={() => setUpdating(true)}
-            >
-              <EditIcon size={20} />
-            </button>
-          ) : null}
+            {updating ? (
+              <button onClick={handleCancel}>
+                <XSquareIcon className={`text-warning`} size={20} />
+              </button>
+            ) : null}
+            {!updating ? (
+              <button
+                className={`opacity-30 hover:opacity-100`}
+                onClick={() => setUpdating(true)}
+              >
+                <EditIcon size={20} />
+              </button>
+            ) : null}
+          </div>
         </div>
-      </div>
+      </>
     );
   } else if (fieldType === "select") {
     let options = [];

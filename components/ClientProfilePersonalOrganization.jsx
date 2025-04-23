@@ -5,6 +5,8 @@ import ClientProfileDetailsInput from "@/components/ClientProfileDetailsInput";
 function ClientProfilePersonalOrganization() {
   const { selectedClient } = useClients();
   const [error, setError] = useState("");
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [feps, setFeps] = useState([]);
   const [successMessage, setSuccessMessage] = useState("");
   const [change, setChange] = useState({
     first_name: selectedClient?.first_name || "",
@@ -22,11 +24,7 @@ function ClientProfilePersonalOrganization() {
     clientStatus: selectedClient?.clientStatus || "",
     county: selectedClient?.county || "",
     group: selectedClient?.group || "",
-    schoolIfEnrolled: selectedClient?.schoolIfEnrolled || "",
-    ttsDream: selectedClient?.ttsDream || "",
   });
-  const [detailsOpen, setDetailsOpen] = useState(false);
-  const [feps, setFeps] = useState([]);
 
   // Reset form when editing state changes
   useEffect(() => {
@@ -44,7 +42,6 @@ function ClientProfilePersonalOrganization() {
       region: selectedClient?.region || "",
       clientStatus: selectedClient?.clientStatus || "",
       county: selectedClient?.county || "",
-      schoolIfEnrolled: selectedClient?.schoolIfEnrolled || "",
       ttsDream: selectedClient?.ttsDream || "",
     });
     setError("");
@@ -77,7 +74,7 @@ function ClientProfilePersonalOrganization() {
       <div className={`mb-6 flex items-center justify-between`}>
         <div className={`text-2xl`}>Personal Details</div>
         <div onClick={() => setDetailsOpen(!detailsOpen)}>
-          <button className={`btn btn-soft btn-primary`}>View & Edit</button>
+          <button className={`btn btn-soft btn-info`}>View & Edit</button>
         </div>
       </div>
 
