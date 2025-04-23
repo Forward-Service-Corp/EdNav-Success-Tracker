@@ -35,28 +35,35 @@ export default function ClientTableNew({
     });
   };
 
-  const filteredClients = clientList
-    ?.filter((client) => {
-      if (selectedNavigator?.name !== "All") {
-        return client?.navigator === selectedNavigator?.name;
-      }
-      return client;
-    })
-    .filter((client) => {
-      const matchesSearch =
-        client?.first_name
-          ?.toLowerCase()
-          .includes(selectedFepLeft.searchTerm.toLowerCase()) ||
-        client?.last_name
-          ?.toLowerCase()
-          .includes(selectedFepLeft.searchTerm.toLowerCase());
-      const matchesStatus =
-        selectedFepLeft.status === "All" ||
-        client?.clientStatus === selectedFepLeft.status;
-      const matchesGroup =
-        selectedFepLeft.age === "All" || client?.group === selectedFepLeft.age;
-      return matchesSearch && matchesStatus && matchesGroup;
-    });
+  const filteredClients = useMemo(() => {
+    if (!clientList) return [];
+
+    return clientList
+      .filter((client) =>
+        selectedNavigator?.name !== "All"
+          ? client?.navigator === selectedNavigator?.name
+          : true,
+      )
+      .filter((client) => {
+        const matchesSearch =
+          client?.first_name
+            ?.toLowerCase()
+            .includes(selectedFepLeft.searchTerm.toLowerCase()) ||
+          client?.last_name
+            ?.toLowerCase()
+            .includes(selectedFepLeft.searchTerm.toLowerCase());
+
+        const matchesStatus =
+          selectedFepLeft.status === "All" ||
+          client?.clientStatus === selectedFepLeft.status;
+
+        const matchesGroup =
+          selectedFepLeft.age === "All" ||
+          client?.group === selectedFepLeft.age;
+
+        return matchesSearch && matchesStatus && matchesGroup;
+      });
+  }, [clientList, selectedNavigator, selectedFepLeft]);
 
   const groupByClientStatus = (clients) => {
     return clients

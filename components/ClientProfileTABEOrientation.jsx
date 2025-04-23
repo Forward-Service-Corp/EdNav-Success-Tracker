@@ -23,7 +23,7 @@ function ClientProfileTabeOrientation() {
     setDateValue({
       orientation: {
         referralDate: selectedClient?.orientation?.referralDate || null,
-        completionDate: selectedClient?.orientation?.completionDate || nu,
+        completionDate: selectedClient?.orientation?.completionDate || null,
       },
       tabe: {
         referralDate: selectedClient?.tabe?.referralDate || null,
