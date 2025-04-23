@@ -1,11 +1,12 @@
 import { getCollection } from "../../../lib/mongodb";
+import { NextResponse } from "next/server";
 
 export async function GET() {
   const url = new URL(request.url);
   const clientId = url.searchParams.get("clientId") || "";
   const activityId = url.searchParams.get("activityId") || "";
 
-  let notes: any[] = [];
+  let notes;
   try {
     const collection = await getCollection("notes");
 
@@ -14,10 +15,7 @@ export async function GET() {
       try {
         // Try to convert to ObjectId if it's a valid format
         const query = { clientId: clientId };
-        notes = await collection
-          .find(query)
-          .sort({ createdAt: -1 })
-          .toArray();
+        notes = await collection.find(query).sort({ createdAt: -1 }).toArray();
       } catch (err) {
         console.error("Error processing clientId:", err);
         // Fallback to string comparison if ObjectId conversion fails
@@ -28,5 +26,12 @@ export async function GET() {
       }
     }
 
-
+    return NextResponse.json(notes, { status: 200 });
+  } catch (error) {
+    console.error("Error fetching notes:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch notes" },
+      { status: 500 },
+    );
   }
+}
