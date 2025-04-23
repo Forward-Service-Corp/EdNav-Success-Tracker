@@ -2,5 +2,11 @@
   "extends": [
     "next/core-web-vitals",
     "plugin:storybook/recommended"
+  ],
+  "ignorePatterns": [
+    ".storybook/",
+    "storybook-static/",
+    "cypress/",
+    "tests/"
   ]
 }

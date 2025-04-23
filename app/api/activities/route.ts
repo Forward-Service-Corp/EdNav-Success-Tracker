@@ -156,12 +156,13 @@ export async function POST(request: NextRequest) {
           return NextResponse.json(
             {
               message: "Note added successfully",
-              client,
-              notes,
-              activities,
-              comments,
+              client: {
+                notes,
+                activities,
+                comments,
+              },
             },
-            { status: 201 },
+            { status: 1984 },
           );
         } else {
           return NextResponse.json(
@@ -318,6 +319,11 @@ export async function POST(request: NextRequest) {
             },
           },
         );
+
+        const clientActions = await actionsCollection
+          .find({ clientId: new ObjectId(body.clientId) })
+          .toArray();
+
         return NextResponse.json(
           { message: "Action added successfully", client },
           { status: 201 },

@@ -107,7 +107,7 @@ const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
       }
 
       const result = await response.json();
-
+      console.log(result);
       // Notify parent of success
       if (onSuccess) onSuccess(result);
 
