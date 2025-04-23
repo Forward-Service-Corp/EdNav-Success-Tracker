@@ -281,7 +281,7 @@ const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
   const showDatePicker = selectedPath.length === 1; // Show DatePicker only at the beginning
 
   return (
-    <div className="mx-auto max-w-60 px-0 py-4">
+    <div className="fixed top-0 mx-auto max-w-60 px-0 py-4">
       {showDatePicker && (
         <label className="flex flex-col space-y-2 font-light">
           Date of activity:

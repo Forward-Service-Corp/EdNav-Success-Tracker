@@ -1,5 +1,5 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import ClientsTable from './ClientsTable';
+import type { Meta, StoryObj } from "@storybook/react";
+import ClientsTable from "./ClientsTable";
 
 const meta: Meta<typeof ClientsTable> = {
   title: "Tracker/Organisms/ClientsTable",
@@ -12,8 +12,8 @@ const meta: Meta<typeof ClientsTable> = {
       },
     },
   },
-  tags: '#ohYeahPizza'',\'tracker\''
-],
+  tags: "#ohYeahPizza"",\"tracker\""
+],.
 {,
 }
 
