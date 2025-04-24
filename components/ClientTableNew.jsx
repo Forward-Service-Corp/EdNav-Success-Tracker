@@ -16,7 +16,7 @@ export default function ClientTableNew({
   toggleSidebar,
   setOpenPanel,
 }) {
-  const { clientList } = useClientList();
+  const { clientList, loading, error } = useClientList();
   const { selectedNavigator } = useNavigators();
   const { selectedFepLeft } = useFepsLeft();
   const [isMounted, setIsMounted] = useState(false);
@@ -68,7 +68,7 @@ export default function ClientTableNew({
   const groupByClientStatus = (clients) => {
     return clients
       .filter((client) => {
-        if (selectedNavigator.name !== "All")
+        if (selectedNavigator && selectedNavigator.name !== "All")
           return client?.navigator === selectedNavigator?.name;
         return client;
       })
@@ -153,6 +153,125 @@ export default function ClientTableNew({
     }
   };
 
+  // Render loading state
+  if (loading) {
+    return (
+      <div className="no-scrollbar relative z-0 h-full w-full">
+        <div className="no-scrollbar absolute top-0 right-0 bottom-0 left-0 overflow-y-scroll">
+          <div className="bg-base-200 sticky top-0 right-0 left-0 z-50 flex h-[80px] items-center justify-between px-3 py-4 shadow">
+            <SearchField
+              menuOpen={menuOpen}
+              setMenuOpen={setMenuOpen}
+              setFilterOpen={setFilterOpen}
+              toggleSidebar={toggleSidebar}
+              filterOpen={filterOpen}
+              setViewMode={setViewMode}
+              setStatusCollapse={setStatusCollapse}
+            />
+          </div>
+          <div className="flex h-[calc(100vh-80px)] items-center justify-center">
+            <div className="text-center">
+              <div className="loading loading-spinner loading-lg"></div>
+              <p className="text-base-content mt-4">Loading clients...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Render error state
+  if (error) {
+    return (
+      <div className="no-scrollbar relative z-0 h-full w-full">
+        <div className="no-scrollbar absolute top-0 right-0 bottom-0 left-0 overflow-y-scroll">
+          <div className="bg-base-200 sticky top-0 right-0 left-0 z-50 flex h-[80px] items-center justify-between px-3 py-4 shadow">
+            <SearchField
+              menuOpen={menuOpen}
+              setMenuOpen={setMenuOpen}
+              setFilterOpen={setFilterOpen}
+              toggleSidebar={toggleSidebar}
+              filterOpen={filterOpen}
+              setViewMode={setViewMode}
+              setStatusCollapse={setStatusCollapse}
+            />
+          </div>
+          <div className="flex h-[calc(100vh-80px)] items-center justify-center">
+            <div className="text-error text-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="mx-auto mb-4 h-10 w-10"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              <p className="text-lg font-medium">Error Loading Clients</p>
+              <p className="mt-1">{error}</p>
+              <button
+                className="btn btn-outline btn-error btn-sm mt-4"
+                onClick={() => window.location.reload()}
+              >
+                Retry
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Render empty state
+  if (clientList && clientList.length === 0) {
+    return (
+      <div className="no-scrollbar relative z-0 h-full w-full">
+        <div className="no-scrollbar absolute top-0 right-0 bottom-0 left-0 overflow-y-scroll">
+          <div className="bg-base-200 sticky top-0 right-0 left-0 z-50 flex h-[80px] items-center justify-between px-3 py-4 shadow">
+            <SearchField
+              menuOpen={menuOpen}
+              setMenuOpen={setMenuOpen}
+              setFilterOpen={setFilterOpen}
+              toggleSidebar={toggleSidebar}
+              filterOpen={filterOpen}
+              setViewMode={setViewMode}
+              setStatusCollapse={setStatusCollapse}
+            />
+          </div>
+          <div className="flex h-[calc(100vh-80px)] items-center justify-center">
+            <div className="text-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="text-base-content/50 mx-auto mb-4 h-10 w-10"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                />
+              </svg>
+              <p className="text-base-content/70">No clients found</p>
+              {selectedNavigator && selectedNavigator.name !== "All" && (
+                <p className="text-base-content/50 mt-1 text-sm">
+                  No clients assigned to {selectedNavigator.name}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={`no-scrollbar relative z-0 h-full w-full`}>
       <div
@@ -187,9 +306,9 @@ export default function ClientTableNew({
                         <div className="avatar">
                           <div className="mask mask-squircle h-12 w-12">
                             <Avvvatars
-                              value={person.first_name}
+                              value={person.first_name || ""}
                               size={36}
-                              displayValue={`${person.first_name.split("")[0]} ${person.last_name.split("")[0]}`}
+                              displayValue={`${(person.first_name || "").split("")[0] || ""} ${(person.last_name || "").split("")[0] || ""}`}
                               style={{ borderRadius: "50%" }}
                             />
                           </div>
@@ -199,7 +318,7 @@ export default function ClientTableNew({
                             {person.first_name} {person.last_name}
                           </div>
                           <div className="text-sm opacity-50">
-                            {person.latestInteraction}
+                            {person.latestInteraction || "No recent activity"}
                           </div>
                         </div>
                       </div>
@@ -209,12 +328,16 @@ export default function ClientTableNew({
                         color={
                           selectedClient?._id === person._id
                             ? "inline-flex items-center rounded-md px-2 py-1 text-xs w-24 font-medium bg-white text-center"
-                            : getBadgeColor(person.clientStatus.toLowerCase())
+                            : getBadgeColor(
+                                (
+                                  person.clientStatus || "unknown"
+                                ).toLowerCase(),
+                              )
                         }
-                        label={person.clientStatus}
+                        label={person.clientStatus || "Unknown"}
                       />
                     </td>
-                    <td>{person.county}</td>
+                    <td>{person.county || "N/A"}</td>
                     <th>
                       <button
                         onClick={(e) => {

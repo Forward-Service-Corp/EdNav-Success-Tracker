@@ -1,8 +1,7 @@
 import React from "react";
 import { useFepsLeft } from "@/contexts/FepsLeftContext";
 import { MagnifyingGlass } from "@phosphor-icons/react";
-import { LayoutColumns, Sidebar, Wrench, XCircle } from "phosphor-react";
-import { useLayout } from "@/contexts/LayoutContext";
+import { Sidebar, Wrench, XCircle } from "phosphor-react";
 
 function SearchField({
   menuOpen,
@@ -12,7 +11,22 @@ function SearchField({
   toggleSidebar,
 }) {
   const { selectedFepLeft, setSelectedFepLeft } = useFepsLeft();
-  const { setLayoutConfig } = useLayout();
+
+  // Check if the LayoutContext is available (if we're in the new layout)
+  let layoutConfig = null;
+  try {
+    // Dynamic import to prevent errors when the context doesn't exist
+    const { useLayout }"@/contexts/LayoutContext"outContext");
+    try {
+      layoutConfig = useLayout();
+    } catch (e) {
+      // Layout context not available, that's okay
+      layoutConfig = null;
+    }
+  } catch (e) {
+    // Module not found, that's okay
+    layoutConfig = null;
+  }
 
   return (
     <div className={`mb-3 flex h-full items-center justify-between gap-4`}>
@@ -82,33 +96,79 @@ function SearchField({
       </div>
 
       <div className="absolute right-5 z-20 flex cursor-pointer items-center justify-items-center gap-4">
-        {/* Layout Button */}
-        <div className="dropdown dropdown-end">
-          <div
-            tabIndex={0}
-            role="button"
-            className="btn btn-ghost btn-circle btn-sm"
-          >
-            <LayoutColumns size={20} className="text-base-content/60" />
+        {/* Layout Button - Only show if layoutConfig is available */}
+        {layoutConfig && (
+          <div className="dropdown dropdown-end">
+            <div
+              tabIndex={0}
+              role="button"
+              className="btn btn-ghost btn-circle btn-sm"
+            >
+              {/* Using SVG directly instead of the LayoutColumns icon */}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                fill="currentColor"
+                viewBox="0 0 256 256"
+                className="text-base-content/60"
+              >
+                <rect width="256" height="256" fill="none"></rect>
+                <line
+                  x1="88"
+                  y1="40"
+                  x2="88"
+                  y2="216"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="16"
+                ></line>
+                <line
+                  x1="168"
+                  y1="40"
+                  x2="168"
+                  y2="216"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="16"
+                ></line>
+                <rect
+                  x="32"
+                  y="40"
+                  width="192"
+                  height="176"
+                  rx="8"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="16"
+                ></rect>
+              </svg>
+            </div>
+            <ul className="dropdown-content menu bg-base-100 rounded-box z-[999] w-52 p-2 shadow">
+              <li>
+                <a onClick={() => layoutConfig.setLayoutConfig("DEFAULT")}>
+                  Default Layout (15/35/50)
+                </a>
+              </li>
+              <li>
+                <a onClick={() => layoutConfig.setLayoutConfig("NO_SIDEBAR")}>
+                  No Sidebar (0/50/50)
+                </a>
+              </li>
+              <li>
+                <a onClick={() => layoutConfig.setLayoutConfig("TABLE_FOCUS")}>
+                  Table Focus (0/70/30)
+                </a>
+              </li>
+            </ul>
           </div>
-          <ul className="dropdown-content menu bg-base-100 rounded-box z-[999] w-52 p-2 shadow">
-            <li>
-              <a onClick={() => setLayoutConfig("DEFAULT")}>
-                Default Layout (15/35/50)
-              </a>
-            </li>
-            <li>
-              <a onClick={() => setLayoutConfig("NO_SIDEBAR")}>
-                No Sidebar (0/50/50)
-              </a>
-            </li>
-            <li>
-              <a onClick={() => setLayoutConfig("TABLE_FOCUS")}>
-                Table Focus (0/70/30)
-              </a>
-            </li>
-          </ul>
-        </div>
+        )}
 
         {/* Filter Toggle */}
         <Wrench

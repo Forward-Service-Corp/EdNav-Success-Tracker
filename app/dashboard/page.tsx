@@ -35,13 +35,13 @@ export default function Dashboard() {
 
   return (
     <NotificationProvider>
-      <LayoutProvider>
-        <EditingProvider>
-          <ClientListProvider>
-            <ClientProvider>
-              <ActivitiesProvider>
-                <NavigatorsProvider>
-                  <FepsLeftProvider>
+      <EditingProvider>
+        <ClientListProvider>
+          <ClientProvider>
+            <ActivitiesProvider>
+              <NavigatorsProvider>
+                <FepsLeftProvider>
+                  <LayoutProvider>
                     <div className="bg-base-100 flex h-screen flex-col">
                       {/* Layout Controls */}
                       <LayoutControls />
@@ -84,13 +84,13 @@ export default function Dashboard() {
                         />
                       </div>
                     </div>
-                  </FepsLeftProvider>
-                </NavigatorsProvider>
-              </ActivitiesProvider>
-            </ClientProvider>
-          </ClientListProvider>
-        </EditingProvider>
-      </LayoutProvider>
+                  </LayoutProvider>
+                </FepsLeftProvider>
+              </NavigatorsProvider>
+            </ActivitiesProvider>
+          </ClientProvider>
+        </ClientListProvider>
+      </EditingProvider>
     </NotificationProvider>
   );
 }
