@@ -1,15 +1,13 @@
 // /components/blocks/organisms/ClientTableContainer.tsx
 
-"use client";
+import { useClientList } from '@/contexts/ClientListContext';
+import { useClients } from '@/contexts/ClientsContext';
+import { useFepsLeft } from '@/contexts/FepsLeftContext';
+import { useNavigators } from '@/contexts/NavigatorsContext';
+import { useEffect, useMemo, useState } from 'react';
 
-import { useClientList } from "@/contexts/ClientListContext";
-import { useClients } from "@/contexts/ClientsContext";
-import { useFepsLeft } from "@/contexts/FepsLeftContext";
-import { useNavigators } from "@/contexts/NavigatorsContext";
-import { useEffect, useMemo, useState } from "react";
-
-import ClientsTable from "@/components/blocks/organisms/ClientsTable";
-import SearchBar from "../../SearchField";
+import ClientsTable from '@/components/blocks/organisms/ClientsTable';
+import SearchBar from '../../SearchField';
 
 export default function ClientTableContainer({
                                                menuOpen,

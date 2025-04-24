@@ -1,7 +1,5 @@
 // /components/blocks/molecules/ClientRow.tsx
 
-'use client';
-
 import { useClients } from '@/contexts/ClientsContext';
 import { useEditing } from '@/contexts/EditingContext';
 import { getBGColor } from '@/lib/ColorMap';

@@ -1,6 +1,5 @@
 // /components/blocks/molecules/ClientTableBody.tsx
 
-'use client';
 import ClientRow from '@/components/blocks/molecules/ClientRow';
 
 type ClientTableBodyProps = {
