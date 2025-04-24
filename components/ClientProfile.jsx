@@ -1,11 +1,11 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import CombinedFeed from "../components/CombinedFeed";
+import CombinedFeed from "./CombinedFeed";
 import ClientProfileHeader from "../components/ClientProfileHeader";
 import ClientProfileProgress from "../components/ClientProfileProgress";
 import ClientProfilePersonalOrganization from "../components/ClientProfilePersonalOrganization";
 import ClientProfileTABEOrientation from "../components/ClientProfileTABEOrientation";
-import { useClients } from "../contexts/ClientsContext";
+import { useClients } from "@/contexts/ClientsContext";
 import ActivityModal from "../components/ActivityModal";
 
 export default function ClientProfile({ setOpenPanel }) {

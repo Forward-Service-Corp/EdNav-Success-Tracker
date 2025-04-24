@@ -2,6 +2,7 @@ import React from "react";
 import { useFepsLeft } from "@/contexts/FepsLeftContext";
 import { MagnifyingGlass } from "@phosphor-icons/react";
 import { Sidebar, Wrench, XCircle } from "phosphor-react";
+import { useLayout } from "@/contexts/LayoutContext";
 
 function SearchField({
   menuOpen,
@@ -9,24 +10,37 @@ function SearchField({
   setFilterOpen,
   setViewMode,
   toggleSidebar,
+}: {
+  menuOpen: boolean;
+  filterOpen: boolean;
+  setFilterOpen: (open: boolean) => void;
+  setViewMode: (mode: string) => void;
+  toggleSidebar: () => void;
 }) {
   const { selectedFepLeft, setSelectedFepLeft } = useFepsLeft();
 
   // Check if the LayoutContext is available (if we're in the new layout)
-  let layoutConfig = null;
-  try {
-    // Dynamic import to prevent errors when the context doesn't exist
-    const { useLayout }"@/contexts/LayoutContext"outContext");
-    try {
-      layoutConfig = useLayout();
-    } catch (e) {
-      // Layout context not available, that's okay
-      layoutConfig = null;
-    }
-  } catch (e) {
-    // Module not found, that's okay
-    layoutConfig = null;
-  }
+  const [layoutConfig, setLayoutConfig] = React.useState<ReturnType<
+    typeof useLayout
+  > | null>(null);
+
+  React.useEffect(() => {
+    const loadLayout = async () => {
+      try {
+        const { useLayout } = await import("@/contexts/LayoutContext");
+        try {
+          setLayoutConfig(useLayout());
+        } catch (e) {
+          // Layout context is not available, that's okay
+          setLayoutConfig(() => null);
+        }
+      } catch (e) {
+        // Module isn't found, that's okay
+        setLayoutConfig(null);
+      }
+    };
+    loadLayout().then();
+  }, []);
 
   return (
     <div className={`mb-3 flex h-full items-center justify-between gap-4`}>
@@ -37,9 +51,10 @@ function SearchField({
             name={`client-search`}
             type="text"
             onChange={(e) => {
-              setSelectedFepLeft((prev) => {
-                return { ...prev, searchTerm: e.target.value };
-              });
+              setSelectedFepLeft((prev) => ({
+                ...prev,
+                searchTerm: e.target.value as "",
+              }));
             }}
             value={selectedFepLeft.searchTerm}
             placeholder="Search by name..."
@@ -47,9 +62,10 @@ function SearchField({
           />
           <XCircle
             onClick={() => {
-              setSelectedFepLeft((prevState) => {
-                return { ...prevState, searchTerm: "" };
-              });
+              setSelectedFepLeft((prevState) => ({
+                ...prevState,
+                searchTerm: "" as cons,
+              }));
             }}
             className={`absolute left-3/5 z-40 cursor-pointer ${selectedFepLeft.searchTerm !== "" ? "visible" : "hidden"}`}
             size={26}

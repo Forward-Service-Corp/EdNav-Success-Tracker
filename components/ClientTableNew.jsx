@@ -1,10 +1,10 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
-import { useClientList } from "../contexts/ClientListContext";
-import { useClients } from "../contexts/ClientsContext";
-import { useEditing } from "../contexts/EditingContext";
-import { useNavigators } from "../contexts/NavigatorsContext";
-import { getBadgeColor, getBGColor } from "../lib/ColorMap";
+import { useClientList } from "@/contexts/ClientListContext";
+import { useClients } from "@/contexts/ClientsContext";
+import { useEditing } from "@/contexts/EditingContext";
+import { useNavigators } from "@/contexts/NavigatorsContext";
+import { getBadgeColor, getBGColor } from "@/lib/ColorMap";
 import Badges from "./Badges";
 import { useFepsLeft } from "/contexts/FepsLeftContext";
 import SearchField from "./SearchField";
@@ -22,7 +22,7 @@ export default function ClientTableNew({
   const [isMounted, setIsMounted] = useState(false);
   const [viewMode, setViewMode] = useState(null);
   const [filterOpen, setFilterOpen] = useState(false);
-  const [statusCollapse, setStatusCollapse] = useState([]);
+  const [, setStatusCollapse] = useState([]);
   const { setEditing } = useEditing();
   const { selectedClient, setSelectedClient } = useClients({});
 
@@ -115,7 +115,7 @@ export default function ClientTableNew({
       setSelectedClient(null);
       setOpenPanel(null);
     } else {
-      // Get the latest version of the client in case status was updated
+      // Get the latest version of the client in case the status was updated
       fetchLatestClientData(person._id)
         .then((updatedClient) => {
           // If we got updated data, use it
@@ -145,8 +145,7 @@ export default function ClientTableNew({
       if (!response.ok) {
         throw new Error(`Error fetching client: ${response.status}`);
       }
-      const clientData = await response.json();
-      return clientData;
+      return await response.json();
     } catch (error) {
       console.error("Error fetching client data:", error);
       return null;
@@ -227,7 +226,7 @@ export default function ClientTableNew({
     );
   }
 
-  // Render empty state
+  // Render an empty state
   if (clientList && clientList.length === 0) {
     return (
       <div className="no-scrollbar relative z-0 h-full w-full">

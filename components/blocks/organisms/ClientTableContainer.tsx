@@ -9,7 +9,7 @@ import { useNavigators } from "@/contexts/NavigatorsContext";
 import { useEffect, useMemo, useState } from "react";
 
 import ClientsTable from "@/components/blocks/organisms/ClientsTable";
-import SearchBar from "../../../components/SearchField";
+import SearchBar from "../../SearchField";
 
 export default function ClientTableContainer({
   menuOpen,
