@@ -55,12 +55,28 @@ export default function ClientProfileWithActivity({ setOpenPanel }) {
           isPermaPersistent: true
         };
 
+        // Dispatch activity added event
         const activityAddedEvent = new CustomEvent('activityAdded', {
           detail: enhancedResult,
           bubbles: true,
           cancelable: true
         });
         window.dispatchEvent(activityAddedEvent);
+
+        // Also dispatch a trackable update event if this activity has trackable data
+        if (result.trackable) {
+          console.log('Dispatching trackableUpdated event for trackable activity');
+          const trackableEvent = new CustomEvent('trackableUpdated', {
+            detail: {
+              clientId: result.clientId || result.data?.clientId,
+              trackable: result.trackable,
+              timestamp: new Date().toISOString()
+            },
+            bubbles: true,
+            cancelable: true
+          });
+          window.dispatchEvent(trackableEvent);
+        }
 
         // Store in localStorage as a backup - will be restored if the activity disappears
         if (result.clientId) {
@@ -77,15 +93,6 @@ export default function ClientProfileWithActivity({ setOpenPanel }) {
             console.error('Failed to store activity in localStorage:', e);
           }
         }
-
-        /* Disabled automatic refresh to prevent activities from disappearing
-        setTimeout(() => {
-          console.log('Triggering manual refresh after activity added');
-          if (window.refreshActivityFeed) {
-            window.refreshActivityFeed();
-          }
-        }, 10000); // 10 seconds
-        */
       } catch (error) {
         console.error('Error in handleActivitySuccess:', error);
       }

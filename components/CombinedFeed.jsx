@@ -9,7 +9,7 @@ export default function CombinedFeed() {
   const { selectedClient } = useClients();
   const { selectedNavigator } = useNavigators();
   const [activities, setActivities] = useState([]);
-  const [, setNotes] = useState([]);
+  const [notes, setNotes] = useState([]);
   const [comments, setComments] = useState([]);
   const [combinedFeed, setCombinedFeed] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -229,9 +229,25 @@ export default function CombinedFeed() {
       window.addItemToFeed = (item) => {
         console.log('FEED DEBUG: Adding item directly to combined feed:', item);
 
+        // If no client selected, can't add items
+        if (!selectedClient || !selectedClient._id) {
+          console.error('FEED DEBUG: Cannot add item - no client selected');
+          return null;
+        }
+
+        // Make sure the item has a client ID that matches the selected client
+        if (!item.clientId) {
+          console.log('FEED DEBUG: Item missing clientId, adding current client ID');
+          item.clientId = selectedClient._id;
+        } else if (item.clientId !== selectedClient._id) {
+          console.warn('FEED DEBUG: Item has different clientId than selected client, skipping');
+          return null; // Don't add items for other clients
+        }
+
         // Format the item with proper type and date
         const formattedItem = {
           ...item,
+          clientId: selectedClient._id, // Ensure client ID is set
           type: item.type || (item.noteContent ? 'note' : 'activity'),
           date: new Date(item.timestamp || item.createdAt || Date.now())
         };
@@ -252,12 +268,24 @@ export default function CombinedFeed() {
         });
 
         // Also add to appropriate state collection for consistency
-        if (formattedItem.type === 'note') {
+        if (formattedItem.type === 'note' || formattedItem.isNote || formattedItem.noteContent) {
           console.log('FEED DEBUG: Adding note to state for consistency');
-          setNotes(prev => [formattedItem, ...prev]);
+          setNotes(prev => {
+            // Skip if already in notes
+            if (prev.some(note => note._id === formattedItem._id)) {
+              return prev;
+            }
+            return [formattedItem, ...prev];
+          });
         } else {
           console.log('FEED DEBUG: Adding activity to state for consistency');
-          setActivities(prev => [formattedItem, ...prev]);
+          setActivities(prev => {
+            // Skip if already in activities
+            if (prev.some(activity => activity._id === formattedItem._id)) {
+              return prev;
+            }
+            return [formattedItem, ...prev];
+          });
         }
 
         // If it's an activity, also persist to localStorage for extra safety
@@ -427,26 +455,40 @@ export default function CombinedFeed() {
       // Create combined feed with everything in a single array
       console.log('LOAD DEBUG: Creating combined feed');
 
-      // Get current activities from state (including any restored from localStorage)
-      const currentActivities = activities.map(activity => ({
-        ...activity,
-        type: 'activity',
-        date: new Date(activity.timestamp || activity.createdAt || Date.now())
-      }));
+      // Start with a fresh array from API data
+      let newFeed = [...formattedActivities, ...formattedNotes];
 
-      // Include both API and localStorage activities 
-      const allActivities = [...formattedActivities, ...currentActivities];
+      // Check for any existing items that should be preserved (optimistic updates)
+      // Crucially, ONLY preserve items that match the current client ID
+      const existingItems = combinedFeed.filter(item =>
+        // Only preserve items that belong to the current client
+        item.clientId === selectedClient._id &&
+        // And are either flagged as optimistic
+        (item.isOptimistic === true ||
+          // Or items with permanent flag
+          item.isPermaPersistent === true)
+      );
 
-      // Final combined feed with both notes and all activities
-      const combinedItems = [...allActivities, ...formattedNotes].sort((a, b) => b.date - a.date);
+      console.log(`LOAD DEBUG: Found ${existingItems.length} optimistic items for current client`);
 
-      console.log('LOAD DEBUG: Combined feed created with items:', combinedItems.length);
+      // Add existing optimistic items but avoid duplicates
+      existingItems.forEach(item => {
+        // Skip if this ID already exists in the new feed
+        if (!newFeed.some(newItem => newItem._id === item._id)) {
+          newFeed.push(item);
+        }
+      });
+
+      // Sort the combined feed by date
+      newFeed.sort((a, b) => b.date - a.date);
+
+      console.log('LOAD DEBUG: Combined feed created with items:', newFeed.length);
       console.log('LOAD DEBUG: API activities:', formattedActivities.length);
-      console.log('LOAD DEBUG: State activities (including localStorage):', currentActivities.length);
-      console.log('LOAD DEBUG: Notes in combined feed:', formattedNotes.length);
+      console.log('LOAD DEBUG: API notes:', formattedNotes.length);
+      console.log('LOAD DEBUG: Preserved optimistic/permanent items:', existingItems.length);
 
       // Set combined feed state
-      setCombinedFeed(combinedItems);
+      setCombinedFeed(newFeed);
       
     } catch (error) {
       console.error('LOAD DEBUG: Error loading feed data:', error);
@@ -553,7 +595,18 @@ export default function CombinedFeed() {
         isOptimistic: true // Flag to identify optimistic updates
       };
 
+      // Add directly to both states to ensure visibility
       setNotes((prevNotes) => [optimisticNote, ...prevNotes]);
+
+      // Also add directly to combined feed for immediate visibility
+      setCombinedFeed(prevFeed => {
+        // Check if already in feed
+        if (prevFeed.some(item => item._id === tempId)) {
+          return prevFeed;
+        }
+        // Add and re-sort
+        return [optimisticNote, ...prevFeed].sort((a, b) => b.date - a.date);
+      });
 
       const response = await fetch("/api/notes", {
         method: "POST",
@@ -570,18 +623,26 @@ export default function CombinedFeed() {
       const result = await response.json();
 
       // Update with real data from the server but keep the same ID to avoid reordering
+      const realNote = {
+        ...(result.note || {}),
+        _id: result.note?._id || result._id || tempId,
+        type: 'note',
+        date: new Date(result.note?.createdAt || Date.now()),
+        isOptimistic: false
+      };
+
+      // Update notes state
       setNotes((prevNotes) =>
         prevNotes.map((note) =>
-          note._id === tempId
-            ? {
-                ...result.note,
-              _id: result.note._id || result._id,
-                type: "note",
-                date: new Date(result.note.createdAt),
-              isOptimistic: false
-              }
-            : note,
+          note._id === tempId ? realNote : note
         ),
+      );
+
+      // Also update combined feed
+      setCombinedFeed(prevFeed =>
+        prevFeed.map(item =>
+          (item._id === tempId && item.type === 'note') ? realNote : item
+        )
       );
 
       // Clear form
@@ -599,7 +660,12 @@ export default function CombinedFeed() {
 
       // Remove the optimistic update on error
       setNotes((prevNotes) =>
-        prevNotes.filter((note) => !note.isOptimistic)
+        prevNotes.filter((note) => note._id !== tempId)
+      );
+
+      // Also remove from combined feed
+      setCombinedFeed(prevFeed =>
+        prevFeed.filter(item => !(item._id === tempId && item.type === 'note'))
       );
 
       // Show error notification
@@ -767,28 +833,43 @@ export default function CombinedFeed() {
           console.log('Found stored permanent activities to restore:', permActivities.length);
 
           if (permActivities.length > 0) {
-            // DIRECT APPROACH: Add these activities directly to the combined feed
-            // This bypasses all the state management complexity
-            permActivities.forEach(activity => {
-              // Format the activity properly
-              const formattedActivity = {
-                ...activity,
-                type: 'activity',
-                date: new Date(activity.timestamp || activity.createdAt || Date.now())
-              };
+            // Filter to ensure we only restore activities for THIS client
+            const clientActivities = permActivities.filter(activity =>
+              activity.clientId === selectedClient._id
+            );
 
-              // Add it directly to the combined feed
+            console.log(`Filtered activities for current client: ${clientActivities.length}`);
+
+            if (clientActivities.length > 0) {
+              // DIRECT APPROACH: Add these activities directly to the combined feed
+              // This bypasses all the state management complexity
               setCombinedFeed(prev => {
-                // Skip if this activity is already in the feed
-                if (prev.some(item => item._id === formattedActivity._id)) {
-                  return prev;
-                }
-                // Add it and re-sort
-                return [formattedActivity, ...prev].sort((a, b) => b.date - a.date);
-              });
-            });
+                const newItems = [];
 
-            console.log('Directly added stored activities to feed, bypassing state');
+                clientActivities.forEach(activity => {
+                  // Format the activity properly
+                  const formattedActivity = {
+                    ...activity,
+                    type: activity.type || 'activity',
+                    date: new Date(activity.timestamp || activity.createdAt || Date.now())
+                  };
+
+                  // Skip if this activity is already in the feed
+                  if (!prev.some(item => item._id === formattedActivity._id)) {
+                    newItems.push(formattedActivity);
+                  }
+                });
+
+                // If we have new items, add them and re-sort
+                if (newItems.length > 0) {
+                  const newFeed = [...prev, ...newItems].sort((a, b) => b.date - a.date);
+                  console.log(`Added ${newItems.length} stored activities to feed`);
+                  return newFeed;
+                }
+
+                return prev;
+              });
+            }
           }
         } catch (e) {
           console.error('Error checking for persisted activities:', e);
@@ -802,7 +883,13 @@ export default function CombinedFeed() {
     // Set up event listener for activity added events
     const handleActivityAdded = (event) => {
       console.log('Activity added event received:', event.detail);
-      // Not using the complex approach anymore
+
+      // Only handle activities for the current client
+      if (event.detail && event.detail.clientId === selectedClient?._id) {
+        console.log('Activity is for current client, will be displayed');
+      } else {
+        console.log('Activity is for a different client, ignoring');
+      }
     };
 
     if (typeof window !== 'undefined' && selectedClient) {
@@ -812,7 +899,7 @@ export default function CombinedFeed() {
         window.removeEventListener('activityAdded', handleActivityAdded);
       };
     }
-  }, [selectedClient, combinedFeed.length]);
+  }, [selectedClient]);
 
   // Get comments for an item
   const getCommentsForItem = (itemId, itemType) => {

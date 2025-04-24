@@ -2,6 +2,33 @@ import { type NextRequest, NextResponse } from 'next/server';
 import { getCollection } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 
+// Helper function to safely convert client IDs to MongoDB ObjectIds
+const safeObjectId = (id: string) => {
+  try {
+    // Check if it's a 24-character hex string
+    if (id && /^[0-9a-fA-F]{24}$/.test(id)) {
+      return new ObjectId(id);
+    }
+
+    // Try using createFromHexString if the format looks right
+    if (id && id.length === 24) {
+      return new ObjectId(id);
+    }
+
+    // Only use createFromBase64 if exactly 16 characters (MongoDB requirement)
+    if (id && id.length === 16) {
+      return ObjectId.createFromBase64(id);
+    }
+
+    // If all else fails, return the original ID
+    console.log(`Unable to convert ID to ObjectId: ${id}`);
+    return id;
+  } catch (error) {
+    console.error(`Error converting ObjectId: ${error}`);
+    return id; // Return original ID on error
+  }
+};
+
 export async function GET(request: NextRequest) {
   const url = new URL(request.url);
   const clientId = url.searchParams.get("clientId");
@@ -51,7 +78,10 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    // Parse the JSON body and log for debugging
     const body = await request.json();
+    console.log('Received activity request body:', JSON.stringify(body, null, 2));
+    
     const actionsCollection = await getCollection("actions");
     const clientsCollection = await getCollection("clients");
     const notesCollection = await getCollection("notes");
@@ -59,6 +89,15 @@ export async function POST(request: NextRequest) {
 
     if (!body.createdAt) {
       body.createdAt = new Date().toISOString();
+    }
+
+    // Ensure required fields are present
+    if (!body.clientId) {
+      console.error('Missing clientId in activity data');
+      return NextResponse.json(
+        { error: 'Missing clientId in activity data' },
+        { status: 400 }
+      );
     }
     // Handle direct note submissions (where isNote is true at the top level)
     if (body.isNote) {
@@ -71,12 +110,19 @@ export async function POST(request: NextRequest) {
           );
         }
 
-        // Convert string ID to ObjectId if needed
-        const clientObjectId =
-          typeof clientId === 'string' ? ObjectId.createFromBase64(clientId) : clientId;
+        // Convert string ID to ObjectId using our safe function
+        const clientObjectId = typeof clientId === 'string'
+          ? safeObjectId(clientId)
+          : clientId;
 
-        // Find the client
-        const client = await clientsCollection.findOne({ _id: clientObjectId });
+        // Find the client using a flexible query that works with both ObjectId and string
+        const client = await clientsCollection.findOne({
+          $or: [
+            { _id: clientObjectId },
+            { _id: clientId }
+          ]
+        });
+        
         if (!client) {
           return NextResponse.json(
             { error: "Client not found" },
@@ -96,9 +142,14 @@ export async function POST(request: NextRequest) {
         // Insert the note
         const insertResult = await notesCollection.insertOne(noteDoc);
 
-        // Update client's last activity
+        // Update client's last activity using flexible query
         await clientsCollection.updateOne(
-          { _id: clientObjectId },
+          {
+            $or: [
+              { _id: clientObjectId },
+              { _id: clientId }
+            ]
+          },
           { $set: { lastActivity: new Date().toISOString() } },
         );
 
@@ -126,18 +177,33 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Handle nested note object (legacy format)
+    // Handle nested note object (legacy format) // TODO check which version we use
     if (body.note && body.note.isNote) {
       try {
         const clientId = body.note.clientId;
+        // Use safe conversion function
+        const clientObjectId = typeof clientId === 'string'
+          ? safeObjectId(clientId)
+          : clientId;
+
+        // Find client with flexible query  
         const client = await clientsCollection.findOne({
-          _id: ObjectId.createFromBase64(clientId)
+          $or: [
+            { _id: clientObjectId },
+            { _id: clientId }
+          ]
         });
 
         if (client) {
           await notesCollection.insertOne(body.note);
+          // Update with flexible query
           await clientsCollection.updateOne(
-            { _id: ObjectId.createFromBase64(clientId) },
+            {
+              $or: [
+                { _id: clientObjectId },
+                { _id: clientId }
+              ]
+            },
             { $set: { lastActivity: new Date().toISOString() } },
           );
 
@@ -146,11 +212,23 @@ export async function POST(request: NextRequest) {
             .find({ clientId })
             .sort({ createdAt: -1 })
             .toArray();
+
+          // Use safe conversion for activities query  
           const activities = await actionsCollection
-            .find({ _id: ObjectId.createFromBase64(clientId) })
+            .find({
+              $or: [
+                { _id: clientObjectId },
+                { _id: clientId }
+              ]
+            })
             .toArray();
+
+          // Use safe conversion for comments query
           const comments = commentsCollection.find({
-            _id: ObjectId.createFromBase64(clientId)
+            $or: [
+              { _id: clientObjectId },
+              { _id: clientId }
+            ]
           });
 
           return NextResponse.json(
@@ -162,7 +240,7 @@ export async function POST(request: NextRequest) {
                 comments,
               },
             },
-            { status: 1984 },
+            { status: 201 }
           );
         } else {
           return NextResponse.json(
@@ -190,12 +268,19 @@ export async function POST(request: NextRequest) {
           );
         }
 
-        // Convert string ID to ObjectId if needed
-        const clientObjectId =
-          typeof clientId === 'string' ? ObjectId.createFromBase64(clientId) : clientId;
+        // Convert string ID to ObjectId using our safe function
+        const clientObjectId = typeof clientId === 'string'
+          ? safeObjectId(clientId)
+          : clientId;
 
-        // Find the client
-        const client = await clientsCollection.findOne({ _id: clientObjectId });
+        // Find client with flexible query  
+        const client = await clientsCollection.findOne({
+          $or: [
+            { _id: clientObjectId },
+            { _id: clientId }
+          ]
+        });
+        
         if (!client) {
           return NextResponse.json(
             { error: "Client not found" },
@@ -221,9 +306,14 @@ export async function POST(request: NextRequest) {
         // Insert the comment
         const insertResult = await commentsCollection.insertOne(commentDoc);
 
-        // Update client's last activity
+        // Update client's last activity with flexible query
         await clientsCollection.updateOne(
-          { _id: clientObjectId },
+          {
+            $or: [
+              { _id: clientObjectId },
+              { _id: clientId }
+            ]
+          },
           { $set: { lastActivity: new Date().toISOString() } },
         );
 
@@ -257,12 +347,29 @@ export async function POST(request: NextRequest) {
       body.path?.includes("graduated") &&
       body.path?.includes("inactive")
     ) {
+      // Use safe conversion for client ID
+      const clientObjectId = typeof body.clientId === 'string'
+        ? safeObjectId(body.clientId)
+        : body.clientId;
+        
       const [client] = await Promise.all([
-        clientsCollection.findOne({ _id: ObjectId.createFromBase64(body.clientId) })
+        clientsCollection.findOne({
+          $or: [
+            { _id: clientObjectId },
+            { _id: body.clientId }
+          ]
+        })
       ]);
-      if (client && client.group.toString().toLocaleLowerCase() === "youth") {
+
+      if (client && client.group && client.group.toString().toLowerCase() === 'youth') {
+        // Update client with flexible query
         await clientsCollection.updateOne(
-          { _id: ObjectId.createFromBase64(body.clientId) },
+          {
+            $or: [
+              { _id: clientObjectId },
+              { _id: body.clientId }
+            ]
+          },
           {
             $set: {
               clientStatus: "graduated",
@@ -275,9 +382,15 @@ export async function POST(request: NextRequest) {
           { status: 201 },
         );
       }
-      if (client && client.group.toString().toLocaleLowerCase() === "adult") {
+      if (client && client.group && client.group.toString().toLowerCase() === 'adult') {
+        // Update client with flexible query
         await clientsCollection.updateOne(
-          { _id: ObjectId.createFromBase64(body.clientId) },
+          {
+            $or: [
+              { _id: clientObjectId },
+              { _id: body.clientId }
+            ]
+          },
           {
             $set: {
               clientStatus: "inactive",
@@ -292,12 +405,28 @@ export async function POST(request: NextRequest) {
       }
     }
     if (body.path?.includes("enrolled in")) {
+      // Use safe conversion for client ID
+      const clientObjectId = typeof body.clientId === 'string'
+        ? safeObjectId(body.clientId)
+        : body.clientId;
+
+      // Find client with flexible query
       const client = await clientsCollection.findOne({
-        _id: ObjectId.createFromBase64(body.clientId)
+        $or: [
+          { _id: clientObjectId },
+          { _id: body.clientId }
+        ]
       });
+
       if (client) {
+        // Update client with flexible query
         await clientsCollection.updateOne(
-          { _id: ObjectId.createFromBase64(body.clientId) },
+          {
+            $or: [
+              { _id: clientObjectId },
+              { _id: body.clientId }
+            ]
+          },
           {
             $set: {
               clientStatus: "active",
@@ -318,11 +447,18 @@ export async function POST(request: NextRequest) {
 
       if (clientId) {
         try {
-          // Update client status
-          const clientObjectId =
-            typeof clientId === 'string' ? ObjectId.createFromBase64(clientId) : clientId;
+          // Update client status using flexible query
+          const clientObjectId = typeof clientId === 'string'
+            ? safeObjectId(clientId)
+            : clientId;
+            
           await clientsCollection.updateOne(
-            { _id: clientObjectId },
+            {
+              $or: [
+                { _id: clientObjectId },
+                { _id: clientId }
+              ]
+            },
             {
               $set: {
                 clientStatus: newStatus,
@@ -339,18 +475,35 @@ export async function POST(request: NextRequest) {
         }
       }
     }
-    const query = { _id: ObjectId.createFromBase64(body.clientId) };
+
+    // Create a flexible query using our safe ID conversion
+    const clientObjectId = typeof body.clientId === 'string'
+      ? safeObjectId(body.clientId)
+      : body.clientId;
+
+    const query = {
+      $or: [
+        { _id: clientObjectId },
+        { _id: body.clientId }
+      ]
+    };
+    
     let user;
+
+    // Update last activity with flexible query
     user = await clientsCollection.updateOne(query, {
       $set: { lastActivity: new Date().toISOString() },
     });
+
     if (body.trackable) {
+      // Update trackable with flexible query
       user = await clientsCollection.updateOne(query, {
         $set: {
           trackable: body.trackable,
         },
       });
     }
+
     if (
       body.trackable?.items?.some(
         (item: { name: string; completed: boolean }) =>
@@ -397,48 +550,108 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    const result = await actionsCollection.insertOne(body);
-    const userActions = await actionsCollection
-      .find({ clientId: body.clientId })
-      .sort({ createdAt: -1 })
-      .toArray();
-    const comments = await notesCollection
-      .find({ clientId: body.clientId })
-      .sort({ createdAt: -1 })
-      .toArray();
-    const wholeUser = await clientsCollection.findOne({
-      _id: ObjectId.createFromBase64(body.clientId)
-    });
+    try {
+      // Ensure the payload is properly structured for MongoDB
+      const cleanPayload = {
+        ...body,
+        // Ensure these fields are properly formatted
+        clientId: body.clientId,
+        timestamp: body.timestamp || new Date().toISOString(),
+        createdAt: body.createdAt || new Date().toISOString(),
+        // Convert Date objects to ISO strings
+        selectedDate: body.selectedDate instanceof Date
+          ? body.selectedDate.toISOString()
+          : body.selectedDate || new Date().toISOString()
+      };
 
-    // Add the _id to the body object for a consistent return
-    const savedActivity = {
-      ...body,
-      _id: result.insertedId,
-    };
+      console.log('Inserting activity with payload:', JSON.stringify(cleanPayload, null, 2));
+      const result = await actionsCollection.insertOne(cleanPayload);
+      console.log('Activity inserted successfully with ID:', result.insertedId);
 
-    console.log("API response:", {
-      message: "Action added successfully",
-      activity: savedActivity,
-    });
+      const userActions = await actionsCollection
+        .find({ clientId: body.clientId })
+        .sort({ createdAt: -1 })
+        .toArray();
 
-    return NextResponse.json(
-      {
-        message: "Action added successfully",
-        wholeUser,
-        userActions,
-        comments,
-        _id: result.insertedId,
-        user,
-        activity: savedActivity,
-        // Also include the activity data directly for easier access
-        data: savedActivity,
-      },
-      { status: 201 },
-    );
+      const comments = await notesCollection
+        .find({ clientId: body.clientId })
+        .sort({ createdAt: -1 })
+        .toArray();
+
+      // Handle potential conversion errors with client ID
+      let wholeUser = null;
+      try {
+        // Find user with flexible query
+        wholeUser = await clientsCollection.findOne({
+          $or: [
+            { _id: clientObjectId },
+            { _id: body.clientId }
+          ]
+        });
+      } catch (clientLookupError) {
+        console.error('Error looking up client with ID:', body.clientId, clientLookupError);
+        // Try a direct lookup without conversion as fallback
+        try {
+          wholeUser = await clientsCollection.findOne({ _id: body.clientId });
+        } catch (directLookupError) {
+          console.error('Direct client lookup also failed:', directLookupError);
+        }
+      }
+
+      // Add the _id to the body object for a consistent return
+      const savedActivity = {
+        ...body,
+        _id: result.insertedId
+      };
+
+      console.log('API response:', {
+        message: 'Action added successfully',
+        activity: savedActivity
+      });
+
+      return NextResponse.json(
+        {
+          message: 'Action added successfully',
+          wholeUser,
+          userActions,
+          comments,
+          _id: result.insertedId,
+          user,
+          activity: savedActivity,
+          // Also include the activity data directly for easier access
+          data: savedActivity
+        },
+        { status: 201 }
+      );
+    } catch (innerError) {
+      console.error('Error inserting activity:', innerError);
+      throw innerError; // Re-throw to be caught by the outer try/catch
+    }
   } catch (error) {
     console.error("Error adding action:", error);
+
+    // Provide more detailed error information for debugging
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorStack = error instanceof Error ? error.stack : '';
+
+    console.error('Error details:', {
+      message: errorMessage,
+      stack: errorStack
+    });
+    
     return NextResponse.json(
-      { error: "Failed to add action" },
+      {
+        error: 'Failed to add action',
+        details: errorMessage,
+        // Include request info for debugging (but sanitize sensitive data)
+        request: {
+          method: request.method,
+          headers: Object.fromEntries(
+            Array.from(request.headers.entries())
+              .filter(([key]) => !['authorization', 'cookie'].includes(key.toLowerCase()))
+          )
+        }
+      },
       { status: 500 },
     );
   }

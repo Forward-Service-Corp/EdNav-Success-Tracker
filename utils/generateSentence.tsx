@@ -14,7 +14,14 @@ export function generateSentence(navigator: string, client: string, selections: 
 
 function handleAdult(navigator: string, client: string, selections: string[], path: string[]) {
 
-  if (!path.length) return "An adult has some record.";
+  if (!path.length) {
+    // Make default message more descriptive
+    if (selections && selections.length > 0) {
+      const readable = formatList(selections);
+      return `${navigator} recorded activities for ${client}: ${readable}.`;
+    }
+    return `${navigator} recorded an activity for ${client}.`;
+  }
 
   const [section, ...rest] = path;
   const joined = rest.join(" → ");
@@ -68,6 +75,30 @@ function handleAdult(navigator: string, client: string, selections: string[], pa
       ]);
 
     case "educational activity":
+      // Special handling for GED and HSED activities with trackable items
+      if (joined.includes('GED') || joined.includes('HSED')) {
+        // If we have selections (trackable items)
+        if (selections && selections.length > 0) {
+          const readable = formatList(selections);
+          return pickRandom([
+            `${navigator} helped ${client} enter the ${joined} program and completed: ${readable}.`,
+            `${client} entered the ${joined} program with assistance from ${navigator} and completed: ${readable}.`,
+            `${navigator} assisted ${client} with ${joined} program enrollment and completed: ${readable}.`,
+            `${client}'s entry into the ${joined} program was facilitated by ${navigator} with completed items: ${readable}.`,
+            `${navigator} supported ${client} in beginning the ${joined} program and completed: ${readable}.`
+          ]);
+        } else {
+          // No selections yet
+          return pickRandom([
+            `${navigator} helped ${client} enter the ${joined} program.`,
+            `${client} entered the ${joined} program with assistance from ${navigator}.`,
+            `${navigator} assisted ${client} with ${joined} program enrollment.`,
+            `${client}'s entry into the ${joined} program was facilitated by ${navigator}.`,
+            `${navigator} supported ${client} in beginning the ${joined} program.`
+          ]);
+        }
+      }
+      // Default for other educational activities
       return pickRandom([
         `${navigator} noted that ${client} participated in the ${joined} educational activity.`,
         `${client} is active in ${joined} per ${navigator}'s report.`,
@@ -77,6 +108,37 @@ function handleAdult(navigator: string, client: string, selections: string[], pa
       ]);
 
     default:
+      // Special handling for GED or HSED programs
+      if (section === 'GED' || section === 'HSED' || section === 'educational activity') {
+        // Check specifically for GED/HSED in a path or in a section
+        const isGedHsed = section === 'GED' || section === 'HSED' ||
+          joined.includes('GED') || joined.includes('HSED');
+
+        if (isGedHsed) {
+          // If we have selections (trackable items)
+          if (selections && selections.length > 0) {
+            const readable = formatList(selections);
+            return pickRandom([
+              `${navigator} helped ${client} enter the ${section} program and completed: ${readable}.`,
+              `${client} entered the ${section} program with assistance from ${navigator} and completed: ${readable}.`,
+              `${client} entered the ${section} program with assistance from ${navigator} and completed: ${readable}.`,
+              `${navigator} assisted ${client} with ${section} program enrollment and completed: ${readable}.`,
+              `${client}'s entry into the ${section} program was facilitated by ${navigator} with completed items: ${readable}.`,
+              `${navigator} supported ${client} in beginning the ${section} program and completed: ${readable}.`
+            ]);
+          } else {
+            // No selections yet
+            return pickRandom([
+              `${navigator} helped ${client} enter the ${section} program.`,
+              `${client} entered the ${section} program with assistance from ${navigator}.`,
+              `${navigator} assisted ${client} with ${section} program enrollment.`,
+              `${client}'s entry into the ${section} program was facilitated by ${navigator}.`,
+              `${navigator} supported ${client} in beginning the ${section} program.`
+            ]);
+          }
+        }
+      }
+      
       // Check if we have selections and this is a multi-select case
       if (selections && selections.length > 0) {
         const readable = formatList(selections);
@@ -95,7 +157,14 @@ function handleAdult(navigator: string, client: string, selections: string[], pa
 
 function handleYouth(navigator: string, client: string, selections: string[], path: string[]): string {
 
-  if (!path.length) return "A youth has some record.";
+  if (!path.length) {
+    // Make default message more descriptive
+    if (selections && selections.length > 0) {
+      const readable = formatList(selections);
+      return `${navigator} recorded activities for ${client}: ${readable}.`;
+    }
+    return `${navigator} recorded an activity for ${client}.`;
+  }
 
   const [section, ...rest] = path;
   const joined = rest.join(" → ");
@@ -179,7 +248,6 @@ function pickRandom(choices: string[]): string {
 }
 
 function formatList(items: string[] | null | undefined): string {
-
   if (!items || items.length === 0) return 'no specific items';
   if (items.length === 1) return items[0];
   if (items.length === 2) return `${items[0]} and ${items[1]}`;

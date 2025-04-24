@@ -75,7 +75,8 @@ export default function ActivityModal({ open, setOpen, onSuccess }) {
         const activityData = result.activity || result.data || result;
 
         // Add directly via API with optimistic update built in
-        window.addActivitySimplified(activityData).then();
+        window.addActivitySimplified(activityData);
+        console.log(window.addActivitySimplified(activityData));
       }
       // Fall back to the original approach if simplified is not available
       else if (typeof window !== 'undefined' && window.addActivityToFeed) {
