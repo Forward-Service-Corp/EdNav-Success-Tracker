@@ -1,12 +1,4 @@
-import React, {
-  createContext,
-  Dispatch,
-  ReactNode,
-  SetStateAction,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
+import React, { createContext, Dispatch, ReactNode, SetStateAction, useContext, useEffect, useState } from 'react';
 
 type Navigator = {
   _id: string;
@@ -127,7 +119,9 @@ export const NavigatorsProvider = ({ children }: { children: ReactNode }) => {
         }
       } catch (err) {
         console.error("Failed to fetch navigators:", err);
-        setError(err.message || "Failed to load navigators");
+        // Type guard to ensure we can access the message property
+        const errorMessage = err instanceof Error ? err.message : 'Failed to load navigators';
+        setError(errorMessage);
         // Set the "All" option as a fallback
         const fallbackOption = {
           _id: "all",
