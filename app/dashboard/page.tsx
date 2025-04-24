@@ -14,6 +14,7 @@ import { FepsLeftProvider } from '@/contexts/FepsLeftContext';
 import { ActivityProvider } from '@/contexts/ActivityContext';
 import { NotificationProvider } from '@/contexts/NotificationContext';
 import FilterSidebar from '@/components/FilterSidebar';
+import ModalPortal from '@/components/ModalPortal';
 
 export default function Dashboard() {
   const [selectedPanel, setSelectedPanel] = useState(null);
@@ -83,6 +84,9 @@ export default function Dashboard() {
                           }
                         />
                       </div>
+
+                      {/* Standalone Modal Portal as a failsafe */}
+                      <ModalPortal />
                     </div>
                   </LayoutProvider>
                 </FepsLeftProvider>

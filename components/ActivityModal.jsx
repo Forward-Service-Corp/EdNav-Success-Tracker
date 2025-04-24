@@ -1,10 +1,25 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { Dialog, DialogBackdrop, DialogPanel } from '@headlessui/react';
 import ActivityDynamicSelect from './ActivityDynamicSelect';
 
 export default function ActivityModal({ open, setOpen, onSuccess }) {
   const [questions, setQuestions] = useState([]);
+  const [isVisible, setIsVisible] = useState(false);
+
+  console.log('ActivityModal rendering with open state:', open);
+
+  // Force visibility when open changes
+  useEffect(() => {
+    console.log('ActivityModal open state changed to:', open);
+    if (open === 'activity') {
+      setIsVisible(true);
+      // Add a body class to prevent scrolling
+      document.body.classList.add('modal-open');
+    } else {
+      setIsVisible(false);
+      document.body.classList.remove('modal-open');
+    }
+  }, [open]);
 
   const getQuestions = async () => {
     let cleanedQuestions = {};
@@ -15,6 +30,7 @@ export default function ActivityModal({ open, setOpen, onSuccess }) {
       cleanedQuestions.adult = adult;
       cleanedQuestions.youth = youth;
       setQuestions(cleanedQuestions);
+      console.log('Questions loaded:', cleanedQuestions);
     } catch (error) {
       console.error('Error fetching questions:', error);
       // Set the default empty structure if questions can't be loaded
@@ -27,11 +43,17 @@ export default function ActivityModal({ open, setOpen, onSuccess }) {
   // Add activity directly to the feed (for optimistic updates)
   const addActivitySimplified = () => {
     // placeholder for optimistic updates
+    console.log('addActivitySimplified called');
   };
 
   useEffect(() => {
+    console.log('ActivityModal mounted');
     getQuestions().then();
     window.addActivitySimplified = addActivitySimplified;
+
+    return () => {
+      console.log('ActivityModal unmounted');
+    };
   }, []);
 
   // When an activity is successfully added, pass it to parent components
@@ -106,35 +128,49 @@ export default function ActivityModal({ open, setOpen, onSuccess }) {
     }
   };
 
+  // If not open, don't render anything
+  if (open !== 'activity' && !isVisible) {
+    return null;
+  }
+
+  // Fallback to a simpler modal implementation that doesn't depend on headlessui
   return (
-    <Dialog
-      open={open === 'activity'}
-      onClose={() => setOpen('')}
-      className="relative z-60"
-    >
-      <DialogBackdrop
-        transition
-        className="bg-base-300/30  inset-0 blur-sm backdrop-blur-xs transition-opacity data-[closed]:opacity-0 data-[enter]:duration-300 data-[enter]:ease-out data-[leave]:duration-200 data-[leave]:ease-in"
-      />
+    <div className="fixed inset-0 z-50 overflow-y-auto">
+      {/* Backdrop/overlay */}
       <div
-        className="flex min-h-full min-w-full items-end justify-center p-4 text-center sm:items-center sm:p-0 relative border-5 border-pink-500">
-        <DialogPanel
-          transition
-          className="bg-base-100 relative transform overflow-hidden rounded-lg p-12 text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[enter]:ease-out data-[leave]:duration-200 data-[leave]:ease-in sm:my-8 sm:w-full sm:max-w-lg sm:p-6 data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95"
+        className="fixed inset-0 bg-base-300/50 backdrop-blur-sm transition-opacity"
+        onClick={() => setOpen('')}
+      />
+
+      {/* Modal container */}
+      <div className="flex min-h-full items-center justify-center p-4 text-center ">
+        <div
+          className="w-full max-w-md transform overflow-hidden rounded-2xl z-100 bg-base-300 text-base-content p-6 text-left align-middle shadow-xl transition-all"
+          onClick={e => e.stopPropagation()}
         >
-          {/*<DialogTitle*/}
-          {/*  as="h3"*/}
-          {/*  className="text-base-content mx-auto max-w-60 text-xl font-light"*/}
-          {/*>*/}
-          {/*  Add an activity*/}
-          {/*</DialogTitle>*/}
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-medium leading-6">
+              Add an activity
+            </h3>
+            <button
+              type="button"
+              className="text-gray-400 hover:text-gray-500 focus:outline-none"
+              onClick={() => setOpen('')}
+            >
+              <span className="sr-only">Close</span>
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          
           <ActivityDynamicSelect
             setOpen={setOpen}
             questions={questions}
             onSuccess={handleActivitySuccess}
           />
-        </DialogPanel>
+        </div>
       </div>
-    </Dialog>
+    </div>
   );
 }

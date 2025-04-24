@@ -1,17 +1,15 @@
 "use client";
 import React, { useCallback, useEffect, useState } from 'react';
 import { useClients } from '@/contexts/ClientsContext';
-import { useActivities } from '@/contexts/ActivityContext';
 import { format } from 'date-fns';
 import { useNotification } from '@/contexts/NotificationContext';
 import { useNavigators } from '@/contexts/NavigatorsContext';
 
 export default function CombinedFeed() {
   const { selectedClient } = useClients();
-  const { selectedActivity, setSelectedActivity } = useActivities();
   const { selectedNavigator } = useNavigators();
   const [activities, setActivities] = useState([]);
-  const [notes, setNotes] = useState([]);
+  const [, setNotes] = useState([]);
   const [comments, setComments] = useState([]);
   const [combinedFeed, setCombinedFeed] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -722,14 +720,35 @@ export default function CombinedFeed() {
 
   const openActivityModal = () => {
     // This function should open the ActivityModal
-    if (typeof window !== 'undefined' && window.openActivityModal) {
-      window.openActivityModal();
-    } else {
-      setNotification({
-        type: "info",
-        message: "Activity modal functionality is not yet connected",
-        active: true,
-      });
+    if (typeof window !== 'undefined') {
+      console.log('CombinedFeed trying to open activity modal');
+      console.log('window.openActivityModal exists:', !!window.openActivityModal);
+
+      // Force modal state directly if possible
+      if (typeof window !== 'undefined') {
+        // Create a custom event that will be picked up by any component listening for it
+        const event = new CustomEvent('openActivityModal', { detail: { open: 'activity' } });
+        window.dispatchEvent(event);
+        console.log('Dispatched openActivityModal event');
+      }
+
+      // Still try the traditional approach as fallback
+      if (window.openActivityModal) {
+        try {
+          window.openActivityModal();
+          console.log('Activity modal should now be open via global function');
+        } catch (error) {
+          console.error('Error opening activity modal:', error);
+          setNotification({
+            type: 'error',
+            message: 'Error opening activity modal',
+            active: true
+          });
+        }
+      } else {
+        console.warn('Activity modal function not found - using event approach only');
+        // We've already dispatched the event, so no notification needed
+      }
     }
   };
 
@@ -862,8 +881,31 @@ export default function CombinedFeed() {
               {isAddingNote ? "Cancel" : "Post Note"}
             </button>
             <button
-              onClick={openActivityModal}
+              onClick={() => {
+                // Show visual feedback when button is clicked
+                const btn = document.getElementById('postActivityButton');
+                if (btn) {
+                  btn.innerText = 'Opening...';
+                  btn.classList.add('btn-disabled');
+                  setTimeout(() => {
+                    btn.innerText = 'Post Activity';
+                    btn.classList.remove('btn-disabled');
+                  }, 2000);
+                }
+
+                // Call the actual function
+                openActivityModal();
+
+                // Force direct open as last resort
+                if (typeof window !== 'undefined' && window.directOpenModal) {
+                  setTimeout(() => {
+                    console.log('Attempting direct modal open as fallback');
+                    window.directOpenModal();
+                  }, 200);
+                }
+              }}
               className="btn btn-sm btn-outline btn-secondary"
+              id="postActivityButton"
             >
               Post Activity
             </button>

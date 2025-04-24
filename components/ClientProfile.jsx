@@ -24,8 +24,15 @@ export default function ClientProfile({ setOpenPanel }) {
     if (typeof window !== "undefined") {
       const storedNavigator = localStorage.getItem("navigatorName") || "";
       setSelectedNavigator(storedNavigator);
-      // Make the open modal function available globally
-      window.openActivityModal = () => setActivityModalOpen("activity");
+
+      // Only set up modal function if it doesn't already exist
+      if (!window.openActivityModal) {
+        console.log('Setting up openActivityModal from ClientProfile');
+        window.openActivityModal = () => {
+          console.log('Opening activity modal from ClientProfile');
+          setActivityModalOpen('activity');
+        };
+      }
     }
   }, []);
 

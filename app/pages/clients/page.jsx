@@ -67,7 +67,7 @@ function ClientsPage() {
         <ThemeSwitcher />
         <NavigatorSelector />
       </div>
-
+      {/*<ActivityModalNew setOpen={setOpenPanel} selectedClient={selectedClient} />*/}
       {/* Storage Cleanup Tool */}
       {/*<StorageCleanupTool />*/}
     </div>

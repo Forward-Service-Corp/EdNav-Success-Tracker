@@ -1,16 +1,17 @@
 "use client";
-import { SessionProvider } from "next-auth/react";
-import { useEffect, useState } from "react";
-import { ActivityProvider } from "../contexts/ActivityContext";
-import { ClientListProvider } from "../contexts/ClientListContext";
-import { ClientsProvider } from "../contexts/ClientsContext";
-import { EditingProvider } from "../contexts/EditingContext";
-import { FepsLeftProvider } from "../contexts/FepsLeftContext";
-import { LoadingProvider } from "../contexts/LoadingContext";
-import { NavigatorsProvider } from "../contexts/NavigatorsContext";
-import { NotificationProvider } from "../contexts/NotificationContext";
-import { ThemesProvider, useThemes } from "../contexts/ThemesContext";
-import "../public/styles/globals.css";
+import { SessionProvider } from 'next-auth/react';
+import { useEffect, useState } from 'react';
+import { ActivityProvider } from '../contexts/ActivityContext';
+import { ClientListProvider } from '../contexts/ClientListContext';
+import { ClientsProvider } from '../contexts/ClientsContext';
+import { EditingProvider } from '../contexts/EditingContext';
+import { FepsLeftProvider } from '../contexts/FepsLeftContext';
+import { LoadingProvider } from '../contexts/LoadingContext';
+import { NavigatorsProvider } from '../contexts/NavigatorsContext';
+import { NotificationProvider } from '../contexts/NotificationContext';
+import { ThemesProvider, useThemes } from '../contexts/ThemesContext';
+import '../public/styles/globals.css';
+import './modalFix.css'; // Import custom modal styles
 
 export default function RootLayout({ children }) {
   return (

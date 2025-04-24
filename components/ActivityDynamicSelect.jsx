@@ -3,11 +3,15 @@ import { useClients } from '@/contexts/ClientsContext';
 import { useActivities } from '@/contexts/ActivityContext';
 import { generateSentence } from '@/utils/generateSentence';
 
-const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
+const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
+  console.log('ActivityDynamicSelect initialized with questions:', questions);
+  
   const { selectedActivity, setSelectedActivity } = useActivities();
   const { selectedClient, setSelectedClient } = useClients();
   const [selectedPath, setSelectedPath] = useState([]);
-  const [currentOptions, setCurrentOptions] = useState(Object.keys(questions));
+  const [currentOptions, setCurrentOptions] = useState(
+    questions && typeof questions === 'object' ? Object.keys(questions) : []
+  );
   const [, setCurrentObject] = useState(questions);
   const [finalSelection, setFinalSelection] = useState(null);
   const [multiSelectOptions, setMultiSelectOptions] = useState(null);
@@ -416,7 +420,7 @@ const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
   const showDatePicker = selectedPath.length === 1; // Show DatePicker only at the beginning
 
   return (
-    <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 z-100">
+    <div className="relative z-50">
       {showDatePicker && (
         <label className="flex flex-col space-y-2 font-light">
           Date of activity:

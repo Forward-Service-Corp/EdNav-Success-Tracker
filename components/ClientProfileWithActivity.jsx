@@ -6,19 +6,31 @@ import ActivityModal from './ActivityModal';
 export default function ClientProfileWithActivity({ setOpenPanel }) {
   const [open, setOpen] = useState('');
 
-  // Set up the global openActivityModal function
+  // Set up the global openActivityModal function and event listener
   useEffect(() => {
     if (typeof window !== 'undefined') {
       // Define global function to open activity modal
       window.openActivityModal = () => {
+        console.log('Opening activity modal from ClientProfileWithActivity');
         setOpen('activity');
       };
+
+      // Also listen for custom events
+      const handleActivityModalEvent = (event) => {
+        console.log('Activity modal event received:', event.detail);
+        if (event.detail && event.detail.open) {
+          setOpen(event.detail.open);
+        }
+      };
+
+      window.addEventListener('openActivityModal', handleActivityModalEvent);
     }
 
     // Clean up on unmount
     return () => {
       if (typeof window !== 'undefined') {
         delete window.openActivityModal;
+        window.removeEventListener('openActivityModal', handleActivityModalEvent);
       }
     };
   }, []);
