@@ -1,8 +1,8 @@
-import React from "react";
-import { useFepsLeft } from "@/contexts/FepsLeftContext";
-import { MagnifyingGlass } from "@phosphor-icons/react";
-import { Sidebar, Wrench, XCircle } from "phosphor-react";
-import { useLayout } from "@/contexts/LayoutContext";
+import React from 'react';
+import { useFepsLeft } from '@/contexts/FepsLeftContext';
+import { MagnifyingGlass } from '@phosphor-icons/react';
+import { Sidebar, Wrench, XCircle } from 'phosphor-react';
+import { useLayout } from '@/contexts/LayoutContext';
 
 function SearchField({
   menuOpen,
@@ -20,20 +20,16 @@ function SearchField({
   const { selectedFepLeft, setSelectedFepLeft } = useFepsLeft();
 
   // Check if the LayoutContext is available (if we're in the new layout)
-  const [layoutConfig, setLayoutConfig] = React.useState<ReturnType<
-    typeof useLayout
-  > | null>(null);
+  const [layoutConfig, setLayoutConfig] = React.useState(null);
 
   React.useEffect(() => {
     const loadLayout = async () => {
       try {
-        const { useLayout } = await import("@/contexts/LayoutContext");
-        try {
-          setLayoutConfig(useLayout());
-        } catch (e) {
-          // Layout context is not available, that's okay
-          setLayoutConfig(() => null);
-        }
+        // Just try to import the module, but don't call the hook here
+        await import('@/contexts/LayoutContext');
+        // If we get here, the module exists, so we can safely use the hook in the component
+        // But we'll set a flag to indicate it's available
+        setLayoutConfig({ isAvailable: true });
       } catch (e) {
         // Module isn't found, that's okay
         setLayoutConfig(null);
@@ -41,6 +37,18 @@ function SearchField({
     };
     loadLayout().then();
   }, []);
+
+  // If layoutConfig is available, now we can use the hook directly in the component
+  let layoutContextValue = null;
+  try {
+    if (layoutConfig?.isAvailable) {
+      // This is safe because we're at the component level
+      layoutContextValue = useLayout();
+    }
+  } catch (e) {
+    // If for some reason the hook still fails, we'll keep layoutContextValue as null
+    console.error('Failed to use layout context:', e);
+  }
 
   return (
     <div className={`mb-3 flex h-full items-center justify-between gap-4`}>
@@ -53,7 +61,7 @@ function SearchField({
             onChange={(e) => {
               setSelectedFepLeft((prev) => ({
                 ...prev,
-                searchTerm: e.target.value as "",
+                searchTerm: e.target.value
               }));
             }}
             value={selectedFepLeft.searchTerm}
@@ -64,7 +72,7 @@ function SearchField({
             onClick={() => {
               setSelectedFepLeft((prevState) => ({
                 ...prevState,
-                searchTerm: "" as cons,
+                searchTerm: ''
               }));
             }}
             className={`absolute left-3/5 z-40 cursor-pointer ${selectedFepLeft.searchTerm !== "" ? "visible" : "hidden"}`}
@@ -112,8 +120,8 @@ function SearchField({
       </div>
 
       <div className="absolute right-5 z-20 flex cursor-pointer items-center justify-items-center gap-4">
-        {/* Layout Button - Only show if layoutConfig is available */}
-        {layoutConfig && (
+        {/* Layout Button - Only show if layoutContextValue is available */}
+        {layoutContextValue && (
           <div className="dropdown dropdown-end">
             <div
               tabIndex={0}
@@ -168,17 +176,17 @@ function SearchField({
             </div>
             <ul className="dropdown-content menu bg-base-100 rounded-box z-[999] w-52 p-2 shadow">
               <li>
-                <a onClick={() => layoutConfig.setLayoutConfig("DEFAULT")}>
+                <a onClick={() => layoutContextValue.setLayoutConfig('DEFAULT')}>
                   Default Layout (15/35/50)
                 </a>
               </li>
               <li>
-                <a onClick={() => layoutConfig.setLayoutConfig("NO_SIDEBAR")}>
+                <a onClick={() => layoutContextValue.setLayoutConfig('NO_SIDEBAR')}>
                   No Sidebar (0/50/50)
                 </a>
               </li>
               <li>
-                <a onClick={() => layoutConfig.setLayoutConfig("TABLE_FOCUS")}>
+                <a onClick={() => layoutContextValue.setLayoutConfig('TABLE_FOCUS')}>
                   Table Focus (0/70/30)
                 </a>
               </li>
