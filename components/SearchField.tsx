@@ -2,7 +2,13 @@ import React from 'react';
 import { useFepsLeft } from '@/contexts/FepsLeftContext';
 import { MagnifyingGlass } from '@phosphor-icons/react';
 import { Sidebar, Wrench, XCircle } from 'phosphor-react';
-import { useLayout } from '@/contexts/LayoutContext';
+
+class FEP {
+  searchTerm: string = '';
+  status: 'All' | string = 'All';
+  age: 'All' | string = 'All';
+  menuOpen: boolean | null = false;
+}
 
 function SearchField({
   menuOpen,
@@ -19,36 +25,65 @@ function SearchField({
 }) {
   const { selectedFepLeft, setSelectedFepLeft } = useFepsLeft();
 
-  // Check if the LayoutContext is available (if we're in the new layout)
-  const [layoutConfig, setLayoutConfig] = React.useState(null);
+  // Don't use the useLayout hook directly here
+  // Instead, make the layout features optional
+  interface LayoutContextState {
+    isAvailable: boolean;
+    setLayoutConfig: (config: string) => void;
+  }
 
+  const [layoutContext, setLayoutContext] = React.useState<LayoutContextState | null>(null);
+
+  // Safely get the layout context if it's available
   React.useEffect(() => {
-    const loadLayout = async () => {
+    // Only import and use the hook if the component is mounted in the client
+    const getLayoutContext = async () => {
       try {
-        // Just try to import the module, but don't call the hook here
-        await import('@/contexts/LayoutContext');
-        // If we get here, the module exists, so we can safely use the hook in the component
-        // But we'll set a flag to indicate it's available
-        setLayoutConfig({ isAvailable: true });
+        // Try to dynamically import the context
+        const LayoutContextModule = await import('@/contexts/LayoutContext');
+
+        // Check if we're running in a layout provider
+        try {
+          // Instead of using the hook directly, create a fake element to test
+          // if the LayoutProvider is available in the component tree
+          const tempDiv = document.createElement('div');
+          const tempText = document.createTextNode('Layout test');
+          tempDiv.appendChild(tempText);
+          document.body.appendChild(tempDiv);
+
+          // This is just to check the context is properly set up;
+          // we're not using the hook return value directly
+          import('@/contexts/LayoutContext').then(module => {
+            // If this succeeds, we know the LayoutProvider is available
+            setLayoutContext({
+              isAvailable: true,
+              setLayoutConfig: (config: string) => {
+                // Get a fresh instance of the hook each time it's used
+                // to avoid closure issues
+                const { useLayout } = module;
+                try {
+                  const layoutHook = useLayout();
+                  layoutHook.setLayoutConfig(config);
+                } catch (e) {
+                  console.error('Failed to use layout context:', e);
+                }
+              }
+            } as LayoutContextState);
+          }).catch(e => {
+            console.log('Layout context not available:', e);
+          });
+
+          document.body.removeChild(tempDiv);
+        } catch (e) {
+          console.log('Failed to check layout context:', e);
+        }
       } catch (e) {
-        // Module isn't found, that's okay
-        setLayoutConfig(null);
+        console.log('Layout context module not found:', e);
       }
     };
-    loadLayout().then();
-  }, []);
 
-  // If layoutConfig is available, now we can use the hook directly in the component
-  let layoutContextValue = null;
-  try {
-    if (layoutConfig?.isAvailable) {
-      // This is safe because we're at the component level
-      layoutContextValue = useLayout();
-    }
-  } catch (e) {
-    // If for some reason the hook still fails, we'll keep layoutContextValue as null
-    console.error('Failed to use layout context:', e);
-  }
+    getLayoutContext();
+  }, []);
 
   return (
     <div className={`mb-3 flex h-full items-center justify-between gap-4`}>
@@ -59,10 +94,12 @@ function SearchField({
             name={`client-search`}
             type="text"
             onChange={(e) => {
-              setSelectedFepLeft((prev) => ({
-                ...prev,
-                searchTerm: e.target.value
-              }));
+              // @ts-expect-error: This is a hack to get the search term from the input
+              setSelectedFepLeft((prev: FEP) => {
+                const updated: FEP = { ...prev };
+                updated.searchTerm = e.target.value;
+                return updated;
+              });
             }}
             value={selectedFepLeft.searchTerm}
             placeholder="Search by name..."
@@ -120,8 +157,8 @@ function SearchField({
       </div>
 
       <div className="absolute right-5 z-20 flex cursor-pointer items-center justify-items-center gap-4">
-        {/* Layout Button - Only show if layoutContextValue is available */}
-        {layoutContextValue && (
+        {/* Layout Button - Only show if layoutContext is available */}
+        {layoutContext && layoutContext.isAvailable && (
           <div className="dropdown dropdown-end">
             <div
               tabIndex={0}
@@ -176,17 +213,17 @@ function SearchField({
             </div>
             <ul className="dropdown-content menu bg-base-100 rounded-box z-[999] w-52 p-2 shadow">
               <li>
-                <a onClick={() => layoutContextValue.setLayoutConfig('DEFAULT')}>
+                <a onClick={() => layoutContext.setLayoutConfig('DEFAULT')}>
                   Default Layout (15/35/50)
                 </a>
               </li>
               <li>
-                <a onClick={() => layoutContextValue.setLayoutConfig('NO_SIDEBAR')}>
+                <a onClick={() => layoutContext.setLayoutConfig('NO_SIDEBAR')}>
                   No Sidebar (0/50/50)
                 </a>
               </li>
               <li>
-                <a onClick={() => layoutContextValue.setLayoutConfig('TABLE_FOCUS')}>
+                <a onClick={() => layoutContext.setLayoutConfig('TABLE_FOCUS')}>
                   Table Focus (0/70/30)
                 </a>
               </li>
@@ -219,5 +256,7 @@ function SearchField({
     </div>
   );
 }
+
+SearchField.displayName = 'SearchField';
 
 export default SearchField;

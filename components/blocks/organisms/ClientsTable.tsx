@@ -2,7 +2,7 @@
 
 "use client";
 
-import ClientTableBody from "../molecules/ClientTableBody";
+import ClientTableBody from '../molecules/ClientTableBody';
 
 type ClientsTableProps = {
   clients: any[];
@@ -10,7 +10,8 @@ type ClientsTableProps = {
   setOpenPanel: (panel: string | null) => void;
 };
 
-export default ({
+// Define the component with a name before exporting
+const ClientsTable = ({
   clients,
   selectedClientId,
   setOpenPanel,
@@ -25,3 +26,9 @@ export default ({
     </table>
   </div>
 );
+
+// Set display name explicitly (optional but good practice)
+ClientsTable.displayName = 'ClientsTable';
+
+// Export the named component
+export default ClientsTable;

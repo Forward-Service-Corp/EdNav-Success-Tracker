@@ -51,7 +51,6 @@
     "class-variance-authority": "^0.7.1",
     "cmdk": "^1.0.4",
     "cookie": "0.7.0",
-    "eslint-auto-fix": "^1.0.4",
     "iron-session": "^8.0.1",
     "jose": "^5.1.3",
     "jsonwebtoken": "^9.0.2",
