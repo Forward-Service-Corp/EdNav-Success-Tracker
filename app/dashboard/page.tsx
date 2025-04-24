@@ -7,11 +7,11 @@ import LayoutControls from "@/components/LayoutControls";
 import ClientTableNew from "@/components/ClientTableNew";
 import ClientProfile from "@/components/ClientProfile";
 import { EditingProvider } from "@/contexts/EditingContext";
-import { ClientProvider } from "@/contexts/ClientsContext";
+import { ClientsProvider } from "@/contexts/ClientsContext";
 import { ClientListProvider } from "@/contexts/ClientListContext";
 import { NavigatorsProvider } from "@/contexts/NavigatorsContext";
 import { FepsLeftProvider } from "@/contexts/FepsLeftContext";
-import { ActivitiesProvider } from "@/contexts/ActivityContext";
+import { ActivityProvider } from "@/contexts/ActivityContext";
 import { NotificationProvider } from "@/contexts/NotificationContext";
 import FilterSidebar from "@/components/FilterSidebar";
 
@@ -37,8 +37,8 @@ export default function Dashboard() {
     <NotificationProvider>
       <EditingProvider>
         <ClientListProvider>
-          <ClientProvider>
-            <ActivitiesProvider>
+          <ClientsProvider>
+            <ActivityProvider>
               <NavigatorsProvider>
                 <FepsLeftProvider>
                   <LayoutProvider>
@@ -87,8 +87,8 @@ export default function Dashboard() {
                   </LayoutProvider>
                 </FepsLeftProvider>
               </NavigatorsProvider>
-            </ActivitiesProvider>
-          </ClientProvider>
+            </ActivityProvider>
+          </ClientsProvider>
         </ClientListProvider>
       </EditingProvider>
     </NotificationProvider>
