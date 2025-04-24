@@ -1,12 +1,13 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import CombinedFeed from "./CombinedFeed";
-import ClientProfileHeader from "../components/ClientProfileHeader";
-import ClientProfileProgress from "../components/ClientProfileProgress";
-import ClientProfilePersonalOrganization from "../components/ClientProfilePersonalOrganization";
-import ClientProfileTABEOrientation from "../components/ClientProfileTABEOrientation";
-import { useClients } from "@/contexts/ClientsContext";
-import ActivityModal from "../components/ActivityModal";
+import React, { useEffect, useState } from 'react';
+import CombinedFeed from './CombinedFeed';
+import ClientProfileHeader from '../components/ClientProfileHeader';
+import ClientProfileProgress from '../components/ClientProfileProgress';
+import ClientProfilePersonalOrganization from '../components/ClientProfilePersonalOrganization';
+import ClientProfileTABEOrientation from '../components/ClientProfileTABEOrientation';
+import { useClients } from '@/contexts/ClientsContext';
+import ActivityModal from '../components/ActivityModal';
+import SimplifiedActivityManager from '../components/SimplifiedActivityManager';
 
 export default function ClientProfile({ setOpenPanel }) {
   const [isMounted, setIsMounted] = useState(false);
@@ -110,6 +111,9 @@ export default function ClientProfile({ setOpenPanel }) {
         setOpen={setActivityModalOpen}
         onSuccess={handleActivitySuccess}
       />
+
+      {/* Simplified Activity Manager */}
+      <SimplifiedActivityManager />
     </div>
   );
 }

@@ -39,40 +39,51 @@ export default function ActivityModal({ open, setOpen, onSuccess }) {
     }
 
     try {
-      // Add the activity directly to the feed
-      if (typeof window !== 'undefined' && window.addActivityToFeed) {
-        console.log('Adding activity to feed via global function');
+      // First check if simplified approach is available
+      if (typeof window !== 'undefined' && window.addActivitySimplified) {
+        console.log('Using simplified activity approach with optimistic updates');
 
         // Extract the activity data from the result
         const activityData = result.activity || result.data || result;
 
-        // Create a properly formatted activity for the feed
-        // with a special modal ID so we can identify it as an optimistic update
-        const activityForFeed = {
-          ...activityData,
-          _id: activityData._id || `modal-${Date.now()}`,
-          type: 'activity',
-          date: new Date(activityData.timestamp || activityData.createdAt || Date.now()),
-          statement: activityData.statement || 'Activity recorded',
-          navigator: activityData.navigator || 'System',
-          isOptimistic: true // Flag to identify optimistic updates
-        };
+        // Add directly via API with optimistic update built in
+        window.addActivitySimplified(activityData);
+      }
+      // Fall back to the original approach if simplified is not available
+      else if (typeof window !== 'undefined' && window.addActivityToFeed) {
+        console.log('Using original activity approach as fallback');
 
-        console.log('Formatted activity for feed:', activityForFeed);
+        // Extract the activity data from the result
+        const activityData = result.activity || result.data || result;
 
-        // Add it to the feed via the global function - this immediately shows in the UI
-        window.addActivityToFeed(activityForFeed);
+        // Skip meaningless activities
+        if (!activityData.statement && !activityData.description &&
+          !activityData.details && !activityData.category) {
+          console.log('Skipping activity with no meaningful content');
+          setOpen('');
+          return;
+        }
 
-        // Dispatch a custom event that components can listen for
-        console.log('Dispatching activityAdded event');
-        const activityAddedEvent = new CustomEvent('activityAdded', {
-          detail: activityForFeed,
-          bubbles: true,
-          cancelable: true
-        });
-        window.dispatchEvent(activityAddedEvent);
+        // Create an optimistic update with our simplified approach if available
+        if (typeof window !== 'undefined' && window.optimisticallyAddActivity) {
+          const optimisticActivity = {
+            ...activityData,
+            _id: `modal-opt-${Date.now()}`,
+            type: 'activity',
+            date: new Date(activityData.timestamp || activityData.createdAt || Date.now()),
+            statement: activityData.statement || 'Activity recorded',
+            navigator: activityData.navigator || 'System',
+            isOptimistic: true
+          };
+
+          window.optimisticallyAddActivity(optimisticActivity);
+        }
+        // Otherwise use original approach
+        else {
+          window.addActivityToFeed(activityData);
+        }
       } else {
-        console.warn('window.addActivityToFeed is not available');
+        console.warn('No activity management method available');
       }
 
       // Call the provided onSuccess callback

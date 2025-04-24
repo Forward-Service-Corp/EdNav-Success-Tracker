@@ -32,10 +32,15 @@ export default function ClientProfileWithActivity({ setOpenPanel }) {
       try {
         console.log('Dispatching activityAdded event from client profile wrapper');
 
-        // Make sure the result has an _id
+        // Make sure the result has an _id and flag it as an optimistic update
         const enhancedResult = {
           ...result,
-          _id: result._id || result.insertedId || result.data?._id || `profile-temp-${Date.now()}`
+          _id: result._id || result.insertedId || result.data?._id || `profile-temp-${Date.now()}`,
+          isOptimistic: true, // Mark as optimistic so it's preserved during refreshes
+          timestamp: new Date().toISOString(), // Ensure it has a timestamp
+          createdAt: new Date().toISOString(),
+          // Add a persistence flag to ensure it isn't removed
+          isPermaPersistent: true
         };
 
         const activityAddedEvent = new CustomEvent('activityAdded', {
@@ -45,13 +50,30 @@ export default function ClientProfileWithActivity({ setOpenPanel }) {
         });
         window.dispatchEvent(activityAddedEvent);
 
-        // Force a manual refresh of activities after a short delay
+        // Store in localStorage as a backup - will be restored if the activity disappears
+        if (result.clientId) {
+          try {
+            const storedActivities = JSON.parse(
+              localStorage.getItem(`tempActivities-${result.clientId}`) || '[]'
+            );
+            storedActivities.push(enhancedResult);
+            localStorage.setItem(
+              `tempActivities-${result.clientId}`,
+              JSON.stringify(storedActivities)
+            );
+          } catch (e) {
+            console.error('Failed to store activity in localStorage:', e);
+          }
+        }
+
+        /* Disabled automatic refresh to prevent activities from disappearing
         setTimeout(() => {
           console.log('Triggering manual refresh after activity added');
           if (window.refreshActivityFeed) {
             window.refreshActivityFeed();
           }
-        }, 1000);
+        }, 10000); // 10 seconds
+        */
       } catch (error) {
         console.error('Error in handleActivitySuccess:', error);
       }

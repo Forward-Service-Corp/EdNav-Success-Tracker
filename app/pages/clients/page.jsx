@@ -1,15 +1,16 @@
 "use client";
-import { useEffect, useState } from "react";
-import AddClientForm from "../../../components/AddClientForm";
-import ClientTableNew from "../../../components/BKP_ClientTableNew";
-import ClientProfile from "../../../components/ClientProfile";
-import FilterSelectRadios from "../../../components/FilterSelectRadios";
-import FilterSelectRadiosAge from "../../../components/FilterSelectRadiosAge";
-import Logo from "../../../components/Logo";
-import NavigatorSelector from "../../../components/NavigatorSelector";
-import { useClients } from "../../../contexts/ClientsContext";
-import { useLoading } from "../../../contexts/LoadingContext";
-import ThemeSwitcher from "../../../components/ThemeSwitcher";
+import { useEffect, useState } from 'react';
+import AddClientForm from '../../../components/AddClientForm';
+import ClientTableNew from '../../../components/BKP_ClientTableNew';
+import ClientProfile from '../../../components/ClientProfile';
+import FilterSelectRadios from '../../../components/FilterSelectRadios';
+import FilterSelectRadiosAge from '../../../components/FilterSelectRadiosAge';
+import Logo from '../../../components/Logo';
+import NavigatorSelector from '../../../components/NavigatorSelector';
+import { useClients } from '../../../contexts/ClientsContext';
+import { useLoading } from '../../../contexts/LoadingContext';
+import ThemeSwitcher from '../../../components/ThemeSwitcher';
+import StorageCleanupTool from '../../../components/StorageCleanupTool';
 
 function ClientsPage() {
   const { setLoading } = useLoading(false);
@@ -65,6 +66,9 @@ function ClientsPage() {
         <ThemeSwitcher />
         <NavigatorSelector />
       </div>
+
+      {/* Storage Cleanup Tool */}
+      <StorageCleanupTool />
     </div>
   );
 }

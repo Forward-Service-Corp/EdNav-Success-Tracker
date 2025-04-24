@@ -166,17 +166,35 @@ const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
       console.log('Created optimistic activity:', optimisticActivity);
 
       // Add to global feed if function exists - this will immediately show in the UI
-      if (typeof window !== "undefined" && window.addActivityToFeed) {
-        console.log('Adding optimistic activity to feed via global function');
-        window.addActivityToFeed(optimisticActivity);
+      if (typeof window !== 'undefined') {
+        // Try the direct addItemToFeed approach first
+        if (window.addItemToFeed) {
+          console.log('ACTIVITY DEBUG: Using direct addItemToFeed for immediate display');
+          window.addItemToFeed(optimisticActivity);
+        }
+        // Then also try the simplified approach 
+        else if (window.addActivitySimplified) {
+          console.log('ACTIVITY DEBUG: Using addActivitySimplified');
+          window.addActivitySimplified(optimisticActivity);
+        }
+        // Fall back to the original approach as last resort
+        else if (window.addActivityToFeed) {
+          console.log('ACTIVITY DEBUG: Falling back to legacy addActivityToFeed');
+          window.addActivityToFeed(optimisticActivity);
+        } else {
+          console.error('ACTIVITY DEBUG: No activity display method available!');
+        }
 
-        // Also dispatch an event to notify other components
+        // Also dispatch an event for backward compatibility
+        console.log('ACTIVITY DEBUG: Dispatching activityAdded event for compatibility');
         const activityAddedEvent = new CustomEvent('activityAdded', {
           detail: optimisticActivity,
           bubbles: true,
           cancelable: true
         });
         window.dispatchEvent(activityAddedEvent);
+      } else {
+        console.error('ACTIVITY DEBUG: window object not available!');
       }
 
       // Send the API request asynchronously but don't wait for it

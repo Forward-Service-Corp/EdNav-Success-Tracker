@@ -30,6 +30,12 @@ export default function CombinedFeed() {
         return;
       }
 
+      // Skip empty "Activity recorded" activities without valuable content
+      if (!activity.statement && !activity.description && !activity.details && !activity.category) {
+        console.log('Skipping empty activity with no valuable content');
+        return;
+      }
+
       console.log('Adding activity to feed:', activity);
 
       // Check if this is a replacement for a temporary activity
@@ -41,15 +47,21 @@ export default function CombinedFeed() {
 
           if (!tempActivity) {
             console.log(`Temporary activity with ID ${activity.replace} not found, adding as new`);
-            return [{ ...activity, replace: undefined }, ...prevActivities];
+            // Mark as permanent so it doesn't get removed
+            return [{
+              ...activity,
+              replace: undefined,
+              isPermaPersistent: true,
+              isOptimistic: false
+            }, ...prevActivities];
           }
 
           console.log(`Found temporary activity to replace:`, tempActivity);
 
-          // Create a new array with the replaced activity
+          // Create a new array with the replaced activity, marking as permanent
           const updatedActivities = prevActivities.map((a) =>
             a._id === activity.replace
-              ? { ...activity, replace: undefined }
+              ? { ...activity, replace: undefined, isPermaPersistent: true, isOptimistic: false }
               : a,
           );
 
@@ -64,28 +76,125 @@ export default function CombinedFeed() {
         ...activity,
         type: "activity",
         date: new Date(activity.timestamp || activity.createdAt || Date.now()),
+        isPermaPersistent: true, // Mark as permanent so it doesn't get removed
+        // Add a unique fingerprint for better duplicate detection
+        fingerprint: JSON.stringify({
+          statement: activity.statement || '',
+          navigator: activity.navigator || '',
+          createdAtApprox: new Date(activity.timestamp || activity.createdAt || Date.now()).getTime() - (new Date(activity.timestamp || activity.createdAt || Date.now()).getTime() % 1000) // Round to nearest second for better comparison
+        })
       };
 
-      console.log('Formatted activity:', formattedActivity);
+      // Add an ID if one doesn't exist
+      if (!formattedActivity._id) {
+        formattedActivity._id = `perm-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+      }
+
+      console.log('Formatted activity with permanent flag:', formattedActivity);
 
       // Add to activities state
       setActivities((prevActivities) => {
-        // Check if this activity already exists (to prevent duplicates)
-        const exists = prevActivities.some(
-          (a) =>
-            a._id &&
-            formattedActivity._id &&
-            a._id.toString() === formattedActivity._id.toString(),
-        );
+        // Enhanced duplicate detection - check by ID, fingerprint, or content similarity
+        const isDuplicate = prevActivities.some((a) => {
+          // Check by exact ID match
+          if (a._id && formattedActivity._id && a._id.toString() === formattedActivity._id.toString()) {
+            console.log('Duplicate detected by ID match');
+            return true;
+          }
 
-        if (exists) {
+          // Check by fingerprint
+          if (a.fingerprint && formattedActivity.fingerprint && a.fingerprint === formattedActivity.fingerprint) {
+            console.log('Duplicate detected by fingerprint match');
+            return true;
+          }
+
+          // Check by content similarity for entries without fingerprints
+          if (!a.fingerprint && formattedActivity.statement && a.statement === formattedActivity.statement) {
+            // If statements match, check timestamp proximity (within 60 seconds)
+            const aTime = new Date(a.timestamp || a.createdAt || 0).getTime();
+            const newTime = formattedActivity.date.getTime();
+            const timeDiffSeconds = Math.abs(aTime - newTime) / 1000;
+
+            if (timeDiffSeconds < 60) {
+              console.log('Duplicate detected by content similarity and timestamp proximity');
+              return true;
+            }
+          }
+
+          return false;
+        });
+
+        if (isDuplicate) {
           console.log('Activity already exists in feed, not adding duplicate');
           return prevActivities;
         }
 
-        console.log('Adding new activity to state', [formattedActivity, ...prevActivities]);
+        // Store the activity in localStorage for persistence with duplicate checks
+        if (typeof window !== 'undefined' && selectedClient?._id) {
+          try {
+            // Store this activity in localStorage for maximum persistence
+            const key = `permanentActivities-${selectedClient._id}`;
+            const storedActivities = JSON.parse(localStorage.getItem(key) || '[]');
+
+            // Check if activity already exists in storage
+            const existsInStorage = storedActivities.some(a =>
+              (a._id && a._id === formattedActivity._id) ||
+              (a.fingerprint && a.fingerprint === formattedActivity.fingerprint) ||
+              (a.statement === formattedActivity.statement &&
+                Math.abs(new Date(a.date).getTime() - formattedActivity.date.getTime()) < 60000)
+            );
+
+            if (!existsInStorage) {
+              storedActivities.push(formattedActivity);
+              localStorage.setItem(key, JSON.stringify(storedActivities));
+              console.log('Activity stored in localStorage for permanent backup');
+            } else {
+              console.log('Activity already exists in localStorage, not adding duplicate');
+            }
+          } catch (e) {
+            console.error('Failed to store in localStorage:', e);
+          }
+        }
+
+        console.log('Adding new permanent activity to state', [formattedActivity, ...prevActivities]);
         return [formattedActivity, ...prevActivities];
       });
+
+      // Use a single integrity check instead of multiple
+      const activityId = formattedActivity._id;
+      const checkActivityExists = () => {
+        setActivities(prevActivities => {
+          // Only add back if it doesn't already exist by any detection method
+          const exists = prevActivities.some(a => {
+            // Check by ID
+            if (a._id === activityId) return true;
+
+            // Check by fingerprint
+            if (a.fingerprint && formattedActivity.fingerprint &&
+              a.fingerprint === formattedActivity.fingerprint) return true;
+
+            // Check by content + timestamp
+            if (a.statement === formattedActivity.statement) {
+              const timeDiff = Math.abs(
+                new Date(a.timestamp || a.createdAt || 0).getTime() -
+                formattedActivity.date.getTime()
+              ) / 1000;
+              if (timeDiff < 60) return true;
+            }
+
+            return false;
+          });
+
+          if (!exists) {
+            console.log(`Activity integrity check: re-adding activity that may have disappeared`);
+            return [formattedActivity, ...prevActivities];
+          }
+          return prevActivities;
+        });
+      };
+
+      // Single integrity check after 5 seconds
+      setTimeout(checkActivityExists, 5000);
     },
     [selectedClient],
   );
@@ -112,9 +221,134 @@ export default function CombinedFeed() {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       console.log('Exposing global feed functions');
+
+      // Original function maintained for backward compatibility
       window.addActivityToFeed = addActivityToFeed;
       window.removeActivityFromFeed = removeActivityFromFeed;
       window.refreshActivityFeed = refreshFeed;
+
+      // New ultra simple approach for adding items directly to the feed
+      window.addItemToFeed = (item) => {
+        console.log('FEED DEBUG: Adding item directly to combined feed:', item);
+
+        // Format the item with proper type and date
+        const formattedItem = {
+          ...item,
+          type: item.type || (item.noteContent ? 'note' : 'activity'),
+          date: new Date(item.timestamp || item.createdAt || Date.now())
+        };
+
+        console.log('FEED DEBUG: Formatted item:', formattedItem);
+
+        // MOST DIRECT APPROACH: Add directly to the combined feed first for immediate display
+        setCombinedFeed(prev => {
+          // Skip if already in the feed
+          if (prev.some(existing => existing._id === formattedItem._id)) {
+            console.log('FEED DEBUG: Item already in feed, not adding duplicate');
+            return prev;
+          }
+
+          const newFeed = [formattedItem, ...prev].sort((a, b) => b.date - a.date);
+          console.log('FEED DEBUG: Added item to feed, new length:', newFeed.length);
+          return newFeed;
+        });
+
+        // Also add to appropriate state collection for consistency
+        if (formattedItem.type === 'note') {
+          console.log('FEED DEBUG: Adding note to state for consistency');
+          setNotes(prev => [formattedItem, ...prev]);
+        } else {
+          console.log('FEED DEBUG: Adding activity to state for consistency');
+          setActivities(prev => [formattedItem, ...prev]);
+        }
+
+        // If it's an activity, also persist to localStorage for extra safety
+        if (formattedItem.type === 'activity' && selectedClient?._id) {
+          try {
+            const key = `permanentActivities-${selectedClient._id}`;
+            const stored = JSON.parse(localStorage.getItem(key) || '[]');
+
+            // Skip if already in localStorage
+            if (!stored.some(s => s._id === formattedItem._id)) {
+              stored.push(formattedItem);
+              localStorage.setItem(key, JSON.stringify(stored));
+              console.log('FEED DEBUG: Also saved to localStorage');
+            }
+          } catch (e) {
+            console.error('FEED DEBUG: Error saving to localStorage:', e);
+          }
+        }
+
+        return formattedItem;
+      };
+
+      // New simplified optimistic update functions
+      window.optimisticallyAddActivity = (activity) => {
+        console.log('Optimistically adding activity to state:', activity);
+
+        // Add directly to state with a forced re-render
+        setActivities(prev => {
+          console.log('Current activities before adding:', prev.length);
+          const newActivities = [activity, ...prev];
+          console.log('New activities after adding:', newActivities.length);
+          return newActivities;
+        });
+
+        // Also add directly to the combined feed for immediate feedback
+        setCombinedFeed(prev => {
+          console.log('Adding directly to combined feed for immediate display');
+          const formattedActivity = {
+            ...activity,
+            type: 'activity',
+            date: new Date(activity.timestamp || activity.createdAt || Date.now())
+          };
+          return [formattedActivity, ...prev].sort((a, b) => b.date - a.date);
+        });
+
+        // Force a check after a short delay
+        setTimeout(() => {
+          setActivities(prev => {
+            console.log('Checking if optimistic activity was added correctly');
+            const hasActivity = prev.some(a => a._id === activity._id);
+            console.log('Activity present in state:', hasActivity);
+            if (!hasActivity) {
+              console.log('Activity was not found, re-adding it');
+              return [activity, ...prev];
+            }
+            return prev;
+          });
+        }, 500);
+      };
+
+      window.replaceOptimisticActivity = (tempId, realActivity) => {
+        console.log('Replacing optimistic activity with real one:', { tempId, realActivity });
+
+        // Replace in activities state
+        setActivities(prev =>
+          prev.map(a =>
+            a._id === tempId
+              ? {
+                ...realActivity,
+                type: 'activity',
+                date: new Date(realActivity.timestamp || realActivity.createdAt || Date.now())
+              }
+              : a
+          )
+        );
+
+        // Also replace in combined feed for consistency
+        setCombinedFeed(prev =>
+          prev.map(item =>
+            (item.type === 'activity' && item._id === tempId)
+              ? {
+                ...realActivity,
+                type: 'activity',
+                date: new Date(realActivity.timestamp || realActivity.createdAt || Date.now())
+              }
+              : item
+          )
+        );
+      };
     }
 
     return () => {
@@ -123,13 +357,20 @@ export default function CombinedFeed() {
         delete window.addActivityToFeed;
         delete window.removeActivityFromFeed;
         delete window.refreshActivityFeed;
+        delete window.optimisticallyAddActivity;
+        delete window.replaceOptimisticActivity;
+        delete window.addItemToFeed;
       }
     };
   }, [addActivityToFeed, removeActivityFromFeed, refreshFeed]);
 
-  const loadData = async (preserveOptimisticUpdates = true) => {
+  // A completely simplified loadData function focused only on API calls
+  const loadData = async () => {
+    console.log('LOAD DEBUG: loadData called');
+    
     // Only load data if there's a selected client
     if (!selectedClient || !selectedClient._id) {
+      console.log('LOAD DEBUG: No client selected, resetting states');
       setActivities([]);
       setNotes([]);
       setComments([]);
@@ -137,114 +378,85 @@ export default function CombinedFeed() {
       return;
     }
 
-    // If we're preserving optimistic updates, save the current activities
-    // that start with "temp-" or "modal-" to add them back later
-    let optimisticActivities = [];
-    if (preserveOptimisticUpdates) {
-      optimisticActivities = activities.filter(activity =>
-        activity._id && typeof activity._id === 'string' &&
-        (activity._id.startsWith('temp-') || activity._id.startsWith('modal-'))
-      );
-      console.log('Preserving optimistic activities:', optimisticActivities);
-    }
-
     setLoading(true);
     try {
-      // Fetch activities
-      const activityResponse = await fetch(
-        `/api/activities?clientId=${selectedClient._id}`,
-      );
-      if (!activityResponse.ok) {
-        throw new Error("Failed to fetch activities");
-      }
-      const activityData = await activityResponse.json();
+      console.log('LOAD DEBUG: Loading data for client:', selectedClient._id);
 
-      // The API returns data in activityData.data
-      console.log('Fetched activities data structure:', activityData);
-
-      // Extract activities from the response data
-      // The API returns { success: true, data: [] } format
+      // Load all data - simplifying to just sequential calls for now
+      console.log('LOAD DEBUG: Fetching activities');
+      const activityResponse = await fetch(`/api/activities?clientId=${selectedClient._id}`);
+      const activityData = activityResponse.ok ? await activityResponse.json() : { data: [] };
       const fetchedActivities = activityData.data || [];
-      console.log('Extracted activities array:', fetchedActivities);
+      console.log('LOAD DEBUG: Fetched activities:', fetchedActivities.length);
 
-      // Fetch notes
-      const notesResponse = await fetch(
-        `/api/notes?clientId=${selectedClient._id}`,
+      console.log('LOAD DEBUG: Fetching notes');
+      const notesResponse = await fetch(`/api/notes?clientId=${selectedClient._id}`);
+      const notesData = notesResponse.ok ? await notesResponse.json() : [];
+      console.log('LOAD DEBUG: Fetched notes:', notesData.length);
+
+      console.log('LOAD DEBUG: Fetching comments');
+      const commentsResponse = await fetch(`/api/comments?clientId=${selectedClient._id}`);
+      const commentsData = commentsResponse.ok ? await commentsResponse.json() : [];
+      console.log('LOAD DEBUG: Fetched comments:', commentsData.length);
+
+      // Process activities - filter out empty ones
+      console.log('LOAD DEBUG: Processing activities');
+      const validActivities = fetchedActivities.filter(activity =>
+        activity.statement || activity.description || activity.details || activity.category
       );
-      if (!notesResponse.ok) {
-        throw new Error("Failed to fetch notes");
-      }
-      const notesData = await notesResponse.json();
+      console.log('LOAD DEBUG: Valid activities after filtering:', validActivities.length);
 
-      // Fetch comments
-      const commentsResponse = await fetch(
-        `/api/comments?clientId=${selectedClient._id}`,
-      );
-      if (commentsResponse.ok) {
-        const commentsData = await commentsResponse.json();
-        setComments(commentsData || []);
-      }
+      // Format activities for the feed
+      const formattedActivities = validActivities.map(activity => ({
+        ...activity,
+        type: 'activity',
+        date: new Date(activity.timestamp || activity.createdAt || Date.now())
+      }));
 
-      // If we're preserving optimistic updates, add them back to the fetched activities
-      if (preserveOptimisticUpdates && optimisticActivities.length > 0) {
-        // Only add back optimistic activities that don't exist in fetched activities
-        // (they might have been saved to the server)
-        const fetchedIds = new Set(fetchedActivities.map(a => a._id?.toString()));
+      // Format notes for the feed
+      console.log('LOAD DEBUG: Processing notes');
+      const formattedNotes = (notesData || []).map(note => ({
+        ...note,
+        type: 'note',
+        date: new Date(note.createdAt || Date.now())
+      }));
 
-        const activitiesToAdd = optimisticActivities.filter(a => {
-          // If the optimistic activity has a "realId" that's in the fetched data,
-          // it means it's already been saved, so we don't need to add it back
-          if (a.realId && fetchedIds.has(a.realId.toString())) {
-            console.log(`Optimistic activity with realId ${a.realId} already exists in fetched data`);
-            return false;
-          }
-          // If the optimistic activity's ID is in the fetched data,
-          // it means it's already been saved, so we don't need to add it back
-          if (fetchedIds.has(a._id.toString())) {
-            console.log(`Optimistic activity ${a._id} already exists in fetched data`);
-            return false;
-          }
-          // Otherwise, add it back
-          return true;
-        });
+      // Set individual state collections
+      setActivities(formattedActivities);
+      setNotes(formattedNotes);
+      setComments(commentsData || []);
 
-        console.log('Adding optimistic activities back to fetched data:', activitiesToAdd);
+      // Create combined feed with everything in a single array
+      console.log('LOAD DEBUG: Creating combined feed');
 
-        // Combine the fetched activities with the optimistic ones
-        const combinedActivities = [...activitiesToAdd, ...fetchedActivities];
-        setActivities(combinedActivities);
-      } else {
-        // If we're not preserving optimistic updates, just set the fetched activities
-        setActivities(fetchedActivities);
-      }
+      // Get current activities from state (including any restored from localStorage)
+      const currentActivities = activities.map(activity => ({
+        ...activity,
+        type: 'activity',
+        date: new Date(activity.timestamp || activity.createdAt || Date.now())
+      }));
 
-      setNotes(notesData || []);
+      // Include both API and localStorage activities 
+      const allActivities = [...formattedActivities, ...currentActivities];
 
-      // Log what we're setting to help debug
-      console.log('Final activities state after combining:', preserveOptimisticUpdates ?
-        [...(optimisticActivities || []), ...fetchedActivities] : fetchedActivities);
-      console.log('Setting notes state:', notesData || []);
+      // Final combined feed with both notes and all activities
+      const combinedItems = [...allActivities, ...formattedNotes].sort((a, b) => b.date - a.date);
+
+      console.log('LOAD DEBUG: Combined feed created with items:', combinedItems.length);
+      console.log('LOAD DEBUG: API activities:', formattedActivities.length);
+      console.log('LOAD DEBUG: State activities (including localStorage):', currentActivities.length);
+      console.log('LOAD DEBUG: Notes in combined feed:', formattedNotes.length);
+
+      // Set combined feed state
+      setCombinedFeed(combinedItems);
+      
     } catch (error) {
-      console.error("Error loading feed data:", error);
+      console.error('LOAD DEBUG: Error loading feed data:', error);
       setNotification({
         type: "error",
         message: "Failed to load client feed",
         active: true,
       });
-
-      // If there was an error, ensure we still keep the optimistic activities
-      if (preserveOptimisticUpdates && optimisticActivities.length > 0) {
-        setActivities(prevActivities => {
-          // Keep any existing activities that aren't optimistic updates
-          const nonTempActivities = prevActivities.filter(a =>
-            !(a._id && typeof a._id === 'string' &&
-              (a._id.startsWith('temp-') || a._id.startsWith('modal-')))
-          );
-
-          // Add back the optimistic activities
-          return [...optimisticActivities, ...nonTempActivities];
-        });
-      }
     } finally {
       setLoading(false);
     }
@@ -277,32 +489,24 @@ export default function CombinedFeed() {
     }
   }, [selectedClient?._id]); // Only depend on client ID, not the entire selectedClient object
 
+  // Directly combine items after data loads, not via useEffect
   useEffect(() => {
-    // Combine and sort activities and notes
-    console.log('Combining activities and notes for feed:', { activities, notes });
-    
-    const combined = [
-      ...(activities || []).map((activity) => ({
-        ...activity,
-        type: "activity",
-        date: new Date(activity.timestamp || activity.createdAt || Date.now()),
-      })),
-      ...(notes || []).map((note) => ({
-        ...note,
-        type: "note",
-        date: new Date(note.createdAt || Date.now()),
-      })),
-    ].sort((a, b) => b.date - a.date);
+    // Manually combine the feed only after client changes to avoid dependency issues
+    if (selectedClient && selectedClient._id) {
+      console.log('Client selected, loading data initially');
+      loadData();
+    }
+  }, [selectedClient?._id]); // Only depend on client ID
 
-    console.log('Setting combined feed:', combined);
-    setCombinedFeed(combined);
-  }, [activities, notes]);
-
-  // Add auto-refresh functionality
+  // Add auto-refresh functionality - DISABLE AUTO-REFRESH FOR NOW
   useEffect(() => {
     // Only set up auto-refresh if we have a selected client
     if (!selectedClient || !selectedClient._id) return;
 
+    console.log('Auto-refresh has been disabled to prevent activities from disappearing');
+
+    // Commented out to prevent auto-refresh from removing activities
+    /*
     console.log('Setting up auto-refresh for client:', selectedClient._id);
 
     // Set up a refresh interval (every 30 seconds)
@@ -317,6 +521,7 @@ export default function CombinedFeed() {
       console.log('Cleaning up auto-refresh interval');
       clearInterval(refreshInterval);
     };
+    */
   }, [selectedClient]);
 
   const handleAddNote = async () => {
@@ -338,12 +543,16 @@ export default function CombinedFeed() {
         createdAt: new Date().toISOString(),
       };
 
+      // Create a unique temporary ID
+      const tempId = `temp-${Date.now()}`;
+      
       // Optimistically add to UI first for immediate feedback
       const optimisticNote = {
         ...noteData,
-        _id: `temp-${Date.now()}`,
+        _id: tempId,
         type: "note",
         date: new Date(),
+        isOptimistic: true // Flag to identify optimistic updates
       };
 
       setNotes((prevNotes) => [optimisticNote, ...prevNotes]);
@@ -362,14 +571,16 @@ export default function CombinedFeed() {
 
       const result = await response.json();
 
-      // Update with real data from the server
+      // Update with real data from the server but keep the same ID to avoid reordering
       setNotes((prevNotes) =>
         prevNotes.map((note) =>
-          note._id === optimisticNote._id
+          note._id === tempId
             ? {
                 ...result.note,
+              _id: result.note._id || result._id,
                 type: "note",
                 date: new Date(result.note.createdAt),
+              isOptimistic: false
               }
             : note,
         ),
@@ -379,6 +590,7 @@ export default function CombinedFeed() {
       setNoteContent("");
       setIsAddingNote(false);
 
+      // Show notification but make sure it won't affect our state
       setNotification({
         type: "success",
         message: "Note added successfully",
@@ -389,9 +601,10 @@ export default function CombinedFeed() {
 
       // Remove the optimistic update on error
       setNotes((prevNotes) =>
-        prevNotes.filter((note) => note._id !== `temp-${Date.now()}`),
+        prevNotes.filter((note) => !note.isOptimistic)
       );
 
+      // Show error notification
       setNotification({
         type: "error",
         message: "Failed to add note",
@@ -427,10 +640,14 @@ export default function CombinedFeed() {
         createdAt: new Date().toISOString(),
       };
 
+      // Create a unique ID for the optimistic update
+      const tempId = `temp-${Date.now()}`;
+      
       // Optimistically add comment to UI first
       const optimisticComment = {
         ...commentData,
-        _id: `temp-${Date.now()}`,
+        _id: tempId,
+        isOptimistic: true
       };
 
       setComments((prevComments) => [optimisticComment, ...prevComments]);
@@ -456,11 +673,15 @@ export default function CombinedFeed() {
 
       const result = await response.json();
 
-      // Update with real data from server
+      // Update with real data from the server
       setComments((prevComments) =>
         prevComments.map((comment) =>
-          comment._id === optimisticComment._id
-            ? { ...result.comment, _id: result._id }
+          comment._id === tempId
+            ? {
+              ...result.comment,
+              _id: result.comment?._id || result._id,
+              isOptimistic: false
+            }
             : comment,
         ),
       );
@@ -469,6 +690,7 @@ export default function CombinedFeed() {
       setCommentContent("");
       setCommentingOn(null);
 
+      // Show notification without affecting another state
       setNotification({
         type: "success",
         message: "Comment added successfully",
@@ -477,11 +699,12 @@ export default function CombinedFeed() {
     } catch (error) {
       console.error("Error adding comment:", error);
 
-      // Remove the optimistic comment on error
+      // Remove the optimistic comment on error - use the flag to identify it
       setComments((prevComments) =>
-        prevComments.filter((comment) => comment._id !== `temp-${Date.now()}`),
+        prevComments.filter((comment) => !comment.isOptimistic)
       );
 
+      // Show error notification
       setNotification({
         type: "error",
         message: "Failed to add comment",
@@ -510,49 +733,67 @@ export default function CombinedFeed() {
     }
   };
 
-  // Set up event listener for activity added events
+  // Set up event listener for activity added events and check for persisted activities
   useEffect(() => {
-    // Create a reference to loadData that we can use in the event handler
-    // and won't cause dependency issues
+    // Create a function to check for and restore persisted activities
+    const checkPersistedActivities = () => {
+      console.log('Checking for persisted activities');
+
+      if (typeof window !== 'undefined' && selectedClient?._id) {
+        try {
+          // Check for permanently stored activities (this is the one with real activities)
+          const permKey = `permanentActivities-${selectedClient._id}`;
+          const permActivities = JSON.parse(localStorage.getItem(permKey) || '[]');
+
+          console.log('Found stored permanent activities to restore:', permActivities.length);
+
+          if (permActivities.length > 0) {
+            // DIRECT APPROACH: Add these activities directly to the combined feed
+            // This bypasses all the state management complexity
+            permActivities.forEach(activity => {
+              // Format the activity properly
+              const formattedActivity = {
+                ...activity,
+                type: 'activity',
+                date: new Date(activity.timestamp || activity.createdAt || Date.now())
+              };
+
+              // Add it directly to the combined feed
+              setCombinedFeed(prev => {
+                // Skip if this activity is already in the feed
+                if (prev.some(item => item._id === formattedActivity._id)) {
+                  return prev;
+                }
+                // Add it and re-sort
+                return [formattedActivity, ...prev].sort((a, b) => b.date - a.date);
+              });
+            });
+
+            console.log('Directly added stored activities to feed, bypassing state');
+          }
+        } catch (e) {
+          console.error('Error checking for persisted activities:', e);
+        }
+      }
+    };
+
+    // Run the check immediately
+    checkPersistedActivities();
+
+    // Set up event listener for activity added events
     const handleActivityAdded = (event) => {
-      console.log('Activity added event received in CombinedFeed:', event.detail);
-
-      if (!event.detail) {
-        console.warn('Activity added event received but no detail provided');
-        return;
-      }
-
-      // First, try to use the global function to add the activity directly to the feed
-      if (event.detail && typeof addActivityToFeed === 'function') {
-        console.log('Directly adding activity to feed from event');
-
-        // Make sure the activity has _id and is properly formatted
-        const activityToAdd = {
-          ...event.detail,
-          _id: event.detail._id || `event-${Date.now()}`,
-          type: 'activity',
-          date: new Date(event.detail.timestamp || event.detail.createdAt || Date.now())
-        };
-
-        addActivityToFeed(activityToAdd);
-      }
-
-      // Do NOT automatically refresh data from the server, as that might
-      // overwrite our optimistic update. The server data will be fetched
-      // during the next auto-refresh or manual refresh.
+      console.log('Activity added event received:', event.detail);
+      // Not using the complex approach anymore
     };
 
     if (typeof window !== 'undefined' && selectedClient) {
-      console.log('Setting up activityAdded event listener');
       window.addEventListener('activityAdded', handleActivityAdded);
 
-      // Clean up on unmount
       return () => {
-        console.log('Removing activityAdded event listener');
         window.removeEventListener('activityAdded', handleActivityAdded);
       };
     }
-  }, [addActivityToFeed, selectedClient]);
+  }, [selectedClient, combinedFeed.length]);
 
   // Get comments for an item
   const getCommentsForItem = (itemId, itemType) => {
@@ -694,8 +935,11 @@ export default function CombinedFeed() {
                 const hasComments = itemComments.length > 0;
                 const isExpanded = expandedComments[item._id];
 
+                // Ensure unique keys by combining _id with index when available, or just use index
+                const uniqueKey = item._id ? `${item._id}-${index}` : `feed-item-${index}`;
+                
                 return (
-                  <li key={item._id || `feed-item-${index}`} className="mb-4">
+                  <li key={uniqueKey} className="mb-4">
                     <div
                       className={`timeline-start ${item.type === "activity" ? "text-primary" : "text-secondary"}`}
                     >

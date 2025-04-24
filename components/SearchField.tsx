@@ -3,13 +3,6 @@ import { useFepsLeft } from '@/contexts/FepsLeftContext';
 import { MagnifyingGlass } from '@phosphor-icons/react';
 import { Sidebar, Wrench, XCircle } from 'phosphor-react';
 
-class FEP {
-  searchTerm: string = '';
-  status: 'All' | string = 'All';
-  age: 'All' | string = 'All';
-  menuOpen: boolean | null = false;
-}
-
 function SearchField({
   menuOpen,
   filterOpen,
@@ -25,64 +18,76 @@ function SearchField({
 }) {
   const { selectedFepLeft, setSelectedFepLeft } = useFepsLeft();
 
-  // Don't use the useLayout hook directly here
-  // Instead, make the layout features optional
-  interface LayoutContextState {
-    isAvailable: boolean;
-    setLayoutConfig: (config: string) => void;
-  }
+  // Use a safer approach that doesn't involve ReactDOM.render
+  const [layoutAvailable, setLayoutAvailable] = React.useState(false);
+  const layoutConfigRef = React.useRef({
+    setDefault: () => console.log('Layout not available'),
+    setNoSidebar: () => console.log('Layout not available'),
+    setTableFocus: () => console.log('Layout not available')
+  });
 
-  const [layoutContext, setLayoutContext] = React.useState<LayoutContextState | null>(null);
-
-  // Safely get the layout context if it's available
+  // Check for layout context availability
   React.useEffect(() => {
-    // Only import and use the hook if the component is mounted in the client
-    const getLayoutContext = async () => {
+    const checkLayoutContext = async () => {
       try {
-        // Try to dynamically import the context
-        const LayoutContextModule = await import('@/contexts/LayoutContext');
+        // Try to import the module
+        const LayoutModule = await import('@/contexts/LayoutContext');
 
-        // Check if we're running in a layout provider
-        try {
-          // Instead of using the hook directly, create a fake element to test
-          // if the LayoutProvider is available in the component tree
-          const tempDiv = document.createElement('div');
-          const tempText = document.createTextNode('Layout test');
-          tempDiv.appendChild(tempText);
-          document.body.appendChild(tempDiv);
+        // We won't try to create a test component or use ReactDOM
+        //  Instead, we'll just check if we can access the context
+        if (typeof window !== 'undefined') {
+          try {
+            // Try to use the useLayout function in the normal way
+            // by creating a stub function and checking if the import worked
+            if (LayoutModule && typeof LayoutModule.useLayout === 'function') {
+              // Layout module exists, set up mock functions for now
+              // The actual useLayout call will happen in a subcomponent
+              setLayoutAvailable(true);
 
-          // This is just to check the context is properly set up;
-          // we're not using the hook return value directly
-          import('@/contexts/LayoutContext').then(module => {
-            // If this succeeds, we know the LayoutProvider is available
-            setLayoutContext({
-              isAvailable: true,
-              setLayoutConfig: (config: string) => {
-                // Get a fresh instance of the hook each time it's used
-                // to avoid closure issues
-                const { useLayout } = module;
+              // Set up a component that will be rendered inside our component
+              // and can properly use the hook
+              const LayoutController = () => {
                 try {
-                  const layoutHook = useLayout();
-                  layoutHook.setLayoutConfig(config);
-                } catch (e) {
-                  console.error('Failed to use layout context:', e);
-                }
-              }
-            } as LayoutContextState);
-          }).catch(e => {
-            console.log('Layout context not available:', e);
-          });
+                  // This is a valid place to use the hook
+                  const layoutContext = LayoutModule.useLayout();
 
-          document.body.removeChild(tempDiv);
-        } catch (e) {
-          console.log('Failed to check layout context:', e);
+                  // Update our ref with the actual functions
+                  React.useEffect(() => {
+                    layoutConfigRef.current = {
+                      setDefault: () => layoutContext.setLayoutConfig('DEFAULT'),
+                      setNoSidebar: () => layoutContext.setLayoutConfig('NO_SIDEBAR'),
+                      setTableFocus: () => layoutContext.setLayoutConfig('TABLE_FOCUS')
+                    };
+                  }, [layoutContext]);
+
+                  // Return null as we don't need to render anything
+                  return null;
+                } catch (e) {
+                  console.log('Layout hook failed:', e);
+                  return null;
+                }
+              };
+
+              // Render our controller component
+              return <LayoutController />;
+            }
+          } catch (e) {
+            console.log('Layout module exists but hook failed:', e);
+          }
         }
       } catch (e) {
-        console.log('Layout context module not found:', e);
+        console.log('Layout module not found:', e);
       }
+
+      return null;
     };
 
-    getLayoutContext();
+    // Execute the async function and handle the controller
+    checkLayoutContext().then(controller => {
+      if (controller) {
+        setLayoutAvailable(true);
+      }
+    });
   }, []);
 
   return (
@@ -94,12 +99,10 @@ function SearchField({
             name={`client-search`}
             type="text"
             onChange={(e) => {
-              // @ts-expect-error: This is a hack to get the search term from the input
-              setSelectedFepLeft((prev: FEP) => {
-                const updated: FEP = { ...prev };
-                updated.searchTerm = e.target.value;
-                return updated;
-              });
+              setSelectedFepLeft((prev) => ({
+                ...prev,
+                searchTerm: e.target.value as ''
+              }));
             }}
             value={selectedFepLeft.searchTerm}
             placeholder="Search by name..."
@@ -157,8 +160,8 @@ function SearchField({
       </div>
 
       <div className="absolute right-5 z-20 flex cursor-pointer items-center justify-items-center gap-4">
-        {/* Layout Button - Only show if layoutContext is available */}
-        {layoutContext && layoutContext.isAvailable && (
+        {/* Layout Button - Only show if the layout is available */}
+        {layoutAvailable && (
           <div className="dropdown dropdown-end">
             <div
               tabIndex={0}
@@ -213,17 +216,17 @@ function SearchField({
             </div>
             <ul className="dropdown-content menu bg-base-100 rounded-box z-[999] w-52 p-2 shadow">
               <li>
-                <a onClick={() => layoutContext.setLayoutConfig('DEFAULT')}>
+                <a onClick={() => layoutConfigRef.current.setDefault()}>
                   Default Layout (15/35/50)
                 </a>
               </li>
               <li>
-                <a onClick={() => layoutContext.setLayoutConfig('NO_SIDEBAR')}>
+                <a onClick={() => layoutConfigRef.current.setNoSidebar()}>
                   No Sidebar (0/50/50)
                 </a>
               </li>
               <li>
-                <a onClick={() => layoutContext.setLayoutConfig('TABLE_FOCUS')}>
+                <a onClick={() => layoutConfigRef.current.setTableFocus()}>
                   Table Focus (0/70/30)
                 </a>
               </li>
