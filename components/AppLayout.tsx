@@ -1,7 +1,7 @@
 "use client";
 
-import { useLayout } from "@/contexts/LayoutContext";
-import { ReactNode, useEffect } from "react";
+import { useLayout } from '@/contexts/LayoutContext';
+import { ReactNode, useEffect } from 'react';
 
 type AppLayoutProps = {
   sidebarContent: ReactNode;
@@ -31,18 +31,18 @@ export default function AppLayout({
         width: `${currentLayout.sidebar}%`,
         maxWidth: `${currentLayout.sidebar}%`,
         display: isSidebarVisible ? "block" : "none",
-        transition: "width 0.3s ease-in-out, max-width 0.3s ease-in-out",
+        transition: 'all 0.25s ease-out'
       },
       table: {
         width: `${currentLayout.table}%`,
         maxWidth: `${currentLayout.table}%`,
-        transition: "width 0.3s ease-in-out, max-width 0.3s ease-in-out",
+        transition: 'all 0.25s ease-out'
       },
       details: {
         width: `${currentLayout.details}%`,
         maxWidth: `${currentLayout.details}%`,
         display: isDetailsVisible ? "block" : "none",
-        transition: "width 0.3s ease-in-out, max-width 0.3s ease-in-out",
+        transition: 'all 0.25s ease-out'
       },
     };
   };
@@ -50,7 +50,7 @@ export default function AppLayout({
   const styles = getPanelStyles();
 
   return (
-    <div className="flex h-screen w-full overflow-hidden">
+    <div className="flex h-full w-full overflow-hidden">
       {/* Sidebar Panel */}
       {isSidebarVisible && (
         <div

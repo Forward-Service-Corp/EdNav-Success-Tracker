@@ -17,9 +17,9 @@ const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
   const [trackable, setTrackable] = useState(null);
   const [, setTextInput] = useState("");
 
-  // Helper function to check if a path should trigger status update
+  // Helper function to check if a path should trigger a status update
   const shouldUpdateClientStatus = (path) => {
-    // Convert path array to a single lowercase string for easier checking
+    // Convert a path array to a single lowercase string for easier checking
     const pathString = path.join(" ").toLowerCase();
 
     // Check for keywords that should trigger a status update
@@ -39,7 +39,7 @@ const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
     } else if (pathString.includes("inactive")) {
       return "inactive";
     } else if (pathString.includes("completion")) {
-      // Determine whether to use graduated or inactive based on client group
+      // Determine whether to use graduated or inactive based on a client group
       return selectedClient?.group?.toLowerCase() === "youth"
         ? "graduated"
         : "inactive";
@@ -120,7 +120,7 @@ const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
       );
     }
 
-    // Check if this activity should update client status
+    // Check if this activity should update the client status
     const shouldUpdateStatus = shouldUpdateClientStatus(
       multi ? selectedPath : newPath,
     );
@@ -134,7 +134,7 @@ const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
 
         // Optimistically update client status in UI
         if (selectedClient) {
-          // Create a new client object with updated status
+          // Create a new client object with an updated status
           const updatedClient = {
             ...selectedClient,
             clientStatus: newStatus,
@@ -165,7 +165,7 @@ const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
 
       console.log('Created optimistic activity:', optimisticActivity);
 
-      // Add to global feed if function exists - this will immediately show in the UI
+      // Add to global feed if the function exists - this will immediately show in the UI
       if (typeof window !== 'undefined') {
         // Try the direct addItemToFeed approach first
         if (window.addItemToFeed) {
@@ -177,7 +177,7 @@ const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
           console.log('ACTIVITY DEBUG: Using addActivitySimplified');
           window.addActivitySimplified(optimisticActivity);
         }
-        // Fall back to the original approach as last resort
+        // Fall back to the original approach as a last resort
         else if (window.addActivityToFeed) {
           console.log('ACTIVITY DEBUG: Falling back to legacy addActivityToFeed');
           window.addActivityToFeed(optimisticActivity);
@@ -416,7 +416,7 @@ const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
   const showDatePicker = selectedPath.length === 1; // Show DatePicker only at the beginning
 
   return (
-    <div className="fixed top-0 mx-auto max-w-60 px-0 py-4">
+    <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 z-100">
       {showDatePicker && (
         <label className="flex flex-col space-y-2 font-light">
           Date of activity:

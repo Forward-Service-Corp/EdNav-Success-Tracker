@@ -11,7 +11,7 @@ import ActivityModal from '../components/ActivityModal';
 export default function ClientProfile({ setOpenPanel }) {
   const [isMounted, setIsMounted] = useState(false);
   const [, setSelectedNavigator] = useState("");
-  const { selectedClient, setSelectedClient } = useClients();
+  const { selectedClient } = useClients();
   const [actions, setActions] = useState([]); // actions are the activities
   const [hasTrackable, setHasTrackable] = useState([]);
   const [hasTrackableUpdated, setHasTrackableUpdated] = useState(false);

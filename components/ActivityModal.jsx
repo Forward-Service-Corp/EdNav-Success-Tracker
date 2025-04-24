@@ -1,6 +1,6 @@
-"use client";
+'use client';
 import React, { useEffect, useState } from 'react';
-import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
+import { Dialog, DialogBackdrop, DialogPanel } from '@headlessui/react';
 import ActivityDynamicSelect from './ActivityDynamicSelect';
 
 export default function ActivityModal({ open, setOpen, onSuccess }) {
@@ -9,14 +9,14 @@ export default function ActivityModal({ open, setOpen, onSuccess }) {
   const getQuestions = async () => {
     let cleanedQuestions = {};
     try {
-      const response = await fetch("/api/questions");
+      const response = await fetch('/api/questions');
       const questions = await response.json();
       const { adult, youth } = await questions;
       cleanedQuestions.adult = adult;
       cleanedQuestions.youth = youth;
       setQuestions(cleanedQuestions);
     } catch (error) {
-      console.error("Error fetching questions:", error);
+      console.error('Error fetching questions:', error);
       // Set the default empty structure if questions can't be loaded
       cleanedQuestions = { adult: {}, youth: {} };
       setQuestions(cleanedQuestions);
@@ -24,8 +24,14 @@ export default function ActivityModal({ open, setOpen, onSuccess }) {
     return cleanedQuestions;
   };
 
+  // Add activity directly to the feed (for optimistic updates)
+  const addActivitySimplified = () => {
+    // placeholder for optimistic updates
+  };
+
   useEffect(() => {
     getQuestions().then();
+    window.addActivitySimplified = addActivitySimplified;
   }, []);
 
   // When an activity is successfully added, pass it to parent components
@@ -102,36 +108,31 @@ export default function ActivityModal({ open, setOpen, onSuccess }) {
 
   return (
     <Dialog
-      open={open === "activity"}
-      onClose={() => setOpen("")}
+      open={open === 'activity'}
+      onClose={() => setOpen('')}
       className="relative z-60"
     >
       <DialogBackdrop
         transition
-        className="bg-base-300/30 fixed inset-0 blur-sm backdrop-blur-xs transition-opacity data-[closed]:opacity-0 data-[enter]:duration-300 data-[enter]:ease-out data-[leave]:duration-200 data-[leave]:ease-in"
+        className="bg-base-300/30  inset-0 blur-sm backdrop-blur-xs transition-opacity data-[closed]:opacity-0 data-[enter]:duration-300 data-[enter]:ease-out data-[leave]:duration-200 data-[leave]:ease-in"
       />
-      <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+      <div
+        className="flex min-h-full min-w-full items-end justify-center p-4 text-center sm:items-center sm:p-0 relative border-5 border-pink-500">
         <DialogPanel
           transition
           className="bg-base-100 relative transform overflow-hidden rounded-lg p-12 text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[enter]:ease-out data-[leave]:duration-200 data-[leave]:ease-in sm:my-8 sm:w-full sm:max-w-lg sm:p-6 data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95"
         >
-          <div className="px-12 py-8">
-            <div>
-              <DialogTitle
-                as="h3"
-                className="text-base-content mx-auto max-w-60 text-xl font-light"
-              >
-                Add an activity
-              </DialogTitle>
-              <div className="">
-                <ActivityDynamicSelect
-                  setOpen={setOpen}
-                  questions={questions}
-                  onSuccess={handleActivitySuccess}
-                />
-              </div>
-            </div>
-          </div>
+          {/*<DialogTitle*/}
+          {/*  as="h3"*/}
+          {/*  className="text-base-content mx-auto max-w-60 text-xl font-light"*/}
+          {/*>*/}
+          {/*  Add an activity*/}
+          {/*</DialogTitle>*/}
+          <ActivityDynamicSelect
+            setOpen={setOpen}
+            questions={questions}
+            onSuccess={handleActivitySuccess}
+          />
         </DialogPanel>
       </div>
     </Dialog>

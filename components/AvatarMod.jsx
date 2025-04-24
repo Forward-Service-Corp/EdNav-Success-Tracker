@@ -1,4 +1,4 @@
-import Avvvatars from "avvvatars-react";
+import Avvvatars from 'avvvatars-react';
 
 export default function MyAvatar(
   val,
@@ -9,16 +9,6 @@ export default function MyAvatar(
   borderColor,
   borderSize,
 ) {
-  // const defaultValue = {
-  //   value: "A" || val,
-  //   displayValue: "A" || dv,
-  //   size: 100 || size,
-  //   shadow: true,
-  //   border: true,
-  //   borderColor: "#000" || borderColor,
-  //   borderSize: 1 || borderSize,
-  //   borderStyle: "solid" || "solid",
-  // };
   return (
     <Avvvatars
       value={val}

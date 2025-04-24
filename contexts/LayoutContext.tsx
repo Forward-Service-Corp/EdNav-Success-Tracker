@@ -1,12 +1,6 @@
 "use client";
 
-import React, {
-  createContext,
-  ReactNode,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
+import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 
 // Define layout configuration type
 type LayoutConfig = {
@@ -59,11 +53,14 @@ export function LayoutProvider({ children }: LayoutProviderProps) {
 
   // Toggle sidebar visibility
   const toggleSidebar = () => {
-    if (isSidebarVisible) {
-      // If sidebar is visible, switch to a no-sidebar layout
+    const newVisibility = !isSidebarVisible;
+    setIsSidebarVisible(newVisibility);
+
+    if (!newVisibility) {
+      // If hiding sidebar, switch to a no-sidebar layout
       setLayoutConfig("NO_SIDEBAR");
     } else {
-      // If sidebar is hidden, switch to default layout
+      // If showing sidebar, switch to default layout
       setLayoutConfig("DEFAULT");
     }
   };
@@ -79,6 +76,9 @@ export function LayoutProvider({ children }: LayoutProviderProps) {
     } else if (isSidebarVisible && !isDetailsVisible) {
       // If only details is hidden, show sidebar and table
       setCurrentLayout({ sidebar: 15, table: 85, details: 0 });
+    } else if (isSidebarVisible && isDetailsVisible) {
+      // If both are visible, ensure we're using the DEFAULT layout
+      setCurrentLayout(LAYOUT_CONFIGS.DEFAULT);
     }
   }, [isSidebarVisible, isDetailsVisible]);
 
