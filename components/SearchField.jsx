@@ -1,10 +1,18 @@
 import React from "react";
 import { useFepsLeft } from "@/contexts/FepsLeftContext";
 import { MagnifyingGlass } from "@phosphor-icons/react";
-import { Sidebar, Wrench, XCircle } from "phosphor-react";
+import { LayoutColumns, Sidebar, Wrench, XCircle } from "phosphor-react";
+import { useLayout } from "@/contexts/LayoutContext";
 
-function SearchField({ menuOpen, filterOpen, setFilterOpen, setViewMode }) {
+function SearchField({
+  menuOpen,
+  filterOpen,
+  setFilterOpen,
+  setViewMode,
+  toggleSidebar,
+}) {
   const { selectedFepLeft, setSelectedFepLeft } = useFepsLeft();
+  const { setLayoutConfig } = useLayout();
 
   return (
     <div className={`mb-3 flex h-full items-center justify-between gap-4`}>
@@ -74,15 +82,47 @@ function SearchField({ menuOpen, filterOpen, setFilterOpen, setViewMode }) {
       </div>
 
       <div className="absolute right-5 z-20 flex cursor-pointer items-center justify-items-center gap-4">
+        {/* Layout Button */}
+        <div className="dropdown dropdown-end">
+          <div
+            tabIndex={0}
+            role="button"
+            className="btn btn-ghost btn-circle btn-sm"
+          >
+            <LayoutColumns size={20} className="text-base-content/60" />
+          </div>
+          <ul className="dropdown-content menu bg-base-100 rounded-box z-[999] w-52 p-2 shadow">
+            <li>
+              <a onClick={() => setLayoutConfig("DEFAULT")}>
+                Default Layout (15/35/50)
+              </a>
+            </li>
+            <li>
+              <a onClick={() => setLayoutConfig("NO_SIDEBAR")}>
+                No Sidebar (0/50/50)
+              </a>
+            </li>
+            <li>
+              <a onClick={() => setLayoutConfig("TABLE_FOCUS")}>
+                Table Focus (0/70/30)
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        {/* Filter Toggle */}
         <Wrench
           size={25}
           className={`${filterOpen ? "text-success" : "text-base-content/30"}`}
           onClick={() => setFilterOpen(!filterOpen)}
         />
+
+        {/* Sidebar Toggle */}
         <Sidebar
           className={`${!selectedFepLeft.menuOpen ? "text-success" : "text-base-content/30"}`}
           size={25}
           onClick={() => {
+            toggleSidebar();
             setSelectedFepLeft((prevState) => {
               return { ...prevState, menuOpen: !prevState.menuOpen };
             });
