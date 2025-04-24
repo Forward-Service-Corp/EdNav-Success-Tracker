@@ -17,3 +17,5 @@ const meta: Meta<typeof ClientsTable> = {
 
 export default meta;
 type Story = StoryObj<typeof ClientsTable>;
+
+export const Default: Story = {};
