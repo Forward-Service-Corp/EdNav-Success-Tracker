@@ -1,5 +1,5 @@
-import { type NextRequest, NextResponse } from "next/server"
-import { getCollection } from "@/lib/mongodb"
+import { type NextRequest, NextResponse } from 'next/server';
+import { getCollection } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 
 export async function POST(request: NextRequest) {
@@ -11,13 +11,13 @@ export async function POST(request: NextRequest) {
     const clientsCollection = await getCollection("clients")
     // const actionsCollection = await getCollection("actions")
     // @ts-ignore
-    const query = { _id: new ObjectId(clientId) }
+    const query = { _id: ObjectId.createFromBase64(clientId) };
 
     const user = await clientsCollection.findOne(query)
     let dataRes
     if (user) {
         user.trackable = body.trackable
-        dataRes = await clientsCollection.updateOne({_id: clientId ? new ObjectId(clientId) : undefined}, { $set: { trackable: body.trackable }})
+      dataRes = await clientsCollection.updateOne({ _id: clientId ? ObjectId.createFromBase64(clientId) : undefined }, { $set: { trackable: body.trackable } });
     }
     if (body.trackable?.items?.some((item: { name: string; completed: boolean }) => item.name.toLowerCase() === "orientation" && item.completed)) {
       dataRes = await clientsCollection.updateOne(

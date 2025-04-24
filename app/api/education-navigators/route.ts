@@ -1,6 +1,6 @@
-import { getCollection } from "@/lib/mongodb";
-import { ObjectId } from "mongodb";
-import { NextResponse } from "next/server";
+import { getCollection } from '@/lib/mongodb';
+import { ObjectId } from 'mongodb';
+import { NextResponse } from 'next/server';
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
@@ -14,7 +14,7 @@ export async function POST(request: Request) {
   const body = await request.json(); // body.item = item to toggle
   try {
     const users = await getCollection("users");
-    const navObjectId = new ObjectId(body.navigator);
+    const navObjectId = ObjectId.createFromBase64(body.navigator);
     const navigator = await users.findOne({ _id: navObjectId });
 
     if (!navigator)

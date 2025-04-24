@@ -1,12 +1,12 @@
-import {NextRequest, NextResponse} from "next/server"
-import { getCollection } from "@/lib/mongodb"
-import {ObjectId} from "mongodb";
+import { NextRequest, NextResponse } from 'next/server';
+import { getCollection } from '@/lib/mongodb';
+import { ObjectId } from 'mongodb';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     const collection = await getCollection("clients")
-    const user = await collection.updateOne({_id: new ObjectId(body._id)}, { $set: { "orientation.completedDate": body.completedDate }})
+    const user = await collection.updateOne({ _id: ObjectId.createFromBase64(body._id) }, { $set: { 'orientation.completedDate': body.completedDate } });
     if (!user) {
         throw new Error("User not found");
     }

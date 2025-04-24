@@ -12,7 +12,7 @@ export async function GET(request) {
     if (navigator) {
       clients = await collection.find({navigator: navigator}).toArray()
     } else if (clientId) {
-      clients = await collection.findOne({ _id: new ObjectId(clientId.toString()) });
+      clients = await collection.findOne({ _id: ObjectId.createFromBase64(clientId.toString()) });
     } else if (grouped === "true") {
       clients = await collection.aggregate([
         // { $match: { navigator: nav } },
@@ -47,7 +47,7 @@ export async function POST(request) {
       const { _id, ...updateData } = body;
 
       const result = await collection.updateOne(
-          { _id: new ObjectId(id) },
+        { _id: ObjectId.createFromBase64(id) },
           { $set: updateData }
       );
 

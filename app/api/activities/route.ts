@@ -1,6 +1,6 @@
-import { type NextRequest, NextResponse } from "next/server";
-import { getCollection } from "@/lib/mongodb";
-import { ObjectId } from "mongodb";
+import { type NextRequest, NextResponse } from 'next/server';
+import { getCollection } from '@/lib/mongodb';
+import { ObjectId } from 'mongodb';
 
 export async function GET(request: NextRequest) {
   const url = new URL(request.url);
@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
 
         // Convert string ID to ObjectId if needed
         const clientObjectId =
-          typeof clientId === "string" ? new ObjectId(clientId) : clientId;
+          typeof clientId === 'string' ? ObjectId.createFromBase64(clientId) : clientId;
 
         // Find the client
         const client = await clientsCollection.findOne({ _id: clientObjectId });
@@ -131,13 +131,13 @@ export async function POST(request: NextRequest) {
       try {
         const clientId = body.note.clientId;
         const client = await clientsCollection.findOne({
-          _id: new ObjectId(clientId),
+          _id: ObjectId.createFromBase64(clientId)
         });
 
         if (client) {
           await notesCollection.insertOne(body.note);
           await clientsCollection.updateOne(
-            { _id: new ObjectId(clientId) },
+            { _id: ObjectId.createFromBase64(clientId) },
             { $set: { lastActivity: new Date().toISOString() } },
           );
 
@@ -147,10 +147,10 @@ export async function POST(request: NextRequest) {
             .sort({ createdAt: -1 })
             .toArray();
           const activities = await actionsCollection
-            .find({ _id: new ObjectId(clientId) })
+            .find({ _id: ObjectId.createFromBase64(clientId) })
             .toArray();
           const comments = commentsCollection.find({
-            _id: new ObjectId(clientId),
+            _id: ObjectId.createFromBase64(clientId)
           });
 
           return NextResponse.json(
@@ -192,7 +192,7 @@ export async function POST(request: NextRequest) {
 
         // Convert string ID to ObjectId if needed
         const clientObjectId =
-          typeof clientId === "string" ? new ObjectId(clientId) : clientId;
+          typeof clientId === 'string' ? ObjectId.createFromBase64(clientId) : clientId;
 
         // Find the client
         const client = await clientsCollection.findOne({ _id: clientObjectId });
@@ -258,11 +258,11 @@ export async function POST(request: NextRequest) {
       body.path?.includes("inactive")
     ) {
       const [client] = await Promise.all([
-        clientsCollection.findOne({ _id: new ObjectId(body.clientId) }),
+        clientsCollection.findOne({ _id: ObjectId.createFromBase64(body.clientId) })
       ]);
       if (client && client.group.toString().toLocaleLowerCase() === "youth") {
         await clientsCollection.updateOne(
-          { _id: new ObjectId(body.clientId) },
+          { _id: ObjectId.createFromBase64(body.clientId) },
           {
             $set: {
               clientStatus: "graduated",
@@ -277,7 +277,7 @@ export async function POST(request: NextRequest) {
       }
       if (client && client.group.toString().toLocaleLowerCase() === "adult") {
         await clientsCollection.updateOne(
-          { _id: new ObjectId(body.clientId) },
+          { _id: ObjectId.createFromBase64(body.clientId) },
           {
             $set: {
               clientStatus: "inactive",
@@ -293,11 +293,11 @@ export async function POST(request: NextRequest) {
     }
     if (body.path?.includes("enrolled in")) {
       const client = await clientsCollection.findOne({
-        _id: new ObjectId(body.clientId),
+        _id: ObjectId.createFromBase64(body.clientId)
       });
       if (client) {
         await clientsCollection.updateOne(
-          { _id: new ObjectId(body.clientId) },
+          { _id: ObjectId.createFromBase64(body.clientId) },
           {
             $set: {
               clientStatus: "active",
@@ -311,7 +311,7 @@ export async function POST(request: NextRequest) {
         );
       }
     }
-    // Check if the activity should update client status
+    // Check if the activity should update the client status
     if (body.data && body.data.updateClientStatus) {
       const clientId = body.data.clientId || body.clientId;
       const newStatus = body.data.updateClientStatus;
@@ -320,7 +320,7 @@ export async function POST(request: NextRequest) {
         try {
           // Update client status
           const clientObjectId =
-            typeof clientId === "string" ? new ObjectId(clientId) : clientId;
+            typeof clientId === 'string' ? ObjectId.createFromBase64(clientId) : clientId;
           await clientsCollection.updateOne(
             { _id: clientObjectId },
             {
@@ -339,7 +339,7 @@ export async function POST(request: NextRequest) {
         }
       }
     }
-    const query = { _id: new ObjectId(body.clientId) };
+    const query = { _id: ObjectId.createFromBase64(body.clientId) };
     let user;
     user = await clientsCollection.updateOne(query, {
       $set: { lastActivity: new Date().toISOString() },
@@ -407,10 +407,10 @@ export async function POST(request: NextRequest) {
       .sort({ createdAt: -1 })
       .toArray();
     const wholeUser = await clientsCollection.findOne({
-      _id: new ObjectId(body.clientId),
+      _id: ObjectId.createFromBase64(body.clientId)
     });
 
-    // Add the _id to the body object for consistent return
+    // Add the _id to the body object for a consistent return
     const savedActivity = {
       ...body,
       _id: result.insertedId,

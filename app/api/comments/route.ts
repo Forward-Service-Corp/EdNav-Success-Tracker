@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getCollection } from "@/lib/mongodb";
-import { ObjectId } from "mongodb";
+import { NextRequest, NextResponse } from 'next/server';
+import { getCollection } from '@/lib/mongodb';
+import { ObjectId } from 'mongodb';
 
 // GET all comments
 export async function GET(request: NextRequest) {
@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
     // Update client's last activity
     try {
       // Convert string ID to ObjectId
-      const clientObjectId = new ObjectId(commentData.clientId);
+      const clientObjectId = ObjectId.createFromBase64(commentData.clientId);
 
       await clientsCollection.updateOne(
         { _id: clientObjectId },

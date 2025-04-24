@@ -17,7 +17,7 @@ export default function ActivityModal({ open, setOpen, onSuccess }) {
       setQuestions(cleanedQuestions);
     } catch (error) {
       console.error("Error fetching questions:", error);
-      // Set default empty structure if questions can't be loaded
+      // Set the default empty structure if questions can't be loaded
       cleanedQuestions = { adult: {}, youth: {} };
       setQuestions(cleanedQuestions);
     }
@@ -25,7 +25,7 @@ export default function ActivityModal({ open, setOpen, onSuccess }) {
   };
 
   useEffect(() => {
-    getQuestions();
+    getQuestions().then();
   }, []);
 
   // When an activity is successfully added, pass it to parent components
@@ -47,7 +47,7 @@ export default function ActivityModal({ open, setOpen, onSuccess }) {
         const activityData = result.activity || result.data || result;
 
         // Add directly via API with optimistic update built in
-        window.addActivitySimplified(activityData);
+        window.addActivitySimplified(activityData).then();
       }
       // Fall back to the original approach if simplified is not available
       else if (typeof window !== 'undefined' && window.addActivityToFeed) {
@@ -78,7 +78,7 @@ export default function ActivityModal({ open, setOpen, onSuccess }) {
 
           window.optimisticallyAddActivity(optimisticActivity);
         }
-        // Otherwise use original approach
+        // Otherwise use the original approach
         else {
           window.addActivityToFeed(activityData);
         }

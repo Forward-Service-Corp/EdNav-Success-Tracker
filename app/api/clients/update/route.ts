@@ -17,11 +17,11 @@ export async function POST(request: NextRequest) {
     }
     const id = body._id.toString();
     const collection = await getCollection('clients');
-    const userToUpdate = await collection.updateOne({ _id: new ObjectId(id) }, { $set: body.data });
+    const userToUpdate = await collection.updateOne({ _id: ObjectId.createFromBase64(id) }, { $set: body.data });
     if (!userToUpdate) {
       throw new Error('Client not found');
     }
-    const user = await collection.findOne({ _id: new ObjectId(id) });
+    const user = await collection.findOne({ _id: ObjectId.createFromBase64(id) });
     return NextResponse.json({ message: 'Client added successfully', user }, { status: 201 });
   } catch (error) {
     console.error('Error adding note:', error);

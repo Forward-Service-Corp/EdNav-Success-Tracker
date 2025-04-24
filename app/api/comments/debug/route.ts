@@ -4,7 +4,7 @@ import { getCollection } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 
 /**
- * GET handler for comments debugging
+ * GET handler for comment debugging
  * This endpoint provides detailed information about the comments system state
  * and is intended for debugging purposes only.
  */
@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
         if (clientId) {
           result.clientId = clientId;
 
-          // Check in string format
+          // Check in a string format
           const stringFormatCount = await commentsCollection.countDocuments({ clientId });
           result.clientComments = {
             stringFormat: stringFormatCount
@@ -45,10 +45,9 @@ export async function GET(request: NextRequest) {
           // Check in ObjectId format if valid
           if (ObjectId.isValid(clientId)) {
             try {
-              const objectIdFormatCount = await commentsCollection.countDocuments({
-                clientId: new ObjectId(clientId)
+              result.clientComments.objectIdFormat = await commentsCollection.countDocuments({
+                clientId: ObjectId.createFromBase64(clientId)
               });
-              result.clientComments.objectIdFormat = objectIdFormatCount;
             } catch (error) {
               result.clientComments.objectIdFormat = 'error';
             }
@@ -110,7 +109,7 @@ export async function GET(request: NextRequest) {
           let parentFound = false;
 
           try {
-            // Try as string
+            // Try as a string
             const activityMatch = await activitiesCollection.findOne({ _id: pid });
             const noteMatch = await notesCollection.findOne({ _id: pid });
 
@@ -120,7 +119,7 @@ export async function GET(request: NextRequest) {
 
             // Try as ObjectId if valid
             if (!parentFound && ObjectId.isValid(pid)) {
-              const objId = new ObjectId(pid);
+              const objId = ObjectId.createFromBase64(pid);
               const activityMatchObj = await activitiesCollection.findOne({ _id: objId });
               const noteMatchObj = await notesCollection.findOne({ _id: objId });
 
