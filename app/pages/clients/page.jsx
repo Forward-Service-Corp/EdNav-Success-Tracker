@@ -10,7 +10,8 @@ import NavigatorSelector from '../../../components/NavigatorSelector';
 import { useClients } from '../../../contexts/ClientsContext';
 import { useLoading } from '../../../contexts/LoadingContext';
 import ThemeSwitcher from '../../../components/ThemeSwitcher';
-import StorageCleanupTool from '../../../components/StorageCleanupTool.jsx';
+
+// import StorageCleanupTool from '../../../components/StorageCleanupTool'
 
 function ClientsPage() {
   const { setLoading } = useLoading(false);
@@ -68,7 +69,7 @@ function ClientsPage() {
       </div>
 
       {/* Storage Cleanup Tool */}
-      <StorageCleanupTool />
+      {/*<StorageCleanupTool />*/}
     </div>
   );
 }

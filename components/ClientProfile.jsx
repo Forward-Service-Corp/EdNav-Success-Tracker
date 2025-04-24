@@ -7,7 +7,6 @@ import ClientProfilePersonalOrganization from '../components/ClientProfilePerson
 import ClientProfileTABEOrientation from '../components/ClientProfileTABEOrientation';
 import { useClients } from '@/contexts/ClientsContext';
 import ActivityModal from '../components/ActivityModal';
-import SimplifiedActivityManager from './SimplifiedActivityManager.jsx';
 
 export default function ClientProfile({ setOpenPanel }) {
   const [isMounted, setIsMounted] = useState(false);
@@ -113,7 +112,7 @@ export default function ClientProfile({ setOpenPanel }) {
       />
 
       {/* Simplified Activity Manager */}
-      <SimplifiedActivityManager />
+      {/*<SimplifiedActivityManager />*/}
     </div>
   );
 }
