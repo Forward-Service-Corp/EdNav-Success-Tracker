@@ -205,11 +205,17 @@ export async function POST(request: NextRequest) {
 
         // Create the comment document
         const commentDoc = {
-          commentContent: body.commentContent,
-          commentAuthor: body.commentAuthor,
-          createdAt: body.createdAt || new Date().toISOString(),
+          commentContent: body.commentContent || body.comment.commentContent,
+          commentAuthor: body.commentAuthor || body.comment.commentAuthor,
+          createdAt:
+            body.createdAt ||
+            body.comment.createdAt ||
+            new Date().toISOString(),
           clientId: clientId,
           isComment: true,
+          // Add parent reference
+          parentId: body.comment.parentId || null,
+          parentType: body.comment.parentType || null,
         };
 
         // Insert the comment
@@ -229,7 +235,7 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json(
           {
-            message: "Note added successfully",
+            message: "Comment added successfully",
             insertedId: insertResult.insertedId,
             client,
             comments,
@@ -305,29 +311,32 @@ export async function POST(request: NextRequest) {
         );
       }
     }
-    if (body.path?.includes("graduated") || body.path?.includes("inactive")) {
-      const client = await clientsCollection.findOne({
-        _id: new ObjectId(body.clientId),
-      });
-      if (client) {
-        await clientsCollection.updateOne(
-          { _id: new ObjectId(body.clientId) },
-          {
-            $set: {
-              clientStatus: "inactive",
-              lastActivity: new Date().toISOString(),
+    // Check if the activity should update client status
+    if (body.data && body.data.updateClientStatus) {
+      const clientId = body.data.clientId || body.clientId;
+      const newStatus = body.data.updateClientStatus;
+
+      if (clientId) {
+        try {
+          // Update client status
+          const clientObjectId =
+            typeof clientId === "string" ? new ObjectId(clientId) : clientId;
+          await clientsCollection.updateOne(
+            { _id: clientObjectId },
+            {
+              $set: {
+                clientStatus: newStatus,
+                lastActivity: new Date().toISOString(),
+              },
             },
-          },
-        );
+          );
 
-        const clientActions = await actionsCollection
-          .find({ clientId: new ObjectId(body.clientId) })
-          .toArray();
-
-        return NextResponse.json(
-          { message: "Action added successfully", client },
-          { status: 201 },
-        );
+          console.log(
+            `Client status updated to ${newStatus} for client ${clientId}`,
+          );
+        } catch (error) {
+          console.error("Error updating client status:", error);
+        }
       }
     }
     const query = { _id: new ObjectId(body.clientId) };
@@ -401,14 +410,28 @@ export async function POST(request: NextRequest) {
       _id: new ObjectId(body.clientId),
     });
 
+    // Add the _id to the body object for consistent return
+    const savedActivity = {
+      ...body,
+      _id: result.insertedId,
+    };
+
+    console.log("API response:", {
+      message: "Action added successfully",
+      activity: savedActivity,
+    });
+
     return NextResponse.json(
       {
         message: "Action added successfully",
         wholeUser,
         userActions,
         comments,
-        _id: result,
+        _id: result.insertedId,
         user,
+        activity: savedActivity,
+        // Also include the activity data directly for easier access
+        data: savedActivity,
       },
       { status: 201 },
     );

@@ -1,10 +1,17 @@
-import React, { createContext, Dispatch, ReactNode, SetStateAction, useContext, useState } from 'react';
+import React, {
+  createContext,
+  Dispatch,
+  ReactNode,
+  SetStateAction,
+  useContext,
+  useState,
+} from "react";
 
 type Notification = {
   type: string;
   message: string;
   active: boolean;
-}
+};
 
 type NotificationContextType = {
   notify: Notification | null;
@@ -13,16 +20,13 @@ type NotificationContextType = {
 
 const NotificationContext = createContext<NotificationContextType>({
   notify: null,
-  setNotification: () => {
-  }
+  setNotification: () => {},
 });
-
 
 export const NotificationProvider = ({ children }: { children: ReactNode }) => {
   const [notify, setNotification] = useState<Notification | null>(null);
 
   return (
-    // @ts-ignore
     <NotificationContext.Provider value={{ notify, setNotification }}>
       {children}
     </NotificationContext.Provider>
@@ -32,9 +36,10 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
 // Custom hook for consuming context
 export const useNotification = () => {
   const context = useContext(NotificationContext);
-  console.log(context);
   if (!context) {
-    throw new Error('useNotification must be used within a useNotification');
+    throw new Error(
+      "useNotification must be used within a NotificationProvider",
+    );
   }
   return context;
 };

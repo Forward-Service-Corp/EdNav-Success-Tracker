@@ -8,23 +8,57 @@ import {
 } from "@headlessui/react";
 import ActivityDynamicSelect from "./ActivityDynamicSelect";
 
-export default function ActivityModal({ open, setOpen }) {
+export default function ActivityModal({ open, setOpen, onSuccess }) {
   const [questions, setQuestions] = useState([]);
 
   const getQuestions = async () => {
     let cleanedQuestions = {};
-    const response = await fetch("/api/questions");
-    const questions = await response.json();
-    const { adult, youth } = await questions;
-    cleanedQuestions.adult = adult;
-    cleanedQuestions.youth = youth;
-    setQuestions(cleanedQuestions);
+    try {
+      const response = await fetch("/api/questions");
+      const questions = await response.json();
+      const { adult, youth } = await questions;
+      cleanedQuestions.adult = adult;
+      cleanedQuestions.youth = youth;
+      setQuestions(cleanedQuestions);
+    } catch (error) {
+      console.error("Error fetching questions:", error);
+      // Set default empty structure if questions can't be loaded
+      cleanedQuestions = { adult: {}, youth: {} };
+      setQuestions(cleanedQuestions);
+    }
     return cleanedQuestions;
   };
 
   useEffect(() => {
-    getQuestions().then();
+    getQuestions();
   }, []);
+
+  // When an activity is successfully added, pass it to parent components
+  const handleActivitySuccess = (result) => {
+    // Add the activity directly to the feed
+    if (window.addActivityToFeed && result) {
+      // Create a properly formatted activity for the feed
+      const activityForFeed = {
+        ...result,
+        _id: result._id || result.insertedId || `temp-${Date.now()}`,
+        type: "activity",
+        date: new Date(result.timestamp || result.createdAt || Date.now()),
+        statement:
+          result.statement || result.data?.statement || "Activity recorded",
+      };
+
+      // Add it to the feed
+      window.addActivityToFeed(activityForFeed);
+    }
+
+    // Call the provided onSuccess callback
+    if (onSuccess) {
+      onSuccess(result);
+    }
+
+    // Close the modal
+    setOpen("");
+  };
 
   return (
     <Dialog
@@ -53,6 +87,7 @@ export default function ActivityModal({ open, setOpen }) {
                 <ActivityDynamicSelect
                   setOpen={setOpen}
                   questions={questions}
+                  onSuccess={handleActivitySuccess}
                 />
               </div>
             </div>

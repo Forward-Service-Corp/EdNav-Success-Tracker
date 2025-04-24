@@ -1,226 +1,121 @@
-// app/api/comments/route.ts
-import { NextRequest, NextResponse } from 'next/server';
-import { getCollection } from '@/lib/mongodb';
-import { ObjectId } from 'mongodb';
+import { NextRequest, NextResponse } from "next/server";
+import { getCollection } from "@/lib/mongodb";
+import { ObjectId } from "mongodb";
 
+// GET all comments
 export async function GET(request: NextRequest) {
-  console.log('==== COMMENTS GET REQUEST STARTED ====');
   const url = new URL(request.url);
-  const clientId = url.searchParams.get('clientId');
+  const clientId = url.searchParams.get("clientId") || "";
+  const parentId = url.searchParams.get("parentId") || "";
+  const parentType = url.searchParams.get("parentType") || "";
 
-  if (!clientId) {
-    console.error('Missing clientId parameter in GET request');
-    return NextResponse.json({ error: 'Client ID is required' }, { status: 400 });
-  }
-
-  console.log('Fetching comments for client:', clientId);
-
+  let comments: any[] = [];
   try {
-    const commentsCollection = await getCollection('comments');
+    const collection = await getCollection("comments");
 
-    // Try both as string and as ObjectId if possible
-    let query: any = { clientId };
+    let query: any = {};
 
-    // If clientId looks like an ObjectId, create a query that matches either format
-    if (ObjectId.isValid(clientId)) {
-      console.log('clientId is a valid ObjectId format, checking both formats');
-      query = {
-        $or: [
-          { clientId },
-          { clientId: new ObjectId(clientId) }
-        ]
-      };
-    } else {
-      console.log('clientId is not a valid ObjectId format, using as string');
+    // Filter by clientId if provided
+    if (clientId) {
+      query.clientId = clientId;
     }
 
-    console.log('Using query:', JSON.stringify(query));
-
-    // Execute the query
-    const comments = await commentsCollection
-      .find(query)
-      .sort({ createdAt: -1 })
-      .toArray();
-
-    console.log(`Found ${comments.length} comments for client ${clientId}`);
-
-    // Debug output for first few comments
-    if (comments.length > 0) {
-      console.log('First comment example:', {
-        _id: comments[0]._id,
-        parentId: comments[0].parentId,
-        commentText: comments[0].commentText?.substring(0, 20) + '...'
-      });
+    // Filter by parentId if provided
+    if (parentId) {
+      query.parentId = parentId;
     }
 
-    console.log('==== COMMENTS GET REQUEST COMPLETED SUCCESSFULLY ====');
-    return NextResponse.json(comments);
+    // Filter by parentType if provided
+    if (parentType) {
+      query.parentType = parentType;
+    }
+
+    comments = await collection.find(query).sort({ createdAt: -1 }).toArray();
+
+    return NextResponse.json(comments, { status: 200 });
   } catch (error) {
-    console.error('Error fetching comments:', error);
-    console.log('==== COMMENTS GET REQUEST FAILED ====');
+    console.error("Error fetching comments:", error);
     return NextResponse.json(
-      { error: 'Failed to fetch comments', details: error instanceof Error ? error.message : 'Unknown error' },
-      { status: 500 }
+      { error: "Failed to fetch comments" },
+      { status: 500 },
     );
   }
 }
 
-
+// POST to add a new comment
 export async function POST(request: NextRequest) {
-  console.log('==== COMMENT POST REQUEST STARTED ====');
   try {
-    // Get request body and log it
-    let body;
-    try {
-      body = await request.json();
-      console.log('Comment POST raw request body:', JSON.stringify(body, null, 2));
-    } catch (parseError) {
-      console.error('Error parsing request body:', parseError);
+    const body = await request.json();
+
+    // Support both a nested 'comment' object and flat structure
+    const commentData = body.comment || body;
+
+    if (!commentData) {
       return NextResponse.json(
-        { error: 'Invalid JSON in request body' },
-        { status: 400 }
+        { error: "Comment data is required" },
+        { status: 400 },
       );
     }
 
-    // Extract and validate fields
-    const { parentId, clientId, commentText, author } = body;
-    console.log('Extracted fields:', {
-      parentId,
-      clientId,
-      commentText: commentText?.substring(0, 20) + (commentText?.length > 20 ? '...' : ''),
-      commentTextLength: commentText?.length || 0,
-      author
-    });
+    const collection = await getCollection("comments");
+    const clientsCollection = await getCollection("clients");
 
-    if (!parentId) {
-      console.error('Missing parentId field');
+    // Ensure required fields are present
+    if (!commentData.commentContent) {
       return NextResponse.json(
-        { error: 'Missing parentId field' },
-        { status: 400 }
+        { error: "Comment content is required" },
+        { status: 400 },
       );
     }
 
-    if (!clientId) {
-      console.error('Missing clientId field');
+    if (!commentData.clientId) {
       return NextResponse.json(
-        { error: 'Missing clientId field' },
-        { status: 400 }
+        { error: "Client ID is required" },
+        { status: 400 },
       );
     }
 
-    if (!commentText) {
-      console.error('Missing commentText field');
-      return NextResponse.json(
-        { error: 'Missing commentText field' },
-        { status: 400 }
-      );
-    }
-
-    // Connect to database and get collection
-    console.log('Getting comments collection...');
-    let commentsCollection;
-    try {
-      commentsCollection = await getCollection('comments');
-      console.log('Successfully connected to comments collection');
-    } catch (dbError) {
-      console.error('Database connection error:', dbError);
-      return NextResponse.json(
-        { error: 'Database connection failed', details: dbError instanceof Error ? dbError.message : 'Unknown error' },
-        { status: 500 }
-      );
-    }
-
-    // Prepare comment object - ensure IDs are handled correctly
-    let formattedParentId = parentId;
-    let formattedClientId = clientId;
-
-    // Try to validate the parent ID
-    try {
-      if (ObjectId.isValid(parentId)) {
-        console.log('parentId is a valid ObjectId format');
-        formattedParentId = parentId;
-      } else {
-        console.log('parentId is not a valid ObjectId, using as string');
-      }
-    } catch (error) {
-      console.warn('Error checking parentId format:', error);
-      // Keep as string if error
-    }
-
-    // Try to validate the client ID
-    try {
-      if (ObjectId.isValid(clientId)) {
-        console.log('clientId is a valid ObjectId format');
-        formattedClientId = clientId;
-      } else {
-        console.log('clientId is not a valid ObjectId, using as string');
-      }
-    } catch (error) {
-      console.warn('Error checking clientId format:', error);
-      // Keep as string if error
-    }
-    
-    const comment = {
-      parentId: formattedParentId,
-      clientId: formattedClientId,
-      commentText,
-      author: author || 'Current User',
-      createdAt: new Date().toISOString()
+    // Prepare the comment object for database insertion
+    const commentToInsert = {
+      ...commentData,
+      createdAt: commentData.createdAt || new Date().toISOString(),
+      isComment: true,
     };
 
-    console.log('Prepared comment object:', JSON.stringify(comment, null, 2));
+    // Make sure clientId is stored as a string for consistent querying
+    if (commentData.clientId) {
+      commentToInsert.clientId = commentData.clientId.toString();
+    }
 
-    // Insert comment
-    let result;
+    const result = await collection.insertOne(commentToInsert);
+
+    // Update client's last activity
     try {
-      console.log('Inserting comment into database...');
-      result = await commentsCollection.insertOne(comment);
-      console.log('Insert operation result:', JSON.stringify(result, null, 2));
-    } catch (insertError) {
-      console.error('Database insert error:', insertError);
-      return NextResponse.json(
-        {
-          error: 'Failed to insert comment',
-          details: insertError instanceof Error ? insertError.message : 'Unknown error'
-        },
-        { status: 500 }
+      // Convert string ID to ObjectId
+      const clientObjectId = new ObjectId(commentData.clientId);
+
+      await clientsCollection.updateOne(
+        { _id: clientObjectId },
+        { $set: { lastActivity: new Date().toISOString() } },
       );
+    } catch (error) {
+      console.error("Error updating client last activity:", error);
+      // Continue even if this fails - it's not critical
     }
-
-    if (!result.acknowledged) {
-      console.error('Insert not acknowledged by database');
-      throw new Error('Database did not acknowledge the insert operation');
-    }
-
-    // Prepare response
-    const insertedComment = {
-      _id: result.insertedId,
-      ...comment
-    };
-
-    console.log('Comment added successfully:', JSON.stringify(insertedComment, null, 2));
-    console.log('==== COMMENT POST REQUEST COMPLETED SUCCESSFULLY ====');
 
     return NextResponse.json(
       {
-        message: 'Comment added successfully',
-        comment: insertedComment
+        message: "Comment added successfully",
+        _id: result.insertedId,
+        comment: commentToInsert,
       },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (error) {
-    console.error('Unhandled error in comments POST handler:', error);
-    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace available');
-    console.log('==== COMMENT POST REQUEST FAILED ====');
-
-    // Send detailed error information
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    console.error("Error adding comment:", error);
     return NextResponse.json(
-      {
-        error: 'Failed to add comment',
-        details: errorMessage
-      },
-      { status: 500 }
+      { error: "Failed to add comment" },
+      { status: 500 },
     );
   }
 }

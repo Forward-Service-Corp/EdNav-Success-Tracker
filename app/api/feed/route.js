@@ -1,7 +1,7 @@
 import { getCollection } from "../../../lib/mongodb";
 import { NextResponse } from "next/server";
 
-export async function GET() {
+export async function GET(request) {
   const url = new URL(request.url);
   const clientId = url.searchParams.get("clientId") || "";
   const activityId = url.searchParams.get("activityId") || "";

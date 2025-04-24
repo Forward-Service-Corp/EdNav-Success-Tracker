@@ -6,6 +6,7 @@ import ClientProfileProgress from "../components/ClientProfileProgress";
 import ClientProfilePersonalOrganization from "../components/ClientProfilePersonalOrganization";
 import ClientProfileTABEOrientation from "../components/ClientProfileTABEOrientation";
 import { useClients } from "../contexts/ClientsContext";
+import ActivityModal from "../components/ActivityModal";
 
 export default function ClientProfile({ setOpenPanel }) {
   const [isMounted, setIsMounted] = useState(false);
@@ -16,12 +17,15 @@ export default function ClientProfile({ setOpenPanel }) {
   const [hasTrackableUpdated, setHasTrackableUpdated] = useState(false);
   const [hasTrackableCopy, setHasTrackableCopy] = useState([]);
   const [updated, setUpdated] = useState(false);
+  const [activityModalOpen, setActivityModalOpen] = useState("");
 
   useEffect(() => {
     setIsMounted(true); // ✅ Mark component as mounted before interacting with localStorage
     if (typeof window !== "undefined") {
       const storedNavigator = localStorage.getItem("navigatorName") || "";
       setSelectedNavigator(storedNavigator);
+      // Make the open modal function available globally
+      window.openActivityModal = () => setActivityModalOpen("activity");
     }
   }, []);
 
@@ -63,6 +67,12 @@ export default function ClientProfile({ setOpenPanel }) {
     setIsMounted(true);
   }, []);
 
+  // Handle activity addition success
+  const handleActivitySuccess = () => {
+    // Refresh activities
+    getActions().then();
+  };
+
   // ✅ Prevent hydration mismatch by rendering only after mount
   if (!isMounted) return null;
 
@@ -93,6 +103,13 @@ export default function ClientProfile({ setOpenPanel }) {
           </div>
         </div>
       </div>
+
+      {/* Activity Modal */}
+      <ActivityModal
+        open={activityModalOpen}
+        setOpen={setActivityModalOpen}
+        onSuccess={handleActivitySuccess}
+      />
     </div>
   );
 }

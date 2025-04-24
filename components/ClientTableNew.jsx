@@ -14,7 +14,7 @@ export default function ClientTableNew({
   menuOpen,
   setMenuOpen,
   toggleSidebar,
-  setOpenPanel, // added
+  setOpenPanel,
 }) {
   const { clientList } = useClientList();
   const { selectedNavigator } = useNavigators();
@@ -22,7 +22,7 @@ export default function ClientTableNew({
   const [isMounted, setIsMounted] = useState(false);
   const [viewMode, setViewMode] = useState(null);
   const [filterOpen, setFilterOpen] = useState(false);
-  const [, setStatusCollapse] = useState([]);
+  const [statusCollapse, setStatusCollapse] = useState([]);
   const { setEditing } = useEditing();
   const { selectedClient, setSelectedClient } = useClients({});
 
@@ -105,8 +105,53 @@ export default function ClientTableNew({
     setIsMounted(true);
   }, []);
 
-  // ✅ Prevent hydration mismatch by rendering only after mount
+  // Prevent hydration mismatch by rendering only after mount
   if (!isMounted) return null;
+
+  const handleClientSelect = (person) => {
+    setEditing("client");
+
+    if (selectedClient?._id === person._id) {
+      setSelectedClient(null);
+      setOpenPanel(null);
+    } else {
+      // Get the latest version of the client in case status was updated
+      fetchLatestClientData(person._id)
+        .then((updatedClient) => {
+          // If we got updated data, use it
+          if (updatedClient) {
+            setSelectedClient(updatedClient);
+          } else {
+            // Otherwise use the person data we already have
+            setSelectedClient(person);
+          }
+          setOpenPanel("profile");
+          handleCollapseChange("Active");
+        })
+        .catch((error) => {
+          console.error("Error fetching updated client data:", error);
+          // Fall back to using the person data we already have
+          setSelectedClient(person);
+          setOpenPanel("profile");
+          handleCollapseChange("Active");
+        });
+    }
+  };
+
+  // Function to fetch the latest client data
+  const fetchLatestClientData = async (clientId) => {
+    try {
+      const response = await fetch(`/api/clients/${clientId}`);
+      if (!response.ok) {
+        throw new Error(`Error fetching client: ${response.status}`);
+      }
+      const clientData = await response.json();
+      return clientData;
+    } catch (error) {
+      console.error("Error fetching client data:", error);
+      return null;
+    }
+  };
 
   return (
     <div className={`no-scrollbar relative z-0 h-full w-full`}>
@@ -130,23 +175,12 @@ export default function ClientTableNew({
         <div className="no-scrollbar w-full overflow-y-scroll">
           <table className="no-scrollbar sticky top-80 z-10 table w-full overflow-y-scroll">
             <tbody className="block h-full min-h-[600px] w-full overflow-y-auto">
-              {clientsToShow &&
-                clientsToShow?.map((person, i) => (
+              {Array.isArray(clientsToShow) &&
+                clientsToShow.map((person, i) => (
                   <tr
                     key={i}
                     className={`w-full cursor-pointer transition-colors duration-300 ${selectedClient?._id === person._id ? getBGColor(person.clientStatus.toLowerCase()) + getBadgeColor("white") : ""}`}
-                    onClick={() => {
-                      setEditing("client");
-                      setSelectedClient(person);
-                      setOpenPanel("profile");
-                      handleCollapseChange("Active");
-                      if (selectedClient?._id === person._id) {
-                        setSelectedClient(null);
-                        setOpenPanel(null);
-                      } else {
-                        setSelectedClient(person);
-                      }
-                    }}
+                    onClick={() => handleClientSelect(person)}
                   >
                     <td className={``}>
                       <div className="sticky top-80 z-20 flex items-center gap-3">
@@ -183,7 +217,8 @@ export default function ClientTableNew({
                     <td>{person.county}</td>
                     <th>
                       <button
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.stopPropagation(); // prevent row click
                           setEditing("client");
                           setSelectedClient(person);
                           setOpenPanel("profile");

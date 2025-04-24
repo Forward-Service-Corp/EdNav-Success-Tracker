@@ -17,6 +17,37 @@ const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
   const [trackable, setTrackable] = useState(null);
   const [, setTextInput] = useState("");
 
+  // Helper function to check if a path should trigger status update
+  const shouldUpdateClientStatus = (path) => {
+    // Convert path array to a single lowercase string for easier checking
+    const pathString = path.join(" ").toLowerCase();
+
+    // Check for keywords that should trigger a status update
+    return (
+      pathString.includes("graduated") ||
+      pathString.includes("completion") ||
+      pathString.includes("inactive")
+    );
+  };
+
+  // Helper function to determine the new status based on the path
+  const determineNewStatus = (path) => {
+    const pathString = path.join(" ").toLowerCase();
+
+    if (pathString.includes("graduated")) {
+      return "graduated";
+    } else if (pathString.includes("inactive")) {
+      return "inactive";
+    } else if (pathString.includes("completion")) {
+      // Determine whether to use graduated or inactive based on client group
+      return selectedClient?.group?.toLowerCase() === "youth"
+        ? "graduated"
+        : "inactive";
+    }
+
+    return null;
+  };
+
   // Function to update only trackable items without overwriting an entire client
   const updateClientTrackableItems = (
     clientToUpdate,
@@ -89,7 +120,52 @@ const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
       );
     }
 
+    // Check if this activity should update client status
+    const shouldUpdateStatus = shouldUpdateClientStatus(
+      multi ? selectedPath : newPath,
+    );
+    if (shouldUpdateStatus) {
+      // Determine new status
+      const newStatus = determineNewStatus(multi ? selectedPath : newPath);
+
+      // If we have a valid new status, add it to the data
+      if (newStatus) {
+        data.updateClientStatus = newStatus;
+
+        // Optimistically update client status in UI
+        if (selectedClient) {
+          // Create a new client object with updated status
+          const updatedClient = {
+            ...selectedClient,
+            clientStatus: newStatus,
+          };
+
+          // Update client in context
+          setSelectedClient(updatedClient);
+        }
+      }
+    }
+
     try {
+      // Optimistically add activity to the feed
+      // Create a properly formatted activity for local display
+      const tempId = `temp-${Date.now()}`;
+      const optimisticActivity = {
+        ...data,
+        _id: tempId,
+        type: "activity",
+        navigator: data.navigator || selectedClient.navigator,
+        statement: data.statement,
+        timestamp: new Date().toISOString(),
+        createdAt: new Date().toISOString(),
+        date: new Date(),
+      };
+
+      // Add to global feed if function exists
+      if (typeof window !== "undefined" && window.addActivityToFeed) {
+        window.addActivityToFeed(optimisticActivity);
+      }
+
       // Use relative URL instead of hardcoded localhost
       const response = await fetch("/api/activities", {
         method: "POST",
@@ -102,12 +178,15 @@ const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
         dataType: "json",
       });
 
+      // We no longer try to update the temporary activity
+      // since it might cause issues with display
+
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
       }
 
       const result = await response.json();
-      console.log(result);
+
       // Notify parent of success
       if (onSuccess) onSuccess(result);
 
@@ -135,6 +214,12 @@ const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
       return result;
     } catch (error) {
       console.error("Error saving activity:", error);
+
+      // If we failed, try to remove the optimistic update
+      if (typeof window !== "undefined" && window.removeActivityFromFeed) {
+        window.removeActivityFromFeed(`temp-${Date.now()}`);
+      }
+
       return null;
     }
   };
@@ -235,6 +320,11 @@ const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
             activities: [...selectedActivity.activities, result],
           });
         }
+
+        // Call onSuccess callback if provided
+        if (onSuccess && result) {
+          onSuccess(result.activity || result);
+        }
       } catch (error) {
         console.error("Error saving activity:", error);
       }
@@ -271,11 +361,16 @@ const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
 
   const handleMultiSelectAdvance = async () => {
     // Make sure we're sending it true to indicate this is a multi-select submission
-    await saveSelectionToMongoDB(selectedPath, true);
+    const result = await saveSelectionToMongoDB(selectedPath, true);
 
     setMultiSelectOptions(null);
     setCurrentOptions([]);
     setFinalSelection("Completed Multi-Select");
+
+    // Call onSuccess callback if provided
+    if (onSuccess && result) {
+      onSuccess(result.activity || result);
+    }
   };
 
   const showDatePicker = selectedPath.length === 1; // Show DatePicker only at the beginning
