@@ -1,10 +1,10 @@
 "use client";
-import React, { useCallback, useEffect, useState } from "react";
-import { useClients } from "@/contexts/ClientsContext";
-import { useActivities } from "@/contexts/ActivityContext";
-import { format } from "date-fns";
-import { useNotification } from "@/contexts/NotificationContext";
-import { useNavigators } from "@/contexts/NavigatorsContext";
+import React, { useCallback, useEffect, useState } from 'react';
+import { useClients } from '@/contexts/ClientsContext';
+import { useActivities } from '@/contexts/ActivityContext';
+import { format } from 'date-fns';
+import { useNotification } from '@/contexts/NotificationContext';
+import { useNavigators } from '@/contexts/NavigatorsContext';
 
 export default function CombinedFeed() {
   const { selectedClient } = useClients();
@@ -25,16 +25,36 @@ export default function CombinedFeed() {
   // Add activity directly to the feed (for optimistic updates)
   const addActivityToFeed = useCallback(
     (activity) => {
-      if (!activity || !selectedClient) return;
+      if (!activity || !selectedClient) {
+        console.log('Unable to add activity: No activity or no selected client', { activity, selectedClient });
+        return;
+      }
+
+      console.log('Adding activity to feed:', activity);
 
       // Check if this is a replacement for a temporary activity
       if (activity.replace) {
+        console.log(`Replacing temporary activity with ID ${activity.replace}`);
         setActivities((prevActivities) => {
-          return prevActivities.map((a) =>
+          // Find the temporary activity to replace
+          const tempActivity = prevActivities.find(a => a._id === activity.replace);
+
+          if (!tempActivity) {
+            console.log(`Temporary activity with ID ${activity.replace} not found, adding as new`);
+            return [{ ...activity, replace: undefined }, ...prevActivities];
+          }
+
+          console.log(`Found temporary activity to replace:`, tempActivity);
+
+          // Create a new array with the replaced activity
+          const updatedActivities = prevActivities.map((a) =>
             a._id === activity.replace
               ? { ...activity, replace: undefined }
               : a,
           );
+
+          console.log(`Updated activities array:`, updatedActivities);
+          return updatedActivities;
         });
         return;
       }
@@ -45,6 +65,8 @@ export default function CombinedFeed() {
         type: "activity",
         date: new Date(activity.timestamp || activity.createdAt || Date.now()),
       };
+
+      console.log('Formatted activity:', formattedActivity);
 
       // Add to activities state
       setActivities((prevActivities) => {
@@ -57,9 +79,11 @@ export default function CombinedFeed() {
         );
 
         if (exists) {
+          console.log('Activity already exists in feed, not adding duplicate');
           return prevActivities;
         }
 
+        console.log('Adding new activity to state', [formattedActivity, ...prevActivities]);
         return [formattedActivity, ...prevActivities];
       });
     },
@@ -75,22 +99,35 @@ export default function CombinedFeed() {
     );
   }, []);
 
-  // Expose the addActivityToFeed function globally
+  // Create a memoized refresh function
+  const refreshFeed = useCallback(() => {
+    console.log('Manual refresh of feed requested');
+    if (selectedClient && selectedClient._id) {
+      // Always preserve optimistic updates when manually refreshing
+      loadData(true);
+    }
+  }, [selectedClient]);
+
+  // Expose the functions globally
   useEffect(() => {
-    if (typeof window === "undefined") {
+    if (typeof window !== 'undefined') {
+      console.log('Exposing global feed functions');
       window.addActivityToFeed = addActivityToFeed;
       window.removeActivityFromFeed = removeActivityFromFeed;
+      window.refreshActivityFeed = refreshFeed;
     }
 
     return () => {
       if (typeof window !== "undefined") {
+        console.log('Cleaning up global feed functions');
         delete window.addActivityToFeed;
         delete window.removeActivityFromFeed;
+        delete window.refreshActivityFeed;
       }
     };
-  }, [addActivityToFeed, removeActivityFromFeed]);
+  }, [addActivityToFeed, removeActivityFromFeed, refreshFeed]);
 
-  const loadData = async () => {
+  const loadData = async (preserveOptimisticUpdates = true) => {
     // Only load data if there's a selected client
     if (!selectedClient || !selectedClient._id) {
       setActivities([]);
@@ -98,6 +135,17 @@ export default function CombinedFeed() {
       setComments([]);
       setCombinedFeed([]);
       return;
+    }
+
+    // If we're preserving optimistic updates, save the current activities
+    // that start with "temp-" or "modal-" to add them back later
+    let optimisticActivities = [];
+    if (preserveOptimisticUpdates) {
+      optimisticActivities = activities.filter(activity =>
+        activity._id && typeof activity._id === 'string' &&
+        (activity._id.startsWith('temp-') || activity._id.startsWith('modal-'))
+      );
+      console.log('Preserving optimistic activities:', optimisticActivities);
     }
 
     setLoading(true);
@@ -110,6 +158,14 @@ export default function CombinedFeed() {
         throw new Error("Failed to fetch activities");
       }
       const activityData = await activityResponse.json();
+
+      // The API returns data in activityData.data
+      console.log('Fetched activities data structure:', activityData);
+
+      // Extract activities from the response data
+      // The API returns { success: true, data: [] } format
+      const fetchedActivities = activityData.data || [];
+      console.log('Extracted activities array:', fetchedActivities);
 
       // Fetch notes
       const notesResponse = await fetch(
@@ -129,8 +185,45 @@ export default function CombinedFeed() {
         setComments(commentsData || []);
       }
 
-      setActivities(activityData.data || []);
+      // If we're preserving optimistic updates, add them back to the fetched activities
+      if (preserveOptimisticUpdates && optimisticActivities.length > 0) {
+        // Only add back optimistic activities that don't exist in fetched activities
+        // (they might have been saved to the server)
+        const fetchedIds = new Set(fetchedActivities.map(a => a._id?.toString()));
+
+        const activitiesToAdd = optimisticActivities.filter(a => {
+          // If the optimistic activity has a "realId" that's in the fetched data,
+          // it means it's already been saved, so we don't need to add it back
+          if (a.realId && fetchedIds.has(a.realId.toString())) {
+            console.log(`Optimistic activity with realId ${a.realId} already exists in fetched data`);
+            return false;
+          }
+          // If the optimistic activity's ID is in the fetched data,
+          // it means it's already been saved, so we don't need to add it back
+          if (fetchedIds.has(a._id.toString())) {
+            console.log(`Optimistic activity ${a._id} already exists in fetched data`);
+            return false;
+          }
+          // Otherwise, add it back
+          return true;
+        });
+
+        console.log('Adding optimistic activities back to fetched data:', activitiesToAdd);
+
+        // Combine the fetched activities with the optimistic ones
+        const combinedActivities = [...activitiesToAdd, ...fetchedActivities];
+        setActivities(combinedActivities);
+      } else {
+        // If we're not preserving optimistic updates, just set the fetched activities
+        setActivities(fetchedActivities);
+      }
+
       setNotes(notesData || []);
+
+      // Log what we're setting to help debug
+      console.log('Final activities state after combining:', preserveOptimisticUpdates ?
+        [...(optimisticActivities || []), ...fetchedActivities] : fetchedActivities);
+      console.log('Setting notes state:', notesData || []);
     } catch (error) {
       console.error("Error loading feed data:", error);
       setNotification({
@@ -138,30 +231,56 @@ export default function CombinedFeed() {
         message: "Failed to load client feed",
         active: true,
       });
+
+      // If there was an error, ensure we still keep the optimistic activities
+      if (preserveOptimisticUpdates && optimisticActivities.length > 0) {
+        setActivities(prevActivities => {
+          // Keep any existing activities that aren't optimistic updates
+          const nonTempActivities = prevActivities.filter(a =>
+            !(a._id && typeof a._id === 'string' &&
+              (a._id.startsWith('temp-') || a._id.startsWith('modal-')))
+          );
+
+          // Add back the optimistic activities
+          return [...optimisticActivities, ...nonTempActivities];
+        });
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  // Reset state when client changes
+  // Reset state when a client changes
   useEffect(() => {
-    // Clear states when client changes
-    setActivities([]);
-    setNotes([]);
-    setComments([]);
-    setCombinedFeed([]);
-    setIsAddingNote(false);
-    setNoteContent("");
-    setCommentingOn(null);
-    setCommentContent("");
-    setExpandedComments({});
+    console.log('Client selection changed, resetting state');
 
-    // Load data for the new client
-    loadData();
-  }, [selectedClient, selectedActivity]);
+    // Only reset if the client has actually changed
+    if (selectedClient && selectedClient._id) {
+      console.log('Resetting state for client:', selectedClient._id);
+
+      // Clear states when a client changes - we don't want to preserve
+      // optimistic updates from a different client
+      setActivities([]);
+      setNotes([]);
+      setComments([]);
+      setCombinedFeed([]);
+      setIsAddingNote(false);
+      setNoteContent('');
+      setCommentingOn(null);
+      setCommentContent('');
+      setExpandedComments({});
+
+      // Load data for the new client - no need to preserve optimistic updates
+      // as we just cleared them
+      console.log('Loading initial data for client:', selectedClient._id);
+      loadData(false);
+    }
+  }, [selectedClient?._id]); // Only depend on client ID, not the entire selectedClient object
 
   useEffect(() => {
     // Combine and sort activities and notes
+    console.log('Combining activities and notes for feed:', { activities, notes });
+    
     const combined = [
       ...(activities || []).map((activity) => ({
         ...activity,
@@ -175,8 +294,30 @@ export default function CombinedFeed() {
       })),
     ].sort((a, b) => b.date - a.date);
 
+    console.log('Setting combined feed:', combined);
     setCombinedFeed(combined);
   }, [activities, notes]);
+
+  // Add auto-refresh functionality
+  useEffect(() => {
+    // Only set up auto-refresh if we have a selected client
+    if (!selectedClient || !selectedClient._id) return;
+
+    console.log('Setting up auto-refresh for client:', selectedClient._id);
+
+    // Set up a refresh interval (every 30 seconds)
+    const refreshInterval = setInterval(() => {
+      console.log('Auto-refreshing feed data...');
+      // Always preserve optimistic updates during auto-refresh
+      loadData(true);
+    }, 30000); // 30 seconds
+
+    // Clean up the interval when the component unmounts or client changes
+    return () => {
+      console.log('Cleaning up auto-refresh interval');
+      clearInterval(refreshInterval);
+    };
+  }, [selectedClient]);
 
   const handleAddNote = async () => {
     if (!noteContent.trim() || !selectedClient || !selectedClient._id) return;
@@ -221,7 +362,7 @@ export default function CombinedFeed() {
 
       const result = await response.json();
 
-      // Update with real data from server
+      // Update with real data from the server
       setNotes((prevNotes) =>
         prevNotes.map((note) =>
           note._id === optimisticNote._id
@@ -358,7 +499,7 @@ export default function CombinedFeed() {
 
   const openActivityModal = () => {
     // This function should open the ActivityModal
-    if (window.openActivityModal) {
+    if (typeof window !== 'undefined' && window.openActivityModal) {
       window.openActivityModal();
     } else {
       setNotification({
@@ -369,6 +510,50 @@ export default function CombinedFeed() {
     }
   };
 
+  // Set up event listener for activity added events
+  useEffect(() => {
+    // Create a reference to loadData that we can use in the event handler
+    // and won't cause dependency issues
+    const handleActivityAdded = (event) => {
+      console.log('Activity added event received in CombinedFeed:', event.detail);
+
+      if (!event.detail) {
+        console.warn('Activity added event received but no detail provided');
+        return;
+      }
+
+      // First, try to use the global function to add the activity directly to the feed
+      if (event.detail && typeof addActivityToFeed === 'function') {
+        console.log('Directly adding activity to feed from event');
+
+        // Make sure the activity has _id and is properly formatted
+        const activityToAdd = {
+          ...event.detail,
+          _id: event.detail._id || `event-${Date.now()}`,
+          type: 'activity',
+          date: new Date(event.detail.timestamp || event.detail.createdAt || Date.now())
+        };
+
+        addActivityToFeed(activityToAdd);
+      }
+
+      // Do NOT automatically refresh data from the server, as that might
+      // overwrite our optimistic update. The server data will be fetched
+      // during the next auto-refresh or manual refresh.
+    };
+
+    if (typeof window !== 'undefined' && selectedClient) {
+      console.log('Setting up activityAdded event listener');
+      window.addEventListener('activityAdded', handleActivityAdded);
+
+      // Clean up on unmount
+      return () => {
+        console.log('Removing activityAdded event listener');
+        window.removeEventListener('activityAdded', handleActivityAdded);
+      };
+    }
+  }, [addActivityToFeed, selectedClient]);
+
   // Get comments for an item
   const getCommentsForItem = (itemId, itemType) => {
     return comments.filter(
@@ -377,13 +562,13 @@ export default function CombinedFeed() {
     );
   };
 
-  // If no client is selected, show empty placeholder
+  // If no client is selected, show an empty placeholder
   if (!selectedClient) {
     return (
-      <div className="card bg-base-100 h-full w-full shadow-xl">
+      <div className="card bg-base-100 overflow-auto w-full shadow-xl">
         <div className="card-body">
           <h2 className="card-title">Client Activity Feed</h2>
-          <div className="text-base-content/50 flex h-96 items-center justify-center">
+          <div className="text-base-content/50 flex  items-center justify-center">
             <div className="text-center">
               <svg
                 xmlns="http://www.w3.org/2000/svg"

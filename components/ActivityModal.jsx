@@ -1,12 +1,7 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import {
-  Dialog,
-  DialogBackdrop,
-  DialogPanel,
-  DialogTitle,
-} from "@headlessui/react";
-import ActivityDynamicSelect from "./ActivityDynamicSelect";
+import React, { useEffect, useState } from 'react';
+import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
+import ActivityDynamicSelect from './ActivityDynamicSelect';
 
 export default function ActivityModal({ open, setOpen, onSuccess }) {
   const [questions, setQuestions] = useState([]);
@@ -35,29 +30,63 @@ export default function ActivityModal({ open, setOpen, onSuccess }) {
 
   // When an activity is successfully added, pass it to parent components
   const handleActivitySuccess = (result) => {
-    // Add the activity directly to the feed
-    if (window.addActivityToFeed && result) {
-      // Create a properly formatted activity for the feed
-      const activityForFeed = {
-        ...result,
-        _id: result._id || result.insertedId || `temp-${Date.now()}`,
-        type: "activity",
-        date: new Date(result.timestamp || result.createdAt || Date.now()),
-        statement:
-          result.statement || result.data?.statement || "Activity recorded",
-      };
+    console.log('Activity successfully added, result:', result);
 
-      // Add it to the feed
-      window.addActivityToFeed(activityForFeed);
+    // Make sure we have a valid result with necessary data
+    if (!result) {
+      console.error('No result from activity submission');
+      return;
     }
 
-    // Call the provided onSuccess callback
-    if (onSuccess) {
-      onSuccess(result);
-    }
+    try {
+      // Add the activity directly to the feed
+      if (typeof window !== 'undefined' && window.addActivityToFeed) {
+        console.log('Adding activity to feed via global function');
 
-    // Close the modal
-    setOpen("");
+        // Extract the activity data from the result
+        const activityData = result.activity || result.data || result;
+
+        // Create a properly formatted activity for the feed
+        // with a special modal ID so we can identify it as an optimistic update
+        const activityForFeed = {
+          ...activityData,
+          _id: activityData._id || `modal-${Date.now()}`,
+          type: 'activity',
+          date: new Date(activityData.timestamp || activityData.createdAt || Date.now()),
+          statement: activityData.statement || 'Activity recorded',
+          navigator: activityData.navigator || 'System',
+          isOptimistic: true // Flag to identify optimistic updates
+        };
+
+        console.log('Formatted activity for feed:', activityForFeed);
+
+        // Add it to the feed via the global function - this immediately shows in the UI
+        window.addActivityToFeed(activityForFeed);
+
+        // Dispatch a custom event that components can listen for
+        console.log('Dispatching activityAdded event');
+        const activityAddedEvent = new CustomEvent('activityAdded', {
+          detail: activityForFeed,
+          bubbles: true,
+          cancelable: true
+        });
+        window.dispatchEvent(activityAddedEvent);
+      } else {
+        console.warn('window.addActivityToFeed is not available');
+      }
+
+      // Call the provided onSuccess callback
+      if (onSuccess) {
+        console.log('Calling onSuccess callback');
+        onSuccess(result);
+      }
+    } catch (error) {
+      console.error('Error in handleActivitySuccess:', error);
+    } finally {
+      // Always close the modal regardless of success/failure
+      console.log('Closing activity modal');
+      setOpen('');
+    }
   };
 
   return (

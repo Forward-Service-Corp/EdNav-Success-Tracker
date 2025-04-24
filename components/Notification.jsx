@@ -1,17 +1,17 @@
 "use client";
-import { Transition } from "@headlessui/react";
-import { CheckCircleIcon } from "@heroicons/react/24/outline";
-import { XMarkIcon } from "@heroicons/react/20/solid";
-import { useNotification } from "../contexts/NotificationContext";
-import { useEffect } from "react";
+import { Transition } from '@headlessui/react';
+import { CheckCircleIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon } from '@heroicons/react/20/solid';
+import { useNotification } from '../contexts/NotificationContext';
+import { useEffect } from 'react';
 
 export default function Notification() {
-  const { notify, setNotify } = useNotification(false);
+  const { notify, setNotification } = useNotification(false);
 
   useEffect(() => {
     if (notify) {
       setTimeout(() => {
-        setNotify(false);
+        setNotification(false);
       }, 3000);
     }
   }, [notify]);
@@ -47,7 +47,7 @@ export default function Notification() {
                     <button
                       type="button"
                       onClick={() => {
-                        setNotify(false);
+                        setNotification(false);
                       }}
                       className="inline-flex cursor-pointer rounded-md bg-white text-gray-400 hover:text-gray-500 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
                     >

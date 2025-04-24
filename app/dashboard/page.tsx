@@ -1,19 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { LayoutProvider } from "@/contexts/LayoutContext";
-import AppLayout from "@/components/AppLayout";
-import LayoutControls from "@/components/LayoutControls";
-import ClientTableNew from "@/components/ClientTableNew";
-import ClientProfile from "@/components/ClientProfile";
-import { EditingProvider } from "@/contexts/EditingContext";
-import { ClientsProvider } from "@/contexts/ClientsContext";
-import { ClientListProvider } from "@/contexts/ClientListContext";
-import { NavigatorsProvider } from "@/contexts/NavigatorsContext";
-import { FepsLeftProvider } from "@/contexts/FepsLeftContext";
-import { ActivityProvider } from "@/contexts/ActivityContext";
-import { NotificationProvider } from "@/contexts/NotificationContext";
-import FilterSidebar from "@/components/FilterSidebar";
+import { useEffect, useState } from 'react';
+import { LayoutProvider } from '@/contexts/LayoutContext';
+import AppLayout from '@/components/AppLayout';
+import LayoutControls from '@/components/LayoutControls';
+import ClientTableNew from '@/components/ClientTableNew';
+import ClientProfileWithActivity from '@/components/ClientProfileWithActivity';
+import { EditingProvider } from '@/contexts/EditingContext';
+import { ClientsProvider } from '@/contexts/ClientsContext';
+import { ClientListProvider } from '@/contexts/ClientListContext';
+import { NavigatorsProvider } from '@/contexts/NavigatorsContext';
+import { FepsLeftProvider } from '@/contexts/FepsLeftContext';
+import { ActivityProvider } from '@/contexts/ActivityContext';
+import { NotificationProvider } from '@/contexts/NotificationContext';
+import FilterSidebar from '@/components/FilterSidebar';
 
 export default function Dashboard() {
   const [selectedPanel, setSelectedPanel] = useState(null);
@@ -66,7 +66,7 @@ export default function Dashboard() {
                           }
                           detailsContent={
                             selectedPanel === "profile" ? (
-                              <ClientProfile setOpenPanel={setSelectedPanel} />
+                              <ClientProfileWithActivity setOpenPanel={setSelectedPanel} />
                             ) : (
                               <div className="text-base-content flex h-full items-center justify-center opacity-50">
                                 <div className="text-center">

@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { useClients } from "@/contexts/ClientsContext";
-import { useActivities } from "@/contexts/ActivityContext";
-import { generateSentence } from "@/utils/generateSentence";
+import React, { useEffect, useState } from 'react';
+import { useClients } from '@/contexts/ClientsContext';
+import { useActivities } from '@/contexts/ActivityContext';
+import { generateSentence } from '@/utils/generateSentence';
 
 const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
   const { selectedActivity, setSelectedActivity } = useActivities();
@@ -147,27 +147,41 @@ const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
     }
 
     try {
-      // Optimistically add activity to the feed
-      // Create a properly formatted activity for local display
+      // Create a properly formatted activity for local display with a temporary ID
       const tempId = `temp-${Date.now()}`;
+
+      // This is the optimistic activity that will be displayed immediately
       const optimisticActivity = {
         ...data,
-        _id: tempId,
+        _id: tempId, // Use a temporary ID that we can track
         type: "activity",
-        navigator: data.navigator || selectedClient.navigator,
-        statement: data.statement,
+        navigator: data.navigator || selectedClient.navigator || 'Unknown',
+        statement: data.statement || 'Activity recorded',
         timestamp: new Date().toISOString(),
         createdAt: new Date().toISOString(),
         date: new Date(),
+        isOptimistic: true // Flag to identify optimistic updates
       };
 
-      // Add to global feed if function exists
+      console.log('Created optimistic activity:', optimisticActivity);
+
+      // Add to global feed if function exists - this will immediately show in the UI
       if (typeof window !== "undefined" && window.addActivityToFeed) {
+        console.log('Adding optimistic activity to feed via global function');
         window.addActivityToFeed(optimisticActivity);
+
+        // Also dispatch an event to notify other components
+        const activityAddedEvent = new CustomEvent('activityAdded', {
+          detail: optimisticActivity,
+          bubbles: true,
+          cancelable: true
+        });
+        window.dispatchEvent(activityAddedEvent);
       }
 
-      // Use relative URL instead of hardcoded localhost
-      const response = await fetch("/api/activities", {
+      // Send the API request asynchronously but don't wait for it
+      console.log('Sending API request with data:', { data });
+      fetch('/api/activities', {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -176,50 +190,58 @@ const ActivityDynamicSelect = ({ setOpen, questions, onSuccess }) => {
         redirect: "follow",
         referrerPolicy: "no-referrer",
         dataType: "json",
-      });
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`Error: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(result => {
+          console.log('Received API response:', result);
 
-      // We no longer try to update the temporary activity
-      // since it might cause issues with display
+          // We'll update the activity list if actionRes exists, but we're
+          // NOT replacing the optimistic activity in the feed, as that
+          // causes it to disappear
+          if (result.userActions) {
+            setSelectedActivity((prev) => ({
+              ...prev,
+              activities: [...(prev?.activities || []), result.activity || result]
+            }));
+          }
 
-      if (!response.ok) {
-        throw new Error(`Error: ${response.status}`);
-      }
+          // Call onSuccess with the result
+          if (onSuccess) {
+            console.log('Calling onSuccess with result');
+            onSuccess(result);
+          }
 
-      const result = await response.json();
+          // Update client data if needed
+          if (result.wholeUser && multi && multiSelectValues.length > 0) {
+            // Call our helper function that doesn't overwrite the whole object
+            const updatedClient = updateClientTrackableItems(
+              selectedClient,
+              result.wholeUser,
+              multiSelectValues
+            );
 
-      // Notify parent of success
-      if (onSuccess) onSuccess(result);
+            // Update the client with our carefully constructed object
+            setSelectedClient(updatedClient);
+          }
+        })
+        .catch(error => {
+          console.error('Error saving activity:', error);
 
-      // SIMPLIFIED CLIENT UPDATE: Use the helper function to only update trackable items
-      if (result.wholeUser && multi && multiSelectValues.length > 0) {
-        // Call our helper function that doesn't overwrite the whole object
-        const updatedClient = updateClientTrackableItems(
-          selectedClient,
-          result.wholeUser,
-          multiSelectValues,
-        );
+          // If we failed, try to remove the optimistic update
+          if (typeof window !== 'undefined' && window.removeActivityFromFeed) {
+            window.removeActivityFromFeed(tempId);
+          }
+        });
 
-        // Update the client with our carefully constructed object
-        setSelectedClient(updatedClient);
-      }
-
-      // Update the activity list if actionRes exists
-      if (result.userActions) {
-        setSelectedActivity((prev) => ({
-          ...prev,
-          activities: result.userActions,
-        }));
-      }
-
-      return result;
+      // Return our optimistic activity for now, we won't wait for the API
+      return optimisticActivity;
     } catch (error) {
-      console.error("Error saving activity:", error);
-
-      // If we failed, try to remove the optimistic update
-      if (typeof window !== "undefined" && window.removeActivityFromFeed) {
-        window.removeActivityFromFeed(`temp-${Date.now()}`);
-      }
-
+      console.error('Error creating activity:', error);
       return null;
     }
   };
