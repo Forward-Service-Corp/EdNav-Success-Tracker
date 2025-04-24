@@ -44,32 +44,35 @@ function SearchField({
               // The actual useLayout call will happen in a subcomponent
               setLayoutAvailable(true);
 
-              // Set up a component that will be rendered inside our component
-              // and can properly use the hook
-              const LayoutController = () => {
-                try {
-                  // This is a valid place to use the hook
-                  const layoutContext = LayoutModule.useLayout();
+              // Create a separate component that renders the controller
+              const renderController = () => {
+                // Set up a component that will be rendered inside our component
+                // and can properly use the hook
+                const LayoutController = () => {
+                  try {
+                    // This is a valid place to use the hook
+                    const layoutContext = LayoutModule.useLayout();
 
-                  // Update our ref with the actual functions
-                  React.useEffect(() => {
+                    // Update our ref with the actual functions
                     layoutConfigRef.current = {
                       setDefault: () => layoutContext.setLayoutConfig('DEFAULT'),
                       setNoSidebar: () => layoutContext.setLayoutConfig('NO_SIDEBAR'),
                       setTableFocus: () => layoutContext.setLayoutConfig('TABLE_FOCUS')
                     };
-                  }, [layoutContext]);
 
-                  // Return null as we don't need to render anything
-                  return null;
-                } catch (e) {
-                  console.log('Layout hook failed:', e);
-                  return null;
-                }
+                    // Return null as we don't need to render anything
+                    return null;
+                  } catch (e) {
+                    console.log('Layout hook failed:', e);
+                    return null;
+                  }
+                };
+
+                return <LayoutController />;
               };
 
-              // Render our controller component
-              return <LayoutController />;
+              // Return the controller component separately
+              return renderController;
             }
           } catch (e) {
             console.log('Layout module exists but hook failed:', e);
@@ -83,8 +86,9 @@ function SearchField({
     };
 
     // Execute the async function and handle the controller
-    checkLayoutContext().then(controller => {
-      if (controller) {
+    checkLayoutContext().then(controllerRenderer => {
+      if (controllerRenderer) {
+        // We're just passing the result to use elsewhere, not conditionally rendering
         setLayoutAvailable(true);
       }
     });
