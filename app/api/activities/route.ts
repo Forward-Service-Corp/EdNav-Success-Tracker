@@ -29,6 +29,63 @@ const safeObjectId = (id: string) => {
   }
 };
 
+// Helper function to flatten activity data for Power BI and other tools
+// This ensures consistent structure between GET and POST responses
+const flattenActivityData = (activity: any) => {
+  if (!activity) return {};
+
+  // Create a new object to hold flattened data
+  const flattenedActivity = { ...activity };
+
+  try {
+    // Extract and flatten trackable items if they exist
+    if (activity.trackable && activity.trackable.items && Array.isArray(activity.trackable.items)) {
+      // Add trackable_program at the top level
+      flattenedActivity.trackable_program = activity.trackable.program || '';
+
+      // Add completed_items as a comma-separated string of completed item names
+      const completedItems = activity.trackable.items
+        .filter((item: any) => item && item.completed)
+        .map((item: any) => item.name);
+      flattenedActivity.completed_items = completedItems.join(', ');
+
+      // Add total_items and completed_count
+      flattenedActivity.total_items_count = activity.trackable.items.length;
+      flattenedActivity.completed_items_count = completedItems.length;
+    }
+
+    // Extract path as a single string for easier filtering
+    if (activity.path && Array.isArray(activity.path)) {
+      flattenedActivity.path_string = activity.path.join(' > ');
+    }
+
+    // Extract selections as a string if they exist
+    if (activity.selections && Array.isArray(activity.selections)) {
+      flattenedActivity.selections_string = activity.selections.join(', ');
+    }
+
+    // Add any other valuable fields here that would be useful at the top level
+    // for Power BI analysis, such as client information, timestamps, etc.
+
+    // Ensure dates are in proper format if they exist
+    if (activity.createdAt) {
+      flattenedActivity.created_date = activity.createdAt.split('T')[0] || '';
+    }
+
+    if (activity.selectedDate) {
+      flattenedActivity.selected_date = typeof activity.selectedDate === 'string'
+        ? activity.selectedDate.split('T')[0]
+        : '';
+    }
+  } catch (error) {
+    console.error('Error flattening activity data:', error);
+    // Return the original activity if there's an error during flattening
+    return activity;
+  }
+
+  return flattenedActivity;
+};
+
 export async function GET(request: NextRequest) {
   const url = new URL(request.url);
   const clientId = url.searchParams.get("clientId");
@@ -59,8 +116,16 @@ export async function GET(request: NextRequest) {
       ])
       .toArray();
 
+    // Process nested data to create flattened versions for Power BI
+    const processedActionRes = actionRes.map(action => flattenActivityData(action));
+
     return NextResponse.json(
-      { success: true, data: actionRes, notesRes },
+      {
+        success: true,
+        data: actionRes,            // Original nested structure 
+        flattenedData: processedActionRes, // New flattened structure for BI tools
+        notesRes
+      },
       { status: 200 },
     );
   } catch (error) {
@@ -604,9 +669,13 @@ export async function POST(request: NextRequest) {
         _id: result.insertedId
       };
 
+      // Create flattened version of the saved activity for Power BI
+      const flattenedActivity = flattenActivityData(savedActivity);
+
       console.log('API response:', {
         message: 'Action added successfully',
-        activity: savedActivity
+        activity: savedActivity,
+        flattenedActivity
       });
 
       return NextResponse.json(
@@ -618,8 +687,9 @@ export async function POST(request: NextRequest) {
           _id: result.insertedId,
           user,
           activity: savedActivity,
-          // Also include the activity data directly for easier access
-          data: savedActivity
+          // Include both the original nested data and the flattened version
+          data: savedActivity,
+          flattenedActivity
         },
         { status: 201 }
       );
