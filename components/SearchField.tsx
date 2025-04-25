@@ -6,8 +6,7 @@ import { useLayout } from '@/contexts/LayoutContext';
 
 function SearchField({
   filterOpen,
-  setViewMode,
-  toggleSidebar,
+                       setViewMode
 }: {
   menuOpen: boolean;
   filterOpen: boolean;
@@ -26,8 +25,8 @@ function SearchField({
       setActiveLayout(savedLayout || 'DEFAULT');
     }
 
-    // Set up event listener for layout changes
-    const handleStorageChange = (e) => {
+    // Set up an event listener for layout changes
+    const handleStorageChange = (e: StorageEvent) => {
       if (e.key === 'currentLayout') {
         setActiveLayout(e.newValue || 'DEFAULT');
       }
@@ -39,7 +38,7 @@ function SearchField({
 
   // Update when layout context changes
   useEffect(() => {
-    // Convert current layout to a preset name
+    // Convert the current layout to a preset name
     if (!isSidebarVisible && currentLayout.table === 50 && currentLayout.details === 50) {
       setActiveLayout('NO_SIDEBAR');
     } else if (!isSidebarVisible && currentLayout.table === 70 && currentLayout.details === 30) {
@@ -54,7 +53,7 @@ function SearchField({
   }, [currentLayout, isSidebarVisible, isDetailsVisible]);
 
   // Function to handle layout changes
-  const handleLayoutChange = (layoutName) => {
+  const handleLayoutChange = (layoutName: string) => {
     console.log('Setting layout to:', layoutName);
 
     // Apply layout directly through context
@@ -70,7 +69,7 @@ function SearchField({
   };
 
   // Function to get opacity based on active layout
-  const getOpacity = (layout) => {
+  const getOpacity = (layout: string) => {
     return activeLayout === layout ? 'opacity-100' : 'opacity-50 hover:opacity-70';
   };
 
