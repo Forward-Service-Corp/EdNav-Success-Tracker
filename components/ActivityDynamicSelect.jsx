@@ -44,7 +44,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
     }
   }, [questions]);
 
-  // Handle setting selectedPath and currentObject based on client's group
+  // Handle setting selectedPath and currentObject based on the client's group
   useEffect(() => {
     if (selectedClient?.group) {
       const autoSelection = selectedClient.group.toLowerCase();
@@ -53,14 +53,14 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
         setCurrentObject(questions[autoSelection]);
         let options = Object.keys(questions[autoSelection]);
 
-        // Remove current program from options if already enrolled
+        // Remove the current program from options if already enrolled
         filterProgramOptions(autoSelection, options);
       }
     }
   }, [selectedClient, questions]);
 
-  // Helper function to filter out GED/HSED options if client already has one selected
-  const filterProgramOptions = (group, options) => {
+  // Helper function to filter out GED/HSED options if a client already has one selected
+  const filterProgramOptions = (_group, options) => {
     // First check client's direct data
     let program = selectedClient?.trackable?.program;
     let isProgramSavedInDatabase = false;
@@ -74,9 +74,9 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
           if (parsedTrackable && parsedTrackable.program) {
             program = parsedTrackable.program;
 
-            // Check if this program has been saved to database by looking at the items
+            // Check if this program has been saved to a database by looking at the items
             if (Array.isArray(parsedTrackable.items) && parsedTrackable.items.length > 0) {
-              // If any item is completed and saved in database, we consider the program permanent
+              // If any item is completed and saved in a database, we consider the program permanent
               isProgramSavedInDatabase = parsedTrackable.items.some(item =>
                 item && item.completed === true && item.savedInDatabase === true
               );
@@ -103,12 +103,12 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
     // Only filter out options from educational activities
     let filteredOptions = [...options];
 
-    // If we found a program (either GED or HSED) that has been saved to database, 
+    // If we found a program (either GED or HSED) that has been saved to a database,
     // remove it from educational activities options
     if ((program === 'GED' || program === 'HSED') && isProgramSavedInDatabase) {
       console.log('Found existing saved program:', program, 'Filtering from options');
 
-      // Remove program from list of available options
+      // Remove the program from a list of available options
       filteredOptions = options.filter(option => option !== program);
 
       // Set the filtered options
@@ -170,7 +170,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
       [sectionName]: {
         ...(selectedClient[sectionName] || {}),
         referralDate: selectedClient[sectionName]?.referralDate || today.toISOString(),
-        completionDate: today.toISOString() // Set completion date to today since we're marking it as complete
+        completionDate: today.toISOString() // Set the completion date today since we're marking it as complete
       }
     };
 
@@ -178,19 +178,19 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
     if (selectedClient?.trackable?.items && Array.isArray(selectedClient.trackable.items)) {
       const updatedItems = [...selectedClient.trackable.items];
 
-      // Find the item with matching name and mark it as completed AND saved in database
+      // Find the item with a matching name and mark it as completed AND saved in a database
       for (let i = 0; i < updatedItems.length; i++) {
         if (updatedItems[i]?.name?.toLowerCase() === sectionName.toLowerCase()) {
           updatedItems[i] = {
             ...updatedItems[i],
             completed: true,
-            savedInDatabase: true // Mark this specific item as saved in database
+            savedInDatabase: true // Mark this specific item as saved in a database
           };
           break;
         }
       }
 
-      // Update the client with completed trackable item
+      // Update the client with a completed trackable item
       updatedClient.trackable = {
         ...selectedClient.trackable,
         items: updatedItems
@@ -232,7 +232,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
             overlay.classList.add('invisible');
           }
 
-          // Find the card and remove blur
+          // Find the card and remove the blur
           const card = section.querySelector('.card');
           if (card) {
             card.classList.remove('opacity-50', 'blur-[2px]');
@@ -426,7 +426,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
               return {
                 ...item,
                 completed: true,
-                savedInDatabase: false  // Explicitly mark as not saved in database
+                savedInDatabase: false  // Explicitly mark as not saved in a database
               };
             }
             return item;
@@ -576,13 +576,13 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
       // Add to global feed if the function exists - this will immediately show in the UI
       if (typeof window !== 'undefined') {
         try {
-          // First try the direct addItemToFeed approach
+          // First, try the direct addItemToFeed approach
           if (window.addItemToFeed && !activityAdded) {
             console.log('ACTIVITY DEBUG: Using direct addItemToFeed for immediate display');
             window.addItemToFeed(optimisticActivity);
             activityAdded = true;
           }
-          // Then if that didn't work, try the simplified approach
+          // Then, if that didn't work, try the simplified approach
           else if (window.addActivitySimplified && !activityAdded) {
             console.log('ACTIVITY DEBUG: Using addActivitySimplified');
             window.addActivitySimplified(optimisticActivity);
@@ -880,7 +880,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
             length: items.length,
             items: items.map(item => ({
               ...item,
-              savedInDatabase: false // Mark as NOT saved in database initially
+              savedInDatabase: false // Mark as ISN'T saved in a database initially
             })),
             createdAt: new Date().toISOString()
           };
@@ -992,7 +992,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
                 }
               }
 
-              // If client already has GED or HSED, remove that option
+              // If a client already has GED or HSED, remove that option
               if (program === 'GED' || program === 'HSED') {
                 console.log('Found existing program in options view:', program, 'Filtering from options');
                 options = options.filter(option => option !== program);
@@ -1106,7 +1106,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
               updatedItems[index] = {
                 ...updatedItems[index],
                 completed: true,
-                savedInDatabase: false // Explicitly mark as not saved in database
+                savedInDatabase: false // Explicitly mark as not saved in a database
               };
 
               // Update local trackable state
@@ -1264,7 +1264,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
               return {
                 ...item,
                 completed: true,
-                savedInDatabase: true // Mark all selected items as immediately saved in database
+                savedInDatabase: true // Mark all selected items as immediately saved in a database
               };
             }
             return item;
@@ -1376,7 +1376,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
 
   return (
     <div className="relative z-50">
-      {/* Only show date picker in initial step, not for trackables */}
+      {/* Only show the date picker in an initial step, not for trackables */}
       {showDatePicker && !isTrackableSelection && (
         <label className="flex flex-col space-y-2 font-light">
           Date of activity:
@@ -1390,7 +1390,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
         </label>
       )}
 
-      {/* Only show path breadcrumb in initial steps, not for trackables */}
+      {/* Only show the path breadcrumb in initial steps, not for trackables */}
       {selectedPath?.length > 0 && !isTrackableSelection && (
         <div className="mt-2 text-sm text-gray-500">{selectedPath.join(' > ')}</div>
       )}
