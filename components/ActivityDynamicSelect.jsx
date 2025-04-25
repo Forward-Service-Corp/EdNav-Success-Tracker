@@ -122,7 +122,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
   // Effect to handle client-trackable updates when needed
   useEffect(() => {
     if (pendingClientUpdate) {
-      // Use a small timeout to ensure state is settled before processing
+      // Use a small timeout to ensure the state is settled before processing
       setTimeout(() => {
         // Set the client update first - make a clean copy to avoid reference issues
         const clientToUpdate = JSON.parse(JSON.stringify(pendingClientUpdate));
@@ -262,7 +262,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
         } else {
           console.error(`Could not find section with id: ${normalizedSectionName}`);
 
-          // Try more general DOM search as fallback
+          // Try more general DOM search as a fallback
           const possibleSections = document.querySelectorAll(`[id*="${normalizedSectionName}"]`);
           if (possibleSections.length > 0) {
             console.log(`Found ${possibleSections.length} possible matching sections using broader search`);
@@ -1011,7 +1011,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
             // Get options for the next level
             let options = Object.keys(newObject);
 
-            // If we're in the educational activities section, check for existing GED/HSED program
+            // If we're in the educational activities section, check for the existing GED / HSED program
             if ((selectedPath[0] === 'adult' || selectedPath[0] === 'youth') &&
               selectedPath[1]?.toLowerCase() === 'educational activities') {
 
@@ -1092,7 +1092,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
   const handleMultiSelectChange = (option, index) => {
     console.log(`MultiSelect change: ${option} at index ${index}`);
 
-    // First check if this item is already completed in the database
+    // First, check if this item is already completed in the database
     // If it is, we shouldn't allow unchecking it
     const isAlreadySavedInDatabase = trackable &&
       Array.isArray(trackable.items) &&
@@ -1101,7 +1101,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
 
     if (isAlreadySavedInDatabase) {
       console.log(`Item ${option} is already saved in database, cannot change`);
-      return; // Don't allow changes to items saved in database
+      return; // Don't allow changes to items saved in a database
     }
     
     // Update multiSelectValues state safely
@@ -1117,7 +1117,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
 
             // Safety check to ensure the item exists
             if (updatedItems[index]) {
-              // Only update if it's not already saved in database
+              // Only update if it's not already saved in a database
               if (!updatedItems[index].savedInDatabase) {
                 updatedItems[index] = {
                   ...updatedItems[index],
@@ -1184,7 +1184,9 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
                 };
 
                 // Direct update
-                setSelectedClient(updatedClient);
+                setTimeout(() => {
+                  setSelectedClient(updatedClient);
+                }, 0);
 
                 // Save to localStorage
                 if (typeof window !== 'undefined') {
@@ -1289,7 +1291,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
         };
 
         // Track if we've already added this activity to prevent duplicates
-        let activityAdded = false;
+        let activityAdded;
 
         // Add the optimistic update to the UI immediately
         if (typeof window !== 'undefined') {
@@ -1592,7 +1594,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
               if (!isSavedInDatabase && selectedClient?.trackable?.items &&
                 Array.isArray(selectedClient.trackable.items)) {
                 isSavedInDatabase = selectedClient.trackable.items.some(item =>
-                  item.name === option && item.savedInDatabase === true
+                  item.name === option && item['savedInDatabase'] === true
                 );
               }
 

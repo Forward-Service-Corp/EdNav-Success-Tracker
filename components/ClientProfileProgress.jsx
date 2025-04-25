@@ -8,9 +8,8 @@ function ClientProfileProgress({
   updated,
   setUpdated,
   hasTrackableCopy,
-                                 isNarrow,
-                                 isMedium
-}) {
+                                 isNarrow
+                               }) {
   const { selectedClient, setSelectedClient } = useClients();
   const [completionPercentage, setCompletionPercentage] = useState(0);
   const [isUpdating, setIsUpdating] = useState(false);
