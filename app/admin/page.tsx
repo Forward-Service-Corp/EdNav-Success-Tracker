@@ -1,4 +1,4 @@
-// app/dashboard/admin-tools/page.tsx
+// app/dashboard/admin/page.tsx
 import { getServerSession } from 'next-auth/next';
 import { redirect } from 'next/navigation';
 import { authOptions } from '@/lib/auth';

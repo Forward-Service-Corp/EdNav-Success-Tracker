@@ -8,6 +8,8 @@ function ClientProfileProgress({
   updated,
   setUpdated,
   hasTrackableCopy,
+                                 isNarrow,
+                                 isMedium
 }) {
   const { selectedClient, setSelectedClient } = useClients();
   const [completionPercentage, setCompletionPercentage] = useState(0);
@@ -513,13 +515,13 @@ function ClientProfileProgress({
         </div>
       </div>
       <div
-        className={`card bg-base-200 border-base-content/10 relative mx-6 rounded border-1 shadow-sm ${isProgressVisible ? '' : 'opacity-50 blur-[2px]'}`}
+        className={`card bg-base-200 border-base-content/10 relative mx-3 md:mx-6 rounded border-1 shadow-sm ${isProgressVisible ? '' : 'opacity-50 blur-[2px]'}`}
         data-testid="progress-area"
       >
         <div className="card-body">
           <div className={`mt-0 mb-4 flex items-center justify-between`}>
             <div>
-              <div className={`text-2xl flex items-center gap-2`}>
+              <div className={`${isNarrow ? 'text-lg' : 'text-2xl'} flex items-center gap-2`}>
                 {selectedClient?.trackable?.program || 'Program'} Progress -{' '}
                 {completionPercentage}%
 
@@ -565,5 +567,11 @@ function ClientProfileProgress({
     </div>
   );
 }
+
+// Default props
+ClientProfileProgress.defaultProps = {
+  isNarrow: false,
+  isMedium: false
+};
 
 export default ClientProfileProgress;

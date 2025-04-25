@@ -21,28 +21,34 @@ export default function AppLayout({
 
   // Set initial layout configuration
   useEffect(() => {
-    setLayoutConfig(initialLayout);
+    // Only set initial layout if no layout is already saved
+    if (typeof window !== 'undefined') {
+      const savedLayout = localStorage.getItem('currentLayout');
+      if (!savedLayout || savedLayout === '') {
+        setLayoutConfig(initialLayout);
+      }
+    }
   }, [initialLayout, setLayoutConfig]);
 
   // Calculate panel styles based on the current layout
   const getPanelStyles = () => {
     return {
       sidebar: {
-        width: `${currentLayout.sidebar}%`,
-        maxWidth: `${currentLayout.sidebar}%`,
+        width: isSidebarVisible ? '230px' : '0', // Fixed 230px width
+        maxWidth: isSidebarVisible ? '230px' : '0',
         display: isSidebarVisible ? "block" : "none",
-        transition: 'all 0.25s ease-out'
+        transition: 'all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1)'
       },
       table: {
         width: `${currentLayout.table}%`,
         maxWidth: `${currentLayout.table}%`,
-        transition: 'all 0.25s ease-out'
+        transition: 'all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1)'
       },
       details: {
         width: `${currentLayout.details}%`,
         maxWidth: `${currentLayout.details}%`,
         display: isDetailsVisible ? "block" : "none",
-        transition: 'all 0.25s ease-out'
+        transition: 'all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1)'
       },
     };
   };
@@ -54,7 +60,7 @@ export default function AppLayout({
       {/* Sidebar Panel */}
       {isSidebarVisible && (
         <div
-          className="border-base-300 h-full overflow-hidden border-r"
+          className="h-full overflow-hidden border-r border-base-300"
           style={styles.sidebar}
         >
           {sidebarContent}
@@ -63,7 +69,7 @@ export default function AppLayout({
 
       {/* Table Panel */}
       <div
-        className="border-base-300 h-full overflow-hidden border-r"
+        className="h-full overflow-hidden"
         style={styles.table}
       >
         {tableContent}

@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import CombinedFeed from './CombinedFeed';
 import ClientProfileHeader from '../components/ClientProfileHeader';
 import ClientProfileProgress from '../components/ClientProfileProgress';
@@ -7,6 +7,7 @@ import ClientProfilePersonalOrganization from '../components/ClientProfilePerson
 import ClientProfileTABEOrientation from '../components/ClientProfileTABEOrientation';
 import { useClients } from '@/contexts/ClientsContext';
 import ActivityModal from '../components/ActivityModal';
+import { useLayout } from '@/contexts/LayoutContext';
 
 export default function ClientProfile({ setOpenPanel }) {
   const [isMounted, setIsMounted] = useState(false);
@@ -19,6 +20,16 @@ export default function ClientProfile({ setOpenPanel }) {
   const [updated, setUpdated] = useState(false);
   const [activityModalOpen, setActivityModalOpen] = useState("");
   const [slideState, setSlideState] = useState('out'); // "in" or "out"
+  const { currentLayout } = useLayout();
+  const profileRef = useRef(null);
+
+  // State for tracking container width and layout config
+  const [containerWidth, setContainerWidth] = useState(0);
+  const [layoutConfig, setLayoutConfig] = useState({
+    isNarrow: false,
+    isMedium: false,
+    isWide: true
+  });
 
   // Watch for changes to the selectedClient and animate accordingly
   useEffect(() => {
@@ -30,6 +41,61 @@ export default function ClientProfile({ setOpenPanel }) {
       setSlideState('out');
     }
   }, [selectedClient]);
+
+  // Update container width on layout changes
+  useEffect(() => {
+    if (profileRef.current) {
+      updateContainerWidth();
+    }
+  }, [currentLayout, isMounted]);
+
+  // Set up resize observer to track container width changes
+  useEffect(() => {
+    if (!profileRef.current) return;
+
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        updateContainerWidth();
+      }
+    });
+
+    resizeObserver.observe(profileRef.current);
+
+    return () => {
+      if (profileRef.current) {
+        resizeObserver.unobserve(profileRef.current);
+      }
+    };
+  }, [isMounted]);
+
+  // Update container width and determine layout configuration
+  const updateContainerWidth = () => {
+    if (!profileRef.current) return;
+
+    const width = profileRef.current.offsetWidth;
+    setContainerWidth(width);
+
+    // Determine layout configuration based on container width
+    if (width < 500) {
+      setLayoutConfig({
+        isNarrow: true,
+        isMedium: false,
+        isWide: false
+      });
+    } else if (width < 800) {
+      setLayoutConfig({
+        isNarrow: false,
+        isMedium: true,
+        isWide: false
+      });
+    } else {
+      setLayoutConfig({
+        isNarrow: false,
+        isMedium: false,
+        isWide: true
+      });
+    }
+  };
 
   useEffect(() => {
     setIsMounted(true); // ✅ Mark component as mounted before interacting with localStorage
@@ -312,6 +378,17 @@ export default function ClientProfile({ setOpenPanel }) {
   // ✅ Prevent hydration mismatch by rendering only after mount
   if (!isMounted) return null;
 
+  // Get grid classes based on layout
+  const getGridClasses = () => {
+    if (layoutConfig.isNarrow) {
+      return 'grid-cols-1 gap-3';
+    } else if (layoutConfig.isMedium) {
+      return 'grid-cols-1 md:grid-cols-2 gap-4';
+    } else {
+      return 'grid-cols-1 md:grid-cols-2 gap-5';
+    }
+  };
+
   return (
     <div
       className={`relative h-full w-full flex-[4] transition-transform duration-800 ease-in-out ${
@@ -321,6 +398,7 @@ export default function ClientProfile({ setOpenPanel }) {
       }`}
       id="client-profile-root"
       data-client-id={selectedClient?._id || ''}
+      ref={profileRef}
     >
       {/* No client selected a message */}
       {!selectedClient && (
@@ -332,28 +410,41 @@ export default function ClientProfile({ setOpenPanel }) {
         </div>
       )}
 
+      {/* Width debug indicator */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="absolute top-2 right-2 z-50 bg-base-300 text-xs px-2 py-1 rounded-md opacity-50">
+          Width: {containerWidth}px |
+          {layoutConfig.isNarrow ? ' Narrow' : layoutConfig.isMedium ? ' Medium' : ' Wide'}
+        </div>
+      )}
+
       <div
         className={`no-scrollbar absolute top-0 right-0 bottom-0 left-0 overflow-y-scroll`}
       >
         <ClientProfileHeader setOpenPanel={setOpenPanel} />
-        <div className={`mt-[30px] grid grid-cols-1 gap-4 md:grid-cols-2`}>
-          <div className={`col-span-2`}>
-            <ClientProfilePersonalOrganization />
+        <div className={`mt-[30px] grid ${getGridClasses()}`}>
+          <div className={`${layoutConfig.isNarrow ? 'col-span-1' : 'col-span-2'}`}>
+            <ClientProfilePersonalOrganization
+              isNarrow={layoutConfig.isNarrow}
+              isMedium={layoutConfig.isMedium}
+            />
           </div>
-          <div className={`col-span-2`}>
+          <div className={`${layoutConfig.isNarrow ? 'col-span-1' : 'col-span-2'}`}>
             <ClientProfileProgress
               hasTrackableCopy={hasTrackableCopy}
               hasTrackable={hasTrackable}
               setHasTrackable={setHasTrackable}
               updated={updated}
               setUpdated={setUpdated}
+              isNarrow={layoutConfig.isNarrow}
+              isMedium={layoutConfig.isMedium}
             />
           </div>
           <div className={`col-span-1`}>
-            <CombinedFeed />
+            <CombinedFeed isNarrow={layoutConfig.isNarrow} />
           </div>
           <div className={`col-span-1`}>
-            <ClientProfileTABEOrientation />
+            <ClientProfileTABEOrientation isNarrow={layoutConfig.isNarrow} />
           </div>
         </div>
       </div>
@@ -364,9 +455,6 @@ export default function ClientProfile({ setOpenPanel }) {
         setOpen={handleActivityModalOpen}
         onSuccess={handleActivitySuccess}
       />
-
-      {/* Simplified Activity Manager */}
-      {/*<SimplifiedActivityManager />*/}
     </div>
   );
 }

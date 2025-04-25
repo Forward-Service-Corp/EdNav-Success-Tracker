@@ -20,6 +20,7 @@ export default function Dashboard() {
   const [selectedPanel, setSelectedPanel] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const { setLayoutConfig } = useLayout();
 
   // Handle sidebar toggle
   const toggleSidebar = () => {
@@ -29,6 +30,24 @@ export default function Dashboard() {
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  // Set up resize handler in a separate effect to avoid dependency issues
+  useEffect(() => {
+    if (!isMounted) return;
+
+    // Add a window resize handler to help force layout updates
+    const handleResize = () => {
+      // Force a layout refresh whenever the window is resized
+      const currentConfig = localStorage.getItem('currentLayout') || 'DEFAULT';
+      setLayoutConfig(currentConfig);
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [isMounted, setLayoutConfig]);
 
   if (!isMounted) {
     return null; // Prevent hydration mismatch

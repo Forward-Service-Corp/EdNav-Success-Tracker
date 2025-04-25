@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
-import { useClients } from "@/contexts/ClientsContext";
-import ClientProfileDetailsInput from "@/components/ClientProfileDetailsInput";
+import React, { useEffect, useState } from 'react';
+import { useClients } from '@/contexts/ClientsContext';
+import ClientProfileDetailsInput from '@/components/ClientProfileDetailsInput';
 
-function ClientProfilePersonalOrganization() {
+function ClientProfilePersonalOrganization({ isNarrow, isMedium }) {
   const { selectedClient } = useClients();
   const [error, setError] = useState("");
   const [detailsOpen, setDetailsOpen] = useState(false);
@@ -67,20 +67,31 @@ function ClientProfilePersonalOrganization() {
     fetchFeps().then();
   }, []);
 
+  // Get grid classes based on container width
+  const getGridClasses = () => {
+    if (isNarrow) {
+      return 'grid-cols-1 gap-3';
+    } else if (isMedium) {
+      return 'grid-cols-1 md:grid-cols-2 gap-4';
+    } else {
+      return 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8';
+    }
+  };
+
   return (
     <div
-      className={`bg-base-200 border-base-content/10 mx-6 rounded-lg border-1 shadow-sm transition-all duration-700 ${detailsOpen ? "p-6" : "h-20 overflow-hidden px-6 py-4"} `}
+      className={`bg-base-200 border-base-content/10 mx-3 md:mx-6 rounded-lg border-1 shadow-sm transition-all duration-700 ${detailsOpen ? 'p-3 md:p-6' : 'h-20 overflow-hidden px-3 md:px-6 py-4'} `}
     >
-      <div className={`mb-6 flex items-center justify-between`}>
-        <div className={`text-2xl`}>Personal Details</div>
+      <div className={`mb-4 md:mb-6 flex items-center justify-between`}>
+        <div className={`text-lg md:text-2xl`}>Personal Details</div>
         <div onClick={() => setDetailsOpen(!detailsOpen)}>
-          <button className={`btn btn-soft btn-info`}>View & Edit</button>
+          <button className={`btn btn-soft btn-info btn-sm md:btn-md`}>
+            {detailsOpen ? 'Close' : 'View & Edit'}
+          </button>
         </div>
       </div>
 
-      <div
-        className={`grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 lg:grid-cols-3 lg:gap-8`}
-      >
+      <div className={`grid ${getGridClasses()}`}>
         {error && (
           <div className="bg-error/20 text-error col-span-full mb-4 rounded-md px-4 py-2">
             {error}
@@ -103,11 +114,18 @@ function ClientProfilePersonalOrganization() {
               onChange={handleChange}
               feps={feps}
               key={index}
+              isNarrow={isNarrow}
             />
           ))}
       </div>
     </div>
   );
 }
+
+// Default props
+ClientProfilePersonalOrganization.defaultProps = {
+  isNarrow: false,
+  isMedium: false
+};
 
 export default ClientProfilePersonalOrganization;

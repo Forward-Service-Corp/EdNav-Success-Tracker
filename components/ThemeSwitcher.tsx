@@ -80,7 +80,7 @@ export default function ThemeSwitcher() {
   }, [theme, setSelectedTheme]);
 
   return (
-    <div>
+    <div className="relative" style={{ zIndex: 10 }}>
       <select
         name="theme-select"
         id="theme-select"

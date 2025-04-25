@@ -1,14 +1,15 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
-import { useClientList } from "@/contexts/ClientListContext";
-import { useClients } from "@/contexts/ClientsContext";
-import { useEditing } from "@/contexts/EditingContext";
-import { useNavigators } from "@/contexts/NavigatorsContext";
-import { getBadgeColor, getBGColor } from "@/lib/ColorMap";
-import Badges from "./Badges";
-import { useFepsLeft } from "/contexts/FepsLeftContext";
-import SearchField from "./SearchField";
-import Avvvatars from "avvvatars-react";
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useClientList } from '@/contexts/ClientListContext';
+import { useClients } from '@/contexts/ClientsContext';
+import { useEditing } from '@/contexts/EditingContext';
+import { useNavigators } from '@/contexts/NavigatorsContext';
+import { getBadgeColor, getBGColor } from '@/lib/ColorMap';
+import Badges from './Badges';
+import { useFepsLeft } from '/contexts/FepsLeftContext';
+import SearchField from './SearchField';
+import Avvvatars from 'avvvatars-react';
+import { useLayout } from '@/contexts/LayoutContext';
 
 export default function ClientTableNew({
   menuOpen,
@@ -25,6 +26,71 @@ export default function ClientTableNew({
   const [, setStatusCollapse] = useState([]);
   const { setEditing } = useEditing();
   const { selectedClient, setSelectedClient } = useClients({});
+  const { currentLayout } = useLayout();
+  const tableRef = useRef(null);
+
+  // State for tracking container width and visible columns
+  const [containerWidth, setContainerWidth] = useState(0);
+  const [visibleColumns, setVisibleColumns] = useState({
+    status: true,
+    county: true,
+    details: true
+  });
+
+  // Update container width on layout changes
+  useEffect(() => {
+    if (tableRef.current) {
+      updateContainerWidth();
+    }
+  }, [currentLayout, isMounted]);
+
+  // Set up a resize observer to track container width changes
+  useEffect(() => {
+    if (!tableRef.current) return;
+
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        updateContainerWidth();
+      }
+    });
+
+    resizeObserver.observe(tableRef.current);
+
+    return () => {
+      if (tableRef.current) {
+        resizeObserver.unobserve(tableRef.current);
+      }
+    };
+  }, [isMounted]);
+
+  // Update container width and determine which columns to show
+  const updateContainerWidth = () => {
+    if (!tableRef.current) return;
+
+    const width = tableRef.current.offsetWidth;
+    setContainerWidth(width);
+
+    // Determine visible columns based on container width
+    if (width < 400) {
+      setVisibleColumns({
+        status: false,
+        county: false,
+        details: true
+      });
+    } else if (width < 600) {
+      setVisibleColumns({
+        status: true,
+        county: false,
+        details: true
+      });
+    } else {
+      setVisibleColumns({
+        status: true,
+        county: true,
+        details: true
+      });
+    }
+  };
 
   const handleCollapseChange = (status) => {
     setStatusCollapse((prevState) => {
@@ -115,49 +181,35 @@ export default function ClientTableNew({
       setSelectedClient(null);
       setOpenPanel(null);
     } else {
-      // Get the latest version of the client in case the status was updated
-      fetchLatestClientData(person._id)
-        .then((updatedClient) => {
-          // If we got updated data, use it
-          if (updatedClient) {
-            setSelectedClient(updatedClient);
-          } else {
-            // Otherwise use the person data we already have
-            setSelectedClient(person);
-          }
-          setOpenPanel("profile");
-          handleCollapseChange("Active");
-        })
-        .catch((error) => {
-          console.error("Error fetching updated client data:", error);
-          // Fall back to using the person data we already have
-          setSelectedClient(person);
-          setOpenPanel("profile");
-          handleCollapseChange("Active");
-        });
+      // Skip API call and use the person data we already have
+      // This avoids 404 errors when the API route isn't available
+      setSelectedClient(person);
+      setOpenPanel('profile');
+      handleCollapseChange('Active');
     }
   };
 
   // Function to fetch the latest client data
-  const fetchLatestClientData = async (clientId) => {
-    try {
-      const response = await fetch(`/api/clients/${clientId}`);
-      if (!response.ok) {
-        throw new Error(`Error fetching client: ${response.status}`);
-      }
-      return await response.json();
-    } catch (error) {
-      console.error("Error fetching client data:", error);
-      return null;
-    }
-  };
+  // const fetchLatestClientData = async (clientId) => {
+  //   try {
+  //     // If the API route isn't implemented, this will 404
+  //     const response = await fetch(`/api/clients/${clientId}`);
+  //     if (!response.ok) {
+  //       throw new Error (`Error fetching a client: ${response.status}`);
+  //     }
+  //     return await response.json();
+  //   } catch (error) {
+  //     console.error("Error fetching client data:", error);
+  //     return null;
+  //   }
+  // };
 
   // Render loading state
   if (loading) {
     return (
-      <div className="no-scrollbar relative z-0 h-full w-full">
-        <div className="no-scrollbar absolute top-0 right-0 bottom-0 left-0 overflow-y-scroll">
-          <div className="bg-base-200 sticky top-0 right-0 left-0 z-50 flex h-[80px] items-center justify-between px-3 py-4 shadow">
+      <div className="h-full w-full">
+        <div className="h-full w-full flex flex-col">
+          <div className=" sticky top-0 z-50 flex h-[80px] items-center justify-between px-3 py-4 shadow w-full">
             <SearchField
               menuOpen={menuOpen}
               setMenuOpen={setMenuOpen}
@@ -168,7 +220,7 @@ export default function ClientTableNew({
               setStatusCollapse={setStatusCollapse}
             />
           </div>
-          <div className="flex h-[calc(100vh-80px)] items-center justify-center">
+          <div className="flex flex-1 items-center justify-center">
             <div className="text-center">
               <div className="loading loading-spinner loading-lg"></div>
               <p className="text-base-content mt-4">Loading clients...</p>
@@ -182,9 +234,10 @@ export default function ClientTableNew({
   // Render error state
   if (error) {
     return (
-      <div className="no-scrollbar relative z-0 h-full w-full">
-        <div className="no-scrollbar absolute top-0 right-0 bottom-0 left-0 overflow-y-scroll">
-          <div className="bg-base-200 sticky top-0 right-0 left-0 z-50 flex h-[80px] items-center justify-between px-3 py-4 shadow">
+      <div className="h-full w-full">
+        <div className="h-full w-full flex flex-col">
+          <div
+            className="bg-base-300 sticky top-0 z-50 flex h-[80px] items-center justify-between px-3 py-4 shadow w-full">
             <SearchField
               menuOpen={menuOpen}
               setMenuOpen={setMenuOpen}
@@ -195,7 +248,7 @@ export default function ClientTableNew({
               setStatusCollapse={setStatusCollapse}
             />
           </div>
-          <div className="flex h-[calc(100vh-80px)] items-center justify-center">
+          <div className="flex flex-1 items-center justify-center">
             <div className="text-error text-center">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -229,9 +282,10 @@ export default function ClientTableNew({
   // Render an empty state
   if (clientList && clientList.length === 0) {
     return (
-      <div className="no-scrollbar relative z-0 h-full w-full">
-        <div className="no-scrollbar absolute top-0 right-0 bottom-0 left-0 overflow-y-scroll">
-          <div className="bg-base-200 sticky top-0 right-0 left-0 z-50 flex h-[80px] items-center justify-between px-3 py-4 shadow">
+      <div className="h-full w-full">
+        <div className="h-full w-full flex flex-col">
+          <div
+            className="bg-base-300 sticky top-0 z-50 flex h-[80px] items-center justify-between px-3 py-4 shadow w-full">
             <SearchField
               menuOpen={menuOpen}
               setMenuOpen={setMenuOpen}
@@ -242,7 +296,7 @@ export default function ClientTableNew({
               setStatusCollapse={setStatusCollapse}
             />
           </div>
-          <div className="flex h-[calc(100vh-80px)] items-center justify-center">
+          <div className="flex flex-1 items-center justify-center">
             <div className="text-center">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -272,36 +326,46 @@ export default function ClientTableNew({
   }
 
   return (
-    <div className={`no-scrollbar relative z-0 h-full w-full`}>
-      <div
-        className={`no-scrollbar absolute top-0 right-0 bottom-0 left-0 overflow-y-scroll`}
-      >
-        <div
-          className={`bg-base-200 sticky top-0 right-0 left-0 z-50 flex h-[80px] items-center justify-between px-3 py-4 shadow`}
-        >
-          <SearchField
-            menuOpen={menuOpen}
-            setMenuOpen={setMenuOpen}
-            setFilterOpen={setFilterOpen}
-            toggleSidebar={toggleSidebar}
-            filterOpen={filterOpen}
-            setViewMode={setViewMode}
-            setStatusCollapse={setStatusCollapse}
-          />
-        </div>
+    <div className="h-full w-full flex flex-col" ref={tableRef}>
+      <div className="bg-base-300 sticky top-0 z-50 flex h-[80px] items-center justify-between px-3 py-4 shadow w-full">
+        <SearchField
+          menuOpen={menuOpen}
+          setMenuOpen={setMenuOpen}
+          setFilterOpen={setFilterOpen}
+          toggleSidebar={toggleSidebar || (() => console.log('toggleSidebar not provided'))}
+          filterOpen={filterOpen}
+          setViewMode={setViewMode}
+          setStatusCollapse={setStatusCollapse}
+        />
+        {/* Display current width for debugging */}
+        {process.env.NODE_ENV === 'development' && (
+          <div className="text-xs opacity-50">Width: {containerWidth}px</div>
+        )}
+      </div>
 
-        <div className="no-scrollbar w-full overflow-y-scroll">
-          <table className="no-scrollbar sticky top-80 z-10 table w-full overflow-y-scroll">
-            <tbody className="block h-full min-h-[600px] w-full overflow-y-auto">
+      <div className="flex-1 overflow-y-auto w-full no-scrollbar">
+        <div className="w-full">
+          <table className="table w-full">
+            <thead className="sticky top-0 z-10 border-none">
+            <tr className="bg-info/5 border-none">
+              <th
+                className={`${visibleColumns.status && visibleColumns.county ? 'w-1/2' : 'w-2/3'} border-none`}>Client
+              </th>
+              {visibleColumns.status && <th className="w-1/6 border-none">Status</th>}
+              {visibleColumns.county && <th className="w-1/6 border-none">County</th>}
+              {visibleColumns.details && <th className="w-1/6 border-none">Action</th>}
+            </tr>
+            </thead>
+            <tbody>
               {Array.isArray(clientsToShow) &&
                 clientsToShow.map((person, i) => (
                   <tr
                     key={i}
-                    className={`w-full cursor-pointer transition-colors duration-300 ${selectedClient?._id === person._id ? getBGColor(person.clientStatus.toLowerCase()) + getBadgeColor("white") : ""}`}
+                    className={`cursor-pointer transition-colors duration-300 ${selectedClient?._id === person._id ? getBGColor(person.clientStatus.toLowerCase()) + getBadgeColor('white') : ''}`}
                     onClick={() => handleClientSelect(person)}
                   >
-                    <td className={``}>
-                      <div className="sticky top-80 z-20 flex items-center gap-3">
+                    <td>
+                      <div className="flex items-center gap-3">
                         <div className="avatar">
                           <div className="mask mask-squircle h-12 w-12">
                             <Avvvatars
@@ -312,44 +376,71 @@ export default function ClientTableNew({
                             />
                           </div>
                         </div>
-                        <div>
-                          <div className="font-bold">
+                        <div className="overflow-hidden">
+                          <div className="font-bold truncate">
                             {person.first_name} {person.last_name}
                           </div>
-                          <div className="text-sm opacity-50">
+                          <div className="text-sm opacity-50 truncate">
                             {person.latestInteraction || "No recent activity"}
                           </div>
+                          {/* Show status in name cell when status column is hidden */}
+                          {!visibleColumns.status && (
+                            <div className="mt-1">
+                              <Badges
+                                color={
+                                  selectedClient?._id === person._id
+                                    ? 'inline-flex items-center rounded-md px-2 py-1 text-xs w-24 font-medium bg-white text-center'
+                                    : getBadgeColor(
+                                      (
+                                        person.clientStatus || 'unknown'
+                                      ).toLowerCase()
+                                    )
+                                }
+                                label={person.clientStatus || 'Unknown'}
+                              />
+                            </div>
+                          )}
+                          {/* Show county in name cell when county column is hidden */}
+                          {!visibleColumns.county && (
+                            <div className="mt-1 text-sm truncate">
+                              {person.county ? `County: ${person.county}` : 'County: N/A'}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </td>
-                    <td>
-                      <Badges
-                        color={
-                          selectedClient?._id === person._id
-                            ? "inline-flex items-center rounded-md px-2 py-1 text-xs w-24 font-medium bg-white text-center"
-                            : getBadgeColor(
+                    {visibleColumns.status && (
+                      <td>
+                        <Badges
+                          color={
+                            selectedClient?._id === person._id
+                              ? 'inline-flex items-center rounded-md px-2 py-1 text-xs font-medium bg-white text-center'
+                              : getBadgeColor(
                                 (
-                                  person.clientStatus || "unknown"
-                                ).toLowerCase(),
+                                  person.clientStatus || 'unknown'
+                                ).toLowerCase()
                               )
-                        }
-                        label={person.clientStatus || "Unknown"}
-                      />
-                    </td>
-                    <td>{person.county || "N/A"}</td>
-                    <th>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation(); // prevent row click
-                          setEditing("client");
-                          setSelectedClient(person);
-                          setOpenPanel("profile");
-                        }}
-                        className="btn btn-ghost btn-xs"
-                      >
-                        details
-                      </button>
-                    </th>
+                          }
+                          label={person.clientStatus || 'Unknown'}
+                        />
+                      </td>
+                    )}
+                    {visibleColumns.county && <td className="truncate">{person.county || 'N/A'}</td>}
+                    {visibleColumns.details && (
+                      <td className="text-right">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation(); // prevent row click
+                            setEditing('client');
+                            setSelectedClient(person);
+                            setOpenPanel('profile');
+                          }}
+                          className="btn btn-ghost btn-xs"
+                        >
+                          details
+                        </button>
+                      </td>
+                    )}
                   </tr>
                 ))}
             </tbody>

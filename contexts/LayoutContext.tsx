@@ -21,10 +21,17 @@ type LayoutContextType = {
 };
 
 // Define the possible layout configurations
+// Sidebar is now fixed at 230px width, but we use these values for sidebar visibility
 export const LAYOUT_CONFIGS: { [key: string]: LayoutConfig } = {
-  DEFAULT: { sidebar: 15, table: 35, details: 50 },
+  DEFAULT: { sidebar: 15, table: 45, details: 55 },
   NO_SIDEBAR: { sidebar: 0, table: 50, details: 50 },
   TABLE_FOCUS: { sidebar: 0, table: 70, details: 30 },
+  DETAILS_FOCUS: { sidebar: 0, table: 30, details: 70 },
+  NARROW: { sidebar: 0, table: 40, details: 60 },
+  MEDIUM_WITH_SIDEBAR: { sidebar: 15, table: 45, details: 55 },
+  MEDIUM_NO_SIDEBAR: { sidebar: 0, table: 45, details: 55 },
+  COMPACT: { sidebar: 15, table: 30, details: 70 },
+  SIDEBAR_TABLE_ONLY: { sidebar: 15, table: 85, details: 0 }
 };
 
 // Create context with default values
@@ -45,9 +52,22 @@ export function LayoutProvider({ children }: LayoutProviderProps) {
   // Change to a predefined layout configuration
   const setLayoutConfig = (configName: string) => {
     if (LAYOUT_CONFIGS[configName]) {
-      setCurrentLayout(LAYOUT_CONFIGS[configName]);
-      setIsSidebarVisible(LAYOUT_CONFIGS[configName].sidebar > 0);
-      setIsDetailsVisible(LAYOUT_CONFIGS[configName].details > 0);
+      // Set a small timeout to ensure the state updates are processed
+      setTimeout(() => {
+        setCurrentLayout(LAYOUT_CONFIGS[configName]);
+        setIsSidebarVisible(LAYOUT_CONFIGS[configName].sidebar > 0);
+        setIsDetailsVisible(LAYOUT_CONFIGS[configName].details > 0);
+
+        // Save to localStorage for persistence
+        if (typeof window !== 'undefined') {
+          try {
+            localStorage.setItem('currentLayout', configName);
+            console.log('Layout saved to localStorage:', configName);
+          } catch (e) {
+            console.error('Error saving layout to localStorage:', e);
+          }
+        }
+      }, 0);
     }
   };
 
@@ -65,6 +85,60 @@ export function LayoutProvider({ children }: LayoutProviderProps) {
     }
   };
 
+  // Initialize layout based on saved config or screen size
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      // Set up event listener for localStorage changes
+      const handleStorageChange = (e) => {
+        if (e.key === 'currentLayout' && e.newValue) {
+          console.log('Layout changed in storage:', e.newValue);
+          if (LAYOUT_CONFIGS[e.newValue]) {
+            setCurrentLayout(LAYOUT_CONFIGS[e.newValue]);
+            setIsSidebarVisible(LAYOUT_CONFIGS[e.newValue].sidebar > 0);
+            setIsDetailsVisible(LAYOUT_CONFIGS[e.newValue].details > 0);
+          }
+        }
+      };
+
+      window.addEventListener('storage', handleStorageChange);
+
+      // Try to get saved layout
+      const savedLayout = localStorage.getItem('currentLayout');
+
+      if (savedLayout && LAYOUT_CONFIGS[savedLayout]) {
+        // Use saved layout if available
+        console.log('Restoring saved layout:', savedLayout);
+        setCurrentLayout(LAYOUT_CONFIGS[savedLayout]);
+        setIsSidebarVisible(LAYOUT_CONFIGS[savedLayout].sidebar > 0);
+        setIsDetailsVisible(LAYOUT_CONFIGS[savedLayout].details > 0);
+      } else {
+        // Otherwise, adapt to screen size
+        const width = window.innerWidth;
+
+        if (width < 768) {
+          // Mobile/small tablet - focus on table with minimal details
+          setCurrentLayout(LAYOUT_CONFIGS.NARROW);
+          setIsSidebarVisible(LAYOUT_CONFIGS.NARROW.sidebar > 0);
+          setIsDetailsVisible(LAYOUT_CONFIGS.NARROW.details > 0);
+        } else if (width < 1024) {
+          // Tablet - no sidebar
+          setCurrentLayout(LAYOUT_CONFIGS.MEDIUM_NO_SIDEBAR);
+          setIsSidebarVisible(LAYOUT_CONFIGS.MEDIUM_NO_SIDEBAR.sidebar > 0);
+          setIsDetailsVisible(LAYOUT_CONFIGS.MEDIUM_NO_SIDEBAR.details > 0);
+        } else {
+          // Desktop - default layout
+          setCurrentLayout(LAYOUT_CONFIGS.DEFAULT);
+          setIsSidebarVisible(LAYOUT_CONFIGS.DEFAULT.sidebar > 0);
+          setIsDetailsVisible(LAYOUT_CONFIGS.DEFAULT.details > 0);
+        }
+      }
+
+      return () => {
+        window.removeEventListener('storage', handleStorageChange);
+      };
+    }
+  }, []);
+
   // Adjust layout based on panel visibility
   useEffect(() => {
     if (!isSidebarVisible && !isDetailsVisible) {
@@ -74,13 +148,16 @@ export function LayoutProvider({ children }: LayoutProviderProps) {
       // If only sidebar is hidden, show table and details
       setCurrentLayout(LAYOUT_CONFIGS.NO_SIDEBAR);
     } else if (isSidebarVisible && !isDetailsVisible) {
-      // If only details is hidden, show sidebar and table
-      setCurrentLayout({ sidebar: 15, table: 85, details: 0 });
+      // If only details is hidden, use the sidebar table only layout
+      setCurrentLayout(LAYOUT_CONFIGS.SIDEBAR_TABLE_ONLY);
     } else if (isSidebarVisible && isDetailsVisible) {
       // If both are visible, ensure we're using the DEFAULT layout
-      setCurrentLayout(LAYOUT_CONFIGS.DEFAULT);
+      // (but keep the current layout if its one with a sidebar)
+      if (currentLayout.sidebar === 0) {
+        setCurrentLayout(LAYOUT_CONFIGS.DEFAULT);
+      }
     }
-  }, [isSidebarVisible, isDetailsVisible]);
+  }, [isSidebarVisible, isDetailsVisible, currentLayout.sidebar]);
 
   const contextValue: LayoutContextType = {
     currentLayout,

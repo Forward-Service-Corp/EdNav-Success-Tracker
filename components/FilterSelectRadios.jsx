@@ -1,7 +1,19 @@
-import { useFepsLeft } from "../contexts/FepsLeftContext";
+import { useFepsLeft } from '../contexts/FepsLeftContext';
+import React, { useEffect } from 'react';
 
 function FilterSelectRadios() {
-  const { setSelectedFepLeft } = useFepsLeft();
+  const { selectedFepLeft, setSelectedFepLeft } = useFepsLeft();
+
+  // Force "All" status on initial load
+  useEffect(() => {
+    setSelectedFepLeft((prevState) => {
+      if (prevState.status !== 'All') {
+        console.log('Setting status to All');
+        return { ...prevState, status: 'All' };
+      }
+      return prevState;
+    });
+  }, [setSelectedFepLeft]);
 
   const handleFilterChange = (e) => {
     setSelectedFepLeft((prevState) => {
@@ -26,7 +38,9 @@ function FilterSelectRadios() {
             type="radio"
             name="filter-radio-status"
             className="radio radio-base-content mt-3"
-            defaultChecked
+            checked={selectedFepLeft.status === 'All'}
+            onChange={() => {
+            }} // React requires onChange with checked prop
           />
         </label>
 
@@ -42,6 +56,9 @@ function FilterSelectRadios() {
             type="radio"
             name="filter-radio-status"
             className="radio radio-success mt-3"
+            checked={selectedFepLeft.status === 'In Progress'}
+            onChange={() => {
+            }}
           />
         </label>
 
@@ -57,6 +74,9 @@ function FilterSelectRadios() {
             type="radio"
             name="filter-radio-status"
             className="radio radio-info mt-3"
+            checked={selectedFepLeft.status === 'Active'}
+            onChange={() => {
+            }}
           />
         </label>
 
@@ -72,6 +92,9 @@ function FilterSelectRadios() {
             type="radio"
             name="filter-radio-status"
             className="radio radio-warning mt-3"
+            checked={selectedFepLeft.status === 'Graduated'}
+            onChange={() => {
+            }}
           />
         </label>
 
@@ -87,6 +110,9 @@ function FilterSelectRadios() {
             type="radio"
             name="filter-radio-status"
             className="radio radio-error mt-3"
+            checked={selectedFepLeft.status === 'Inactive'}
+            onChange={() => {
+            }}
           />
         </label>
       </div>

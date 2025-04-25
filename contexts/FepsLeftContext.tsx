@@ -1,26 +1,14 @@
-import {
-  createContext,
-  Dispatch,
-  ReactNode,
-  SetStateAction,
-  useContext,
-  useState,
-} from "react";
+import { createContext, Dispatch, ReactNode, SetStateAction, useContext, useEffect, useState } from 'react';
 
 type FEP = {
-  searchTerm: "";
-  age: "All";
-  status: "All";
+  searchTerm: string;
+  age: string;
+  status: string;
   menuOpen: boolean | null;
 };
 
 type FepsLeftContextType = {
-  selectedFepLeft: {
-    searchTerm: string;
-    age: string;
-    status: string;
-    menuOpen: boolean | null;
-  };
+  selectedFepLeft: FEP;
   setSelectedFepLeft: Dispatch<SetStateAction<FEP>>;
 };
 
@@ -36,6 +24,16 @@ export const FepsLeftProvider = ({ children }: { children: ReactNode }) => {
     menuOpen: null,
   });
 
+  // Ensure defaults are set correctly on mount
+  useEffect(() => {
+    setSelectedFepLeft({
+      searchTerm: '',
+      age: 'All',
+      status: 'All',
+      menuOpen: null
+    });
+  }, []);
+
   return (
     <FepsLeftContext.Provider value={{ selectedFepLeft, setSelectedFepLeft }}>
       {children}
@@ -47,7 +45,7 @@ export const FepsLeftProvider = ({ children }: { children: ReactNode }) => {
 export const useFepsLeft = () => {
   const context = useContext(FepsLeftContext);
   if (!context) {
-    throw new Error("useClients must be used within a FepsLeftProvider");
+    throw new Error('useFepsLeft must be used within a FepsLeftProvider');
   }
   return context;
 };

@@ -1,7 +1,7 @@
 "use client";
-import { useEffect } from "react";
-import { useNavigators } from "/contexts/NavigatorsContext";
-import { useSession } from "next-auth/react";
+import { useEffect } from 'react';
+import { useNavigators } from '/contexts/NavigatorsContext';
+import { useSession } from 'next-auth/react';
 
 function NavigatorSelector() {
   const { selectedNavigator, setSelectedNavigator } = useNavigators();
@@ -40,7 +40,7 @@ function NavigatorSelector() {
   }, [session]);
 
   return (
-    <div>
+    <div className="relative" style={{ zIndex: 10 }}>
       <select
         id="navigator-select"
         value={selectedNavigator?.name}

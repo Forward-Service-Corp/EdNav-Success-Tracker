@@ -5,7 +5,7 @@ import { format } from 'date-fns';
 import { useNotification } from '@/contexts/NotificationContext';
 import { useNavigators } from '@/contexts/NavigatorsContext';
 
-export default function CombinedFeed() {
+export default function CombinedFeed({ isNarrow }) {
   const { selectedClient } = useClients();
   const { selectedNavigator } = useNavigators();
   const [activities, setActivities] = useState([]);
@@ -957,10 +957,10 @@ export default function CombinedFeed() {
 
   return (
     <div className="card bg-base-100 h-full w-full shadow-xl">
-      <div className="card-body">
-        <div className="flex items-center justify-between">
-          <h2 className="card-title">Client Activity Feed</h2>
-          <div className="flex gap-2">
+      <div className="card-body p-3 md:p-6">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <h2 className={`card-title ${isNarrow ? 'text-lg' : 'text-xl'}`}>Client Activity Feed</h2>
+          <div className="flex gap-1 md:gap-2">
             <button
               onClick={() => setIsAddingNote(!isAddingNote)}
               className="btn btn-sm btn-outline btn-primary"
@@ -1169,3 +1169,8 @@ export default function CombinedFeed() {
     </div>
   );
 }
+
+// Default props
+CombinedFeed.defaultProps = {
+  isNarrow: false
+};
