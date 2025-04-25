@@ -12,12 +12,24 @@ export default function ClientProfile({ setOpenPanel }) {
   const [isMounted, setIsMounted] = useState(false);
   const [, setSelectedNavigator] = useState("");
   const { selectedClient, setSelectedClient } = useClients();
-  const [actions, setActions] = useState([]); // actions are the activities
+  const [, setActions] = useState([]); // actions are the activities
   const [hasTrackable, setHasTrackable] = useState([]);
   const [hasTrackableUpdated, setHasTrackableUpdated] = useState(false);
   const [hasTrackableCopy, setHasTrackableCopy] = useState([]);
   const [updated, setUpdated] = useState(false);
   const [activityModalOpen, setActivityModalOpen] = useState("");
+  const [slideState, setSlideState] = useState('out'); // "in" or "out"
+
+  // Watch for changes to the selectedClient and animate accordingly
+  useEffect(() => {
+    if (selectedClient) {
+      // If a client is selected, slide in
+      setSlideState('in');
+    } else {
+      // If no client is selected, slide out
+      setSlideState('out');
+    }
+  }, [selectedClient]);
 
   useEffect(() => {
     setIsMounted(true); // ✅ Mark component as mounted before interacting with localStorage
@@ -29,8 +41,23 @@ export default function ClientProfile({ setOpenPanel }) {
       if (!window.openActivityModal) {
         console.log('Setting up openActivityModal from ClientProfile');
         window.openActivityModal = () => {
-          console.log('Opening activity modal from ClientProfile');
-          setActivityModalOpen('activity');
+          // Only allow opening the activity modal if a client is selected
+          if (selectedClient) {
+            console.log('Opening activity modal from ClientProfile');
+            setActivityModalOpen('activity');
+          } else {
+            console.warn('Cannot open activity modal: No client selected');
+            if (typeof window.showNotification === 'function') {
+              window.showNotification({
+                title: 'No Client Selected',
+                message: 'Please select a client before adding an activity.',
+                type: 'warning',
+                duration: 3000
+              });
+            } else if (window.alert) {
+              window.alert('Please select a client before adding an activity.');
+            }
+          }
         };
       }
 
@@ -203,21 +230,83 @@ export default function ClientProfile({ setOpenPanel }) {
 
       // If we have a selected client, update its trackable data
       if (selectedClient) {
-        // Schedule update for next render cycle
+        // Schedule update for the next render cycle
         setTimeout(() => {
+          // Make sure we preserve the createdAt timestamp and savedInDatabase flags
+          const trackableWithTimestamp = {
+            ...result.trackable,
+            createdAt: result.trackable.createdAt || new Date().toISOString(),
+            // Keep the items array with savedInDatabase flags intact
+            items: (result.trackable.items || []).map(item => ({
+              ...item,
+              // Preserve savedInDatabase flag if it exists, otherwise default to false
+              savedInDatabase: item.savedInDatabase === true
+            }))
+          };
+          
           const updatedClient = {
             ...selectedClient,
-            trackable: result.trackable
+            trackable: trackableWithTimestamp
           };
           setSelectedClient(updatedClient);
 
-          // Also update local state
-          setHasTrackable(result.trackable.items || []);
-          setHasTrackableCopy(JSON.parse(JSON.stringify(result.trackable.items || [])));
+          // Update local state but preserve savedInDatabase flags
+          setHasTrackable(trackableWithTimestamp.items);
+
+          // For hasTrackableCopy, only mark items as completed if they're saved in database
+          const itemsForCopy = trackableWithTimestamp.items.map(item => ({
+            ...item,
+            completed: item.savedInDatabase === true ? item.completed : false
+          }));
+
+          setHasTrackableCopy(itemsForCopy);
           setHasTrackableUpdated(true);
+
+          // Also save to localStorage for persistence
+          if (typeof window !== 'undefined') {
+            try {
+              localStorage.setItem(`trackable-${selectedClient._id}`,
+                JSON.stringify(trackableWithTimestamp)
+              );
+            } catch (e) {
+              console.error('Failed to save trackable to localStorage', e);
+            }
+          }
         }, 0);
       }
     }
+  };
+
+  // Handle closing the activity modal when there's no selected client
+  const handleActivityModalOpen = (state) => {
+    console.log('Activity modal open state changing from', activityModalOpen, 'to', state);
+
+    if (!selectedClient && state) {
+      console.warn('Cannot open activity modal: No client selected');
+      if (typeof window !== 'undefined' && typeof window.showNotification === 'function') {
+        window.showNotification({
+          title: 'No Client Selected',
+          message: 'Please select a client before adding an activity.',
+          type: 'warning',
+          duration: 3000
+        });
+      }
+      return;
+    }
+
+    // If we're closing the modal, make sure we preserve the selected client
+    if (state === '' && selectedClient) {
+      console.log('Closing activity modal while preserving selected client:', selectedClient._id);
+      // Force a refresh of the client data to ensure it's not lost
+      setTimeout(() => {
+        if (selectedClient) {
+          console.log('Refreshing client data after modal close');
+          setSelectedClient({ ...selectedClient });
+        }
+      }, 100);
+    }
+
+    setActivityModalOpen(state);
   };
 
   // ✅ Prevent hydration mismatch by rendering only after mount
@@ -225,10 +314,24 @@ export default function ClientProfile({ setOpenPanel }) {
 
   return (
     <div
-      className={`relative h-full w-full flex-[4]`}
+      className={`relative h-full w-full flex-[4] transition-transform duration-800 ease-in-out ${
+        slideState === 'out'
+          ? 'translate-x-full opacity-0'
+          : 'translate-x-0 opacity-100'
+      }`}
       id="client-profile-root"
       data-client-id={selectedClient?._id || ''}
     >
+      {/* No client selected a message */}
+      {!selectedClient && (
+        <div className="absolute inset-0 flex items-center justify-center bg-base-200/80 z-50">
+          <div className="text-center p-8 rounded-lg bg-base-100 shadow-lg">
+            <h2 className="text-2xl font-bold mb-4">No Client Selected</h2>
+            <p>Please select a client from the list to view their profile.</p>
+          </div>
+        </div>
+      )}
+
       <div
         className={`no-scrollbar absolute top-0 right-0 bottom-0 left-0 overflow-y-scroll`}
       >
@@ -258,7 +361,7 @@ export default function ClientProfile({ setOpenPanel }) {
       {/* Activity Modal */}
       <ActivityModal
         open={activityModalOpen}
-        setOpen={setActivityModalOpen}
+        setOpen={handleActivityModalOpen}
         onSuccess={handleActivitySuccess}
       />
 

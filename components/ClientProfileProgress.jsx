@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { CheckCircleIcon } from '@heroicons/react/20/solid';
-import { useClients } from '../contexts/ClientsContext';
+import { useClients } from '@/contexts/ClientsContext';
 
 function ClientProfileProgress({
   hasTrackable,
@@ -13,16 +13,145 @@ function ClientProfileProgress({
   const [completionPercentage, setCompletionPercentage] = useState(0);
   const [isUpdating, setIsUpdating] = useState(false);
 
-  // Calculate and update the completion percentage whenever hasTrackable changes
+  // New state variables for better control
+  const [savedItems, setSavedItems] = useState([]); // Items saved in the database
+  const [newSelections, setNewSelections] = useState([]); // Items selected but not yet saved
+  const [displayItems, setDisplayItems] = useState([]); // Combined items for display
+  const [recentlySelectedProgram, setRecentlySelectedProgram] = useState(false);
+
+  // Initialize our state when hasTrackable changes
   useEffect(() => {
     if (Array.isArray(hasTrackable) && hasTrackable.length > 0) {
-      const percentage = calculateCompletionPercentage(hasTrackable);
+      // Initial setup of our state arrays
+      initializeStateArrays(hasTrackable);
+
+      // Calculate completion based on display items
+      const percentage = calculateCompletionPercentage(displayItems);
       setCompletionPercentage(percentage);
       console.log('Updated completion percentage:', percentage);
     } else {
+      setSavedItems([]);
+      setNewSelections([]);
+      setDisplayItems([]);
       setCompletionPercentage(0);
     }
   }, [hasTrackable]);
+
+  // Initialize our state arrays from the incoming hasTrackable
+  const initializeStateArrays = (items) => {
+    // Create arrays for saved items and new selections
+    const saved = [];
+    const newSelect = [];
+    const display = [];
+
+    // Process each item
+    items.forEach((item, index) => {
+      // First check if item has explicit savedInDatabase flag (from ActivityDynamicSelect)
+      const isSavedInDB = item.savedInDatabase === true;
+
+      // Fallback to check hasTrackableCopy if no explicit flag (backward compatibility)
+      const isSavedInDBFallback = !isSavedInDB && Array.isArray(hasTrackableCopy) &&
+        hasTrackableCopy[index] &&
+        hasTrackableCopy[index].completed === true;
+
+      // Use either the explicit flag or the fallback
+      const isItemSaved = isSavedInDB || isSavedInDBFallback;
+
+      // Create item with appropriate flags
+      const processedItem = {
+        ...item,
+        savedInDatabase: isItemSaved,
+        index: index // Store original index for reference
+      };
+
+      // Add to appropriate arrays
+      if (isItemSaved) {
+        // This is a database-saved item
+        saved.push(processedItem);
+      } else if (item.completed) {
+        // This is selected but not yet saved
+        newSelect.push(processedItem);
+      }
+
+      // Always add to display array
+      display.push(processedItem);
+    });
+
+    // Update state
+    setSavedItems(saved);
+    setNewSelections(newSelect);
+    setDisplayItems(display);
+
+    // Check if this is a recently selected program
+    checkIfRecentlySelected(display);
+  };
+
+  // Check if the program was recently selected
+  const checkIfRecentlySelected = (items) => {
+    if (!selectedClient?.trackable?.program) return;
+
+    // Check if there are any saved items - if none, it's a new selection
+    // Explicitly check for the savedInDatabase flag from ActivityDynamicSelect
+    const hasSavedItems = items.some(item => item.savedInDatabase === true);
+
+    if (!hasSavedItems) {
+      // Check timestamp if available
+      const trackableTimestamp = selectedClient.trackable.createdAt
+        ? new Date(selectedClient.trackable.createdAt)
+        : null;
+
+      if (trackableTimestamp) {
+        const currentTime = new Date();
+        const timeDiff = (currentTime - trackableTimestamp) / 1000; // in seconds
+
+        // Consider it recent if less than 5 minutes old
+        const isRecentSelection = timeDiff < 300; // 5 minutes
+        setRecentlySelectedProgram(isRecentSelection);
+      } else {
+        // No timestamp, assume it's recent
+        setRecentlySelectedProgram(true);
+      }
+    } else {
+      // Has saved items, not a recent selection
+      setRecentlySelectedProgram(false);
+    }
+  };
+
+  // Update the display items whenever savedItems or newSelections change
+  useEffect(() => {
+    // Combine saved items and new selections into display items
+    const combined = Array.isArray(hasTrackable) ? [...hasTrackable] : [];
+
+    // Mark items as completed based on saved status and new selections
+    combined.forEach((item, index) => {
+      // Check if this item is saved in database
+      const isSavedInDB = savedItems.some(saved =>
+        saved.index === index && saved.completed === true
+      );
+
+      // Check if this item is in new selections
+      const isNewlySelected = newSelections.some(newItem =>
+        newItem.index === index && newItem.completed === true
+      );
+
+      // Update the completion status
+      combined[index] = {
+        ...item,
+        completed: isSavedInDB || isNewlySelected,
+        savedInDatabase: isSavedInDB
+      };
+    });
+
+    // Update display items
+    setDisplayItems(combined);
+
+    // Also calculate completion percentage
+    const percentage = calculateCompletionPercentage(combined);
+    setCompletionPercentage(percentage);
+
+    // Mark as updated if there are new selections
+    setUpdated(newSelections.length > 0);
+  }, [savedItems, newSelections, hasTrackable]);
 
   const handleTrackableUpdate = async () => {
     // Prevent multiple clicks
@@ -30,7 +159,7 @@ function ClientProfileProgress({
     setIsUpdating(true);
 
     try {
-      console.log('Updating trackable items:', hasTrackable);
+      console.log('Updating trackable items:', displayItems);
 
       // Safety check
       if (!selectedClient || !selectedClient._id) {
@@ -39,8 +168,20 @@ function ClientProfileProgress({
         return;
       }
 
+      // Show a confirmation dialog if this is a recently selected program
+      if (recentlySelectedProgram) {
+        const confirmSave = window.confirm(
+          `This will permanently save your ${selectedClient.trackable?.program} program selection. Continue?`
+        );
+
+        if (!confirmSave) {
+          setIsUpdating(false);
+          return;
+        }
+      }
+
       // Check if all items are completed for graduation
-      const validTrackable = Array.isArray(hasTrackable) ? hasTrackable : [];
+      const validTrackable = Array.isArray(displayItems) ? displayItems : [];
       const completed = validTrackable.filter(item => item && item.completed === true);
       const graduated = completed.length === validTrackable.length && validTrackable.length > 0;
 
@@ -66,6 +207,11 @@ function ClientProfileProgress({
       // Save in localStorage for persistence
       if (typeof window !== 'undefined') {
         try {
+          // Store the current time as the creation time if not already set
+          if (!updatedClient.trackable.createdAt) {
+            updatedClient.trackable.createdAt = new Date().toISOString();
+          }
+          
           localStorage.setItem(`trackable-${selectedClient._id}`,
             JSON.stringify(updatedClient.trackable)
           );
@@ -91,13 +237,25 @@ function ClientProfileProgress({
       } else {
         console.log('Trackable update successful:', data);
 
-        // Update local state to reflect database changes AND set the copy to disable completed items
+        // Update state to reflect that everything is now saved
         if (data.trackable && data.trackable.items) {
-          // Update the items array
-          setHasTrackable(data.trackable.items);
+          // Add savedInDatabase flag to all completed items
+          const itemsWithSavedFlag = data.trackable.items.map(item => ({
+            ...item,
+            savedInDatabase: item.completed // Only completed items are saved
+          }));
 
-          // Update the copy to mark saved items as completed in database
-          setHasTrackableCopy(JSON.parse(JSON.stringify(data.trackable.items)));
+          // Update all our state arrays
+          setSavedItems(itemsWithSavedFlag.filter(item => item.completed));
+          setNewSelections([]); // Clear the new selections since they're now saved
+          setDisplayItems(itemsWithSavedFlag);
+
+          // Update the parent state too
+          setHasTrackable(itemsWithSavedFlag);
+          setHasTrackableCopy(JSON.parse(JSON.stringify(itemsWithSavedFlag)));
+
+          // This is no longer a recently selected program
+          setRecentlySelectedProgram(false);
         }
       }
 
@@ -121,69 +279,135 @@ function ClientProfileProgress({
   }
 
   // Determine if the progress area should be visible based on client data
-  const isProgessVisible = selectedClient?.trackable?.program === 'GED' ||
-    selectedClient?.trackable?.program === 'HSED';
+  const isProgressVisible = selectedClient?.trackable?.program === 'GED' ||
+    selectedClient?.trackable?.program === 'HSED' ||
+    (typeof window !== 'undefined' && selectedClient?._id && localStorage.getItem(`trackable-${selectedClient._id}`));
+
+  useEffect(() => {
+    // Check localStorage for trackable data when component mounts or client changes
+    if (typeof window !== 'undefined' && selectedClient?._id) {
+      try {
+        const savedTrackable = localStorage.getItem(`trackable-${selectedClient._id}`);
+        if (savedTrackable) {
+          const parsedTrackable = JSON.parse(savedTrackable);
+          if (parsedTrackable && parsedTrackable.program &&
+            (parsedTrackable.program === 'GED' || parsedTrackable.program === 'HSED')) {
+
+            // Get timestamps to check if this was a recent selection
+            const trackableTimestamp = parsedTrackable.createdAt ? new Date(parsedTrackable.createdAt) : null;
+            const currentTime = new Date();
+            const timeDiff = trackableTimestamp ? (currentTime - trackableTimestamp) / 1000 : Infinity; // in seconds
+
+            // Consider it a recent selection if it was made in the last 5 minutes
+            // AND if there are no items saved to the database yet
+            const hasSavedItems = parsedTrackable.items &&
+              Array.isArray(parsedTrackable.items) &&
+              parsedTrackable.items.some(item => item && item.savedInDatabase === true);
+
+            const isRecentSelection = timeDiff < 300 && !hasSavedItems; // 5 minutes in seconds
+            setRecentlySelectedProgram(isRecentSelection);
+
+            // If we have valid trackable data with GED/HSED in localStorage but not in the client,
+            // update the client to include this data
+            if (selectedClient?.trackable?.program !== 'GED' && selectedClient?.trackable?.program !== 'HSED') {
+              console.log('Restoring saved trackable program data from localStorage');
+              setTimeout(() => {
+                const updatedClient = {
+                  ...selectedClient,
+                  trackable: {
+                    ...(selectedClient?.trackable || {}),
+                    program: parsedTrackable.program,
+                    items: parsedTrackable.items || [],
+                    createdAt: parsedTrackable.createdAt || new Date().toISOString()
+                  }
+                };
+                setSelectedClient(updatedClient);
+              }, 0);
+            }
+          }
+        }
+      } catch (e) {
+        console.error('Error checking localStorage for trackable data:', e);
+      }
+
+      // Set up listener for trackableUpdated events from ActivityDynamicSelect
+      const handleTrackableUpdate = (event) => {
+        if (event.detail && event.detail.trackable && event.detail.clientId === selectedClient._id) {
+          console.log('ClientProfileProgress received trackableUpdated event:', event.detail);
+
+          // Get the trackable data from the event
+          const trackableData = event.detail.trackable;
+
+          // Update our hasTrackable state with the new data
+          if (trackableData.items && Array.isArray(trackableData.items)) {
+            setHasTrackable(trackableData.items);
+
+            // Initialize state arrays with the new data
+            initializeStateArrays(trackableData.items);
+          }
+        }
+      };
+
+      // Add event listener
+      window.addEventListener('trackableUpdated', handleTrackableUpdate);
+
+      // Remove it on cleanup
+      return () => {
+        window.removeEventListener('trackableUpdated', handleTrackableUpdate);
+      };
+    }
+  }, [selectedClient, setSelectedClient]);
 
   const handleItemClick = (index) => {
-    // Safety check for hasTrackable array
-    if (!Array.isArray(hasTrackable) || !hasTrackable[index]) {
-      console.error('Invalid trackable item at index:', index);
+    // Safety check for displayItems array
+    if (!Array.isArray(displayItems) || !displayItems[index]) {
+      console.error('Invalid displayItems at index:', index);
+      return;
+    }
+
+    // Get the current item
+    const currentItem = displayItems[index];
+
+    // If item is already saved in database, don't allow changes
+    if (currentItem.savedInDatabase) {
+      console.log('Item is saved in database, cannot change:', currentItem);
       return;
     }
 
     try {
-      // Get current completion state
-      const hasTrackableState = !hasTrackable[index].completed;
+      // Toggle completion state
+      const newCompletionState = !currentItem.completed;
 
-      // Update local state first
-      setHasTrackable((prevState) => {
-        // Safety check
-        if (!Array.isArray(prevState) || !prevState[index]) {
-          console.error('Invalid previous state at index:', index);
-          return prevState;
-        }
+      if (newCompletionState) {
+        // Item is being selected - add to newSelections if not already there
+        setNewSelections(prev => {
+          const itemExists = prev.some(item => item.index === index);
 
-        const newItems = [...prevState];
-        newItems[index] = { ...newItems[index], completed: hasTrackableState };
-        setUpdated(true); // Mark as needing to be saved
-        return newItems;
+          if (itemExists) {
+            // Update the existing item
+            return prev.map(item =>
+              item.index === index ? { ...item, completed: true } : item
+            );
+          } else {
+            // Add the new item
+            return [...prev, { ...currentItem, completed: true, index }];
+          }
+        });
+      } else {
+        // Item is being unselected - remove from newSelections
+        setNewSelections(prev => prev.filter(item => item.index !== index));
+      }
+
+      // Update the display item directly for immediate UI feedback
+      setDisplayItems(prev => {
+        const updated = [...prev];
+        updated[index] = { ...updated[index], completed: newCompletionState };
+        return updated;
       });
 
-      // Update client trackable data
-      if (selectedClient && selectedClient.trackable && Array.isArray(selectedClient.trackable.items)) {
-        setTimeout(() => {
-          try {
-            // Safety check for index
-            if (index >= selectedClient.trackable.items.length) {
-              console.error('Index out of bounds for client trackable items');
-              return;
-            }
+      // Mark as needing to be saved
+      setUpdated(true);
 
-            const updatedItems = [...selectedClient.trackable.items];
-
-            // Make sure the item exists before updating it
-            if (updatedItems[index]) {
-              updatedItems[index] = { ...updatedItems[index], completed: hasTrackableState };
-
-              const updatedClient = {
-                ...selectedClient,
-                trackable: {
-                  ...selectedClient.trackable,
-                  items: updatedItems
-                }
-              };
-
-              setSelectedClient(updatedClient);
-            } else {
-              console.error('Item not found at index:', index);
-            }
-          } catch (error) {
-            console.error('Error updating client trackable item:', error);
-          }
-        }, 0);
-      } else {
-        console.warn('Client has no trackable items to update');
-      }
     } catch (error) {
       console.error('Error in handleItemClick:', error);
     }
@@ -191,26 +415,26 @@ function ClientProfileProgress({
 
   // Function to safely render trackable items
   const renderTrackableItems = () => {
-    if (!Array.isArray(hasTrackable)) {
-      console.error('hasTrackable is not an array:', hasTrackable);
+    if (!Array.isArray(displayItems)) {
+      console.error('displayItems is not an array:', displayItems);
       return <div className="text-error">Error: Invalid trackable data</div>;
     }
 
-    return hasTrackable.map((item, index) => {
+    return displayItems.map((item, index) => {
       // Skip rendering if item is invalid
       if (!item) {
         console.warn('Invalid item at index:', index);
         return null;
       }
 
-      // Determine if the item should be disabled based on database state
-      // If the item is completed in the original copy from the database, it should be disabled
-      const isDatabaseCompleted = Array.isArray(hasTrackableCopy) &&
-        hasTrackableCopy[index] &&
-        hasTrackableCopy[index].completed === true;
+      // Determine if the item is saved to the database
+      const isDatabaseCompleted = item.savedInDatabase === true;
 
-      // Item is either disabled by database state or currently selected
+      // Item is disabled only if it's already saved to the database
       const isDisabled = isDatabaseCompleted;
+
+      // Determine status for visual styling
+      const isUnsavedSelection = item.completed && !isDatabaseCompleted;
 
       return (
         <button
@@ -219,14 +443,22 @@ function ClientProfileProgress({
           disabled={isDisabled}
           className={`cursor-pointer text-nowrap ${isDisabled ? 'opacity-70 cursor-not-allowed' : ''}`}
           onClick={() => handleItemClick(index)}
-          title={isDatabaseCompleted ? 'This item is already saved in the database and cannot be changed' : ''}
+          title={isDatabaseCompleted
+            ? 'This item is already saved in the database and cannot be changed'
+            : isUnsavedSelection
+              ? 'Selected but not yet saved to database'
+              : ''}
         >
           {item.completed === true ? (
-            <span className={`border-success flex items-center justify-center rounded-full border pr-2`}>
+            <span
+              className={`${isDatabaseCompleted ? 'border-success' : 'border-warning'} flex items-center justify-center rounded-full border pr-2`}>
               <span className={`mr-1`}>
-                <CheckCircleIcon className={`text-success h-6 w-6`} />
+                <CheckCircleIcon className={`${isDatabaseCompleted ? 'text-success' : 'text-warning'} h-6 w-6`} />
               </span>
               {item.name}
+              {!isDatabaseCompleted && (
+                <span className="ml-1 text-[10px] text-warning">(not saved)</span>
+              )}
             </span>
           ) : (
             <span className={`border-base-content/40 flex items-center justify-center rounded-full border pr-2`}>
@@ -240,11 +472,39 @@ function ClientProfileProgress({
       );
     });
   };
+
+  // Helper function to handle program reset
+  const handleProgramReset = () => {
+    if (window.confirm(`Are you sure you want to undo your ${selectedClient?.trackable?.program} program selection?`)) {
+      // Create an updated client without the trackable program
+      const updatedClient = {
+        ...selectedClient,
+        trackable: undefined
+      };
+
+      // Update client state - keep the client selected, just remove trackable
+      setSelectedClient(updatedClient);
+
+      // Also clear localStorage
+      if (typeof window !== 'undefined' && selectedClient?._id) {
+        localStorage.removeItem(`trackable-${selectedClient._id}`);
+      }
+
+      // Reset states
+      setSavedItems([]);
+      setNewSelections([]);
+      setDisplayItems([]);
+      setHasTrackable([]);
+      setHasTrackableCopy([]);
+      setRecentlySelectedProgram(false);
+      setCompletionPercentage(0);
+    }
+  };
   
   return (
     <div className={`relative`}>
       <div
-        className={`absolute top-0 right-0 bottom-0 left-0 flex items-center justify-center ${isProgessVisible ? 'invisible' : 'visible'}`}
+        className={`absolute top-0 right-0 bottom-0 left-0 flex items-center justify-center ${isProgressVisible ? 'invisible' : 'visible'}`}
       >
         <div
           className={`text-base-content bg-base-300 m-auto max-w-3/4 rounded p-6 text-center shadow`}
@@ -253,15 +513,26 @@ function ClientProfileProgress({
         </div>
       </div>
       <div
-        className={`card bg-base-200 border-base-content/10 relative mx-6 rounded border-1 shadow-sm ${isProgessVisible ? '' : 'opacity-50 blur-[2px]'}`}
+        className={`card bg-base-200 border-base-content/10 relative mx-6 rounded border-1 shadow-sm ${isProgressVisible ? '' : 'opacity-50 blur-[2px]'}`}
         data-testid="progress-area"
       >
         <div className="card-body">
           <div className={`mt-0 mb-4 flex items-center justify-between`}>
             <div>
-              <div className={`text-2xl`}>
+              <div className={`text-2xl flex items-center gap-2`}>
                 {selectedClient?.trackable?.program || 'Program'} Progress -{' '}
                 {completionPercentage}%
+
+                {/* Show the undo button if the program was recently selected */}
+                {recentlySelectedProgram && (
+                  <button
+                    onClick={handleProgramReset}
+                    className="btn btn-xs btn-error btn-outline"
+                    title="Undo program selection"
+                  >
+                    Undo
+                  </button>
+                )}
               </div>
               <p className={`text-info text-sm`}>
                 Click items to mark them as completed, then click Save Progress.
@@ -273,7 +544,7 @@ function ClientProfileProgress({
 
             <div
               onClick={handleTrackableUpdate}
-              className={`${updated ? 'btn btn-sm btn-secondary' : 'hidden'}`}
+              className={`${updated || recentlySelectedProgram || newSelections.length > 0 ? 'btn btn-sm btn-secondary' : 'hidden'}`}
               data-testid="save-progress-button"
             >
               {isUpdating ? 'Saving...' : 'Save Progress'}

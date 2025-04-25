@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
-import moment from "moment/moment";
-import { useClients } from "../contexts/ClientsContext";
+import React, { useEffect, useState } from 'react';
+import moment from 'moment/moment';
+import { useClients } from '@/contexts/ClientsContext';
 
 function ClientProfileTabeOrientation() {
   const { selectedClient } = useClients();
@@ -42,7 +42,7 @@ function ClientProfileTabeOrientation() {
 
   return (
     <div className="relative grid grid-cols-1 gap-6">
-      <div className={`relative`}>
+      <div id="orientation" className={`relative`}>
         <div
           className={`absolute top-0 right-0 bottom-0 left-0 flex items-center justify-center ${selectedClient?.orientation?.referralDate ? "invisible" : "visible"}`}
         >
@@ -105,7 +105,7 @@ function ClientProfileTabeOrientation() {
           </button>
         </div>
       </div>
-      <div className={`relative`}>
+      <div id="tabe" className={`relative`}>
         <div
           className={`absolute top-0 right-0 bottom-0 left-0 flex items-center justify-center ${selectedClient?.tabe?.referralDate ? "invisible" : "visible"}`}
         >
@@ -157,7 +157,7 @@ function ClientProfileTabeOrientation() {
           </div>
         </div>
       </div>
-      <div className={`relative`}>
+      <div id="transcripts" className={`relative`}>
         <div
           className={`absolute top-0 right-0 bottom-0 left-0 flex items-center justify-center ${selectedClient?.transcripts?.referralDate ? "invisible" : "visible"}`}
         >

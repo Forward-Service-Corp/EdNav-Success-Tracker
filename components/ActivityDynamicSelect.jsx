@@ -10,27 +10,32 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
   const { selectedClient, setSelectedClient } = useClients();
   const [selectedPath, setSelectedPath] = useState([]);
   const [currentOptions, setCurrentOptions] = useState([]);
-  const [currentObject, setCurrentObject] = useState({});
+  const [, setCurrentObject] = useState({});
   const [finalSelection, setFinalSelection] = useState(null);
   const [multiSelectOptions, setMultiSelectOptions] = useState(null);
   const [multiSelectValues, setMultiSelectValues] = useState([]);
   const [selectedValue, setSelectedValue] = useState('');
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [trackable, setTrackable] = useState(null);
+  const [trackable, setTrackable] = useState({
+    program: '',
+    items: [],
+    createdAt: '',
+    length: 0
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [textInput, setTextInput] = useState('');
+  const [, setTextInput] = useState('');
   const [pendingClientUpdate, setPendingClientUpdate] = useState(null);
 
   // Safety function for checking arrays
-  const safeArrayCheck = (arr, predicate) => {
-    if (!Array.isArray(arr)) return false;
-    try {
-      return arr.some(predicate);
-    } catch (e) {
-      console.error('Error in array check:', e);
-      return false;
-    }
-  };
+  // const safeArrayCheck = (arr, predicate) => {
+  //   if (!Array.isArray(arr)) return false;
+  //   try {
+  //     return arr.some(predicate);
+  //   } catch (e) {
+  //     console.error('Error in array check:', e);
+  //     return false;
+  //   }
+  // };
 
   // Set initial currentOptions based on questions
   useEffect(() => {
@@ -47,18 +52,195 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
         setSelectedPath([autoSelection]);
         setCurrentObject(questions[autoSelection]);
         let options = Object.keys(questions[autoSelection]);
-        setCurrentOptions(options);
+
+        // Remove current program from options if already enrolled
+        filterProgramOptions(autoSelection, options);
       }
     }
   }, [selectedClient, questions]);
 
-  // Effect to handle client trackable updates when needed
+  // Helper function to filter out GED/HSED options if client already has one selected
+  const filterProgramOptions = (group, options) => {
+    // First check client's direct data
+    let program = selectedClient?.trackable?.program;
+    let isProgramSavedInDatabase = false;
+
+    // If no program found in client data, check localStorage
+    if (typeof window !== 'undefined' && selectedClient?._id) {
+      try {
+        const savedTrackable = localStorage.getItem(`trackable-${selectedClient._id}`);
+        if (savedTrackable) {
+          const parsedTrackable = JSON.parse(savedTrackable);
+          if (parsedTrackable && parsedTrackable.program) {
+            program = parsedTrackable.program;
+
+            // Check if this program has been saved to database by looking at the items
+            if (Array.isArray(parsedTrackable.items) && parsedTrackable.items.length > 0) {
+              // If any item is completed and saved in database, we consider the program permanent
+              isProgramSavedInDatabase = parsedTrackable.items.some(item =>
+                item && item.completed === true && item.savedInDatabase === true
+              );
+
+              // Also check the timestamp - if it's older than 5 minutes, consider it permanent
+              if (parsedTrackable.createdAt) {
+                const creationTime = new Date(parsedTrackable.createdAt);
+                const currentTime = new Date();
+                const timeDiff = (currentTime - creationTime) / 1000; // in seconds
+
+                // If it's been more than 5 minutes since selection, consider it permanent
+                if (timeDiff > 300) { // 5 minutes
+                  isProgramSavedInDatabase = true;
+                }
+              }
+            }
+          }
+        }
+      } catch (e) {
+        console.error('Error checking localStorage for program:', e);
+      }
+    }
+
+    // Only filter out options from educational activities
+    let filteredOptions = [...options];
+
+    // If we found a program (either GED or HSED) that has been saved to database, 
+    // remove it from educational activities options
+    if ((program === 'GED' || program === 'HSED') && isProgramSavedInDatabase) {
+      console.log('Found existing saved program:', program, 'Filtering from options');
+
+      // Remove program from list of available options
+      filteredOptions = options.filter(option => option !== program);
+
+      // Set the filtered options
+      setCurrentOptions(filteredOptions);
+    } else {
+      // No permanent program to filter, use all options
+      setCurrentOptions(options);
+    }
+  };
+
+  // Effect to handle client-trackable updates when needed
   useEffect(() => {
     if (pendingClientUpdate) {
+      // Set the client update first
       setSelectedClient(pendingClientUpdate);
+
+      // Update client orientation/tabe/transcripts status based on trackable type,
+      // but ONLY if the specific trackable items are actually completed
+      if (pendingClientUpdate.trackable && Array.isArray(pendingClientUpdate.trackable.items)) {
+        const trackableItems = pendingClientUpdate.trackable.items || [];
+
+        // Only get the COMPLETED trackable item names (not just any trackable items)
+        const completedItemNames = trackableItems
+          .filter(item => item && typeof item.name === 'string' && item.completed === true)
+          .map(item => item.name.toLowerCase());
+
+        console.log('Completed trackable items:', completedItemNames);
+
+        // Check for specific trackable types and activate if they are completed
+        setTimeout(() => {
+          // Only enable the relevant sections in ClientProfileTabeOrientation if completed
+          if (completedItemNames.includes('orientation')) {
+            activateClientSection('orientation');
+          }
+
+          if (completedItemNames.includes('tabe')) {
+            activateClientSection('tabe');
+          }
+
+          if (completedItemNames.includes('transcripts')) {
+            activateClientSection('transcripts');
+          }
+        }, 0);
+      }
+
+      // Clear the pending update after processing
       setPendingClientUpdate(null);
     }
   }, [pendingClientUpdate, setSelectedClient]);
+
+  // Helper function to activate sections in ClientProfileTabeOrientation
+  const activateClientSection = (sectionName) => {
+    // Create a date for today
+    const today = new Date();
+
+    // Create an updated client with the section enabled
+    const updatedClient = {
+      ...selectedClient,
+      [sectionName]: {
+        ...(selectedClient[sectionName] || {}),
+        referralDate: selectedClient[sectionName]?.referralDate || today.toISOString(),
+        completionDate: today.toISOString() // Set completion date to today since we're marking it as complete
+      }
+    };
+
+    // Also update the trackable items to mark this item as completed
+    if (selectedClient?.trackable?.items && Array.isArray(selectedClient.trackable.items)) {
+      const updatedItems = [...selectedClient.trackable.items];
+
+      // Find the item with matching name and mark it as completed AND saved in database
+      for (let i = 0; i < updatedItems.length; i++) {
+        if (updatedItems[i]?.name?.toLowerCase() === sectionName.toLowerCase()) {
+          updatedItems[i] = {
+            ...updatedItems[i],
+            completed: true,
+            savedInDatabase: true // Mark this specific item as saved in database
+          };
+          break;
+        }
+      }
+
+      // Update the client with completed trackable item
+      updatedClient.trackable = {
+        ...selectedClient.trackable,
+        items: updatedItems
+      };
+
+      // Save the updated trackable data to localStorage for persistence
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem(`trackable-${selectedClient._id}`,
+            JSON.stringify(updatedClient.trackable)
+          );
+
+          // Dispatch an event to notify other components of the trackable update
+          const trackableEvent = new CustomEvent('trackableUpdated', {
+            detail: {
+              clientId: selectedClient._id,
+              trackable: updatedClient.trackable
+            },
+            bubbles: true
+          });
+          window.dispatchEvent(trackableEvent);
+        } catch (e) {
+          console.error('Failed to save trackable to localStorage', e);
+        }
+      }
+    }
+
+    // Update the client
+    setSelectedClient(updatedClient);
+
+    // Find the section in the DOM and remove the blur
+    if (typeof window !== 'undefined') {
+      setTimeout(() => {
+        const section = document.getElementById(sectionName);
+        if (section) {
+          // Find the message overlay and hide it
+          const overlay = section.querySelector('.absolute');
+          if (overlay) {
+            overlay.classList.add('invisible');
+          }
+
+          // Find the card and remove blur
+          const card = section.querySelector('.card');
+          if (card) {
+            card.classList.remove('opacity-50', 'blur-[2px]');
+          }
+        }
+      }, 100);
+    }
+  };
 
   // Helper function to check if a path should trigger a status update
   const shouldUpdateClientStatus = (path) => {
@@ -143,7 +325,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
               // Keep other values the same
               return item;
             })
-            : [] // Default to empty array if items is not an array
+            : [] // Default to empty an array if the items is not an array
         };
       }
 
@@ -162,7 +344,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
         // setOpen(false);
       }
 
-      // Safety check for client
+      // Safety check for a client
       if (!selectedClient || !selectedClient._id) {
         console.error('No client selected for activity');
         return null;
@@ -177,15 +359,15 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
         } else if (typeof selectedClient._id === 'object') {
           if (selectedClient._id.toString) {
             clientIdStr = selectedClient._id.toString();
-          } else if (selectedClient._id.$oid) {
-            clientIdStr = selectedClient._id.$oid;
+          } else if (selectedClient._id['$oid']) {
+            clientIdStr = selectedClient._id['$oid'];
           }
         }
       }
 
       // If we still don't have a valid client ID, try a fallback approach
-      if (!clientIdStr && selectedClient && selectedClient.id) {
-        clientIdStr = selectedClient.id;
+      if (!clientIdStr && selectedClient && selectedClient._id) {
+        clientIdStr = selectedClient._id;
       }
 
       if (!clientIdStr) {
@@ -219,30 +401,33 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
 
         try {
           data.statement = generateSentence(
-            selectedClient.navigator || 'Unknown',
+            selectedClient.navigator || 'Navigator', // Provide default of 'Navigator'
             `${selectedClient.first_name || ''} ${selectedClient.last_name || ''}`.trim() || 'Client',
             Array.isArray(multiSelectValues) ? [...multiSelectValues] : [],
             Array.isArray(selectedPath) ? [...selectedPath] : []
           );
         } catch (error) {
           console.error('Error generating sentence:', error);
-          data.statement = 'Activity recorded';
+          data.statement = `${selectedClient.navigator || 'Navigator'} recorded an activity for ${selectedClient.first_name || 'Client'}.`;
         }
 
         // Make sure the multi-select data is properly updated with trackable items
         if (trackable && Array.isArray(trackable.items) && trackable.items.length > 0) {
           // Get the names of completed items for the activity message
-          const completedItemNames = trackable.items
+          // Add the completed item names to the data for the sentence generation
+          data.selections = trackable.items
             .filter(item => multiSelectValues.includes(item.name))
             .map(item => item.name);
 
-          // Add the completed item names to the data for the sentence generation
-          data.selections = completedItemNames;
-
           // Create a new array with completed items based on the selection
           const updatedItems = trackable.items.map(item => {
+            // If this item is in the multiSelectValues list, mark it as selected but NOT saved yet
             if (multiSelectValues.includes(item.name)) {
-              return { ...item, completed: true };
+              return {
+                ...item,
+                completed: true,
+                savedInDatabase: false  // Explicitly mark as not saved in database
+              };
             }
             return item;
           });
@@ -252,13 +437,14 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
             ...trackable,
             program: trackable.program ||
               (Array.isArray(selectedPath) && selectedPath.length > 1 ? selectedPath[1] : 'GED'),
-            items: updatedItems
+            items: updatedItems,
+            createdAt: trackable.createdAt || new Date().toISOString()
           };
 
           // Ensure trackable data is in the activity
           data.trackable = updatedTrackable;
 
-          // If this is a trackable multi-select, prepare client update
+          // If this is a trackable multi-select, prepare a client update
           if (selectedClient) {
             const updatedClient = {
               ...selectedClient,
@@ -284,7 +470,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
         // For single-select, use the new path (safe copy)
         data.path = Array.isArray(newPath) ? [...newPath] : [];
 
-        // Check for GED/HSED in a safe way
+        // Check for GED/HSED safely
         let hasGedHsed = false;
 
         if (Array.isArray(newPath)) {
@@ -314,14 +500,14 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
 
         try {
           data.statement = generateSentence(
-            selectedClient.navigator || 'Unknown',
+            selectedClient.navigator || 'Navigator', // Provide default of 'Navigator'
             `${selectedClient.first_name || ''} ${selectedClient.last_name || ''}`.trim() || 'Client',
             data.selections || null,
             Array.isArray(newPath) ? [...newPath] : []
           );
         } catch (error) {
           console.error('Error generating sentence for single-select:', error);
-          data.statement = 'Activity recorded';
+          data.statement = `${selectedClient.navigator || 'Navigator'} recorded an activity for ${selectedClient.first_name || 'Client'}.`;
         }
       }
 
@@ -335,7 +521,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
 
         // If we have a valid new status, add it to the data
         if (newStatus) {
-          // Since the API is expecting updateClientStatus at the top level,
+          // Since the API is expecting to updateClientStatus at the top level,
           // but nested in data, make sure it's set in the right place
           data.updateClientStatus = newStatus;
 
@@ -351,7 +537,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
             }
           }
 
-          // Queue client status update for local state
+          // Queue client status update for the local state
           if (selectedClient) {
             // Create a new client object with an updated status
             const updatedClient = {
@@ -373,44 +559,60 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
         ...data,
         _id: tempId, // Use a temporary ID that we can track
         type: 'activity',
-        navigator: data.navigator || selectedClient.navigator || 'Unknown',
+        navigator: data.navigator || selectedClient.navigator || 'Navigator',
         statement: data.statement || 'Activity recorded',
         timestamp: new Date().toISOString(),
         createdAt: new Date().toISOString(),
         date: new Date(),
-        isOptimistic: true // Flag to identify optimistic updates
+        isOptimistic: true, // Flag to identify optimistic updates
+        preventDuplicates: `${clientIdStr}-${Date.now()}` // Unique flag to prevent duplicate activities
       };
 
       console.log('Created optimistic activity:', optimisticActivity);
 
+      // Track if we've already added this activity to prevent duplicates
+      let activityAdded = false;
+      
       // Add to global feed if the function exists - this will immediately show in the UI
       if (typeof window !== 'undefined') {
-        // Try the direct addItemToFeed approach first
-        if (window.addItemToFeed) {
-          console.log('ACTIVITY DEBUG: Using direct addItemToFeed for immediate display');
-          window.addItemToFeed(optimisticActivity);
-        }
-        // Then also try the simplified approach 
-        else if (window.addActivitySimplified) {
-          console.log('ACTIVITY DEBUG: Using addActivitySimplified');
-          window.addActivitySimplified(optimisticActivity);
-        }
-        // Fall back to the original approach as a last resort
-        else if (window.addActivityToFeed) {
-          console.log('ACTIVITY DEBUG: Falling back to legacy addActivityToFeed');
-          window.addActivityToFeed(optimisticActivity);
-        } else {
-          console.error('ACTIVITY DEBUG: No activity display method available!');
-        }
+        try {
+          // First try the direct addItemToFeed approach
+          if (window.addItemToFeed && !activityAdded) {
+            console.log('ACTIVITY DEBUG: Using direct addItemToFeed for immediate display');
+            window.addItemToFeed(optimisticActivity);
+            activityAdded = true;
+          }
+          // Then if that didn't work, try the simplified approach
+          else if (window.addActivitySimplified && !activityAdded) {
+            console.log('ACTIVITY DEBUG: Using addActivitySimplified');
+            window.addActivitySimplified(optimisticActivity);
+            activityAdded = true;
+          }
+          // Fall back to the original approach as a last resort
+          else if (window.addActivityToFeed && !activityAdded) {
+            console.log('ACTIVITY DEBUG: Falling back to legacy addActivityToFeed');
+            window.addActivityToFeed(optimisticActivity);
+            activityAdded = true;
+          } else if (!activityAdded) {
+            console.error('ACTIVITY DEBUG: No activity display method available!');
+          }
 
-        // Also dispatch an event for backward compatibility
-        console.log('ACTIVITY DEBUG: Dispatching activityAdded event for compatibility');
-        const activityAddedEvent = new CustomEvent('activityAdded', {
-          detail: optimisticActivity,
-          bubbles: true,
-          cancelable: true
-        });
-        window.dispatchEvent(activityAddedEvent);
+          // Only dispatch event if we didn't successfully add the activity through other means
+          // This prevents duplicate activity posts
+          if (!activityAdded) {
+            console.log('ACTIVITY DEBUG: Dispatching activityAdded event as last resort');
+            const activityAddedEvent = new CustomEvent('activityAdded', {
+              detail: optimisticActivity,
+              bubbles: true,
+              cancelable: true
+            });
+            window.dispatchEvent(activityAddedEvent);
+          } else {
+            console.log('ACTIVITY DEBUG: Activity already added, skipping event dispatch');
+          }
+        } catch (e) {
+          console.error('ACTIVITY DEBUG: Error adding activity to feed:', e);
+        }
       } else {
         console.error('ACTIVITY DEBUG: window object not available!');
       }
@@ -480,7 +682,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
         if (data.trackable && data.trackable.items &&
           Array.isArray(data.trackable.items) && data.trackable.items.length > 0) {
 
-          // Ensure all trackable items have proper format
+          // Ensure all trackable items have a proper format
           const cleanItems = data.trackable.items.map(item => ({
             name: item.name || '',
             completed: !!item.completed,
@@ -514,7 +716,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
           let errorObj = null;
 
           try {
-            // First try to parse as JSON (the expected format)
+            // First, try to parse as JSON (the expected format)
             const responseText = await response.text();
             console.error('API error response body (raw):', responseText);
 
@@ -593,8 +795,9 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
 
         // Display error to the user through UI
         if (typeof window !== 'undefined') {
+          const snExists = window['showNotification'];
           // Try to display a user-friendly notification
-          if (window.showNotification) {
+          if (snExists && typeof snExists === 'function') {
             window.showNotification({
               title: 'Error Saving Activity',
               message: error.message || 'There was a problem saving this activity. Please try again.',
@@ -671,17 +874,20 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
             }));
           }
 
-          // Create trackable object for sending to API with program value set explicitly
+          // Create a trackable object for sending to API with program value set explicitly
           const trackableData = {
             program: selectedValue, // Explicitly setting GED or HSED
             length: items.length,
-            items: items,
+            items: items.map(item => ({
+              ...item,
+              savedInDatabase: false // Mark as NOT saved in database initially
+            })),
             createdAt: new Date().toISOString()
           };
 
           console.log('Created trackable data with program:', trackableData);
 
-          // Set trackable state
+          // Set a trackable state
           setTrackable(trackableData);
 
           // Schedule client update for the next render cycle
@@ -761,7 +967,38 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
         } else {
           setMultiSelectOptions(null);
           try {
-            const options = Object.keys(newObject);
+            // Get options for the next level
+            let options = Object.keys(newObject);
+
+            // If we're in the educational activities section, check for existing GED/HSED program
+            if ((selectedPath[0] === 'adult' || selectedPath[0] === 'youth') &&
+              selectedPath[1]?.toLowerCase() === 'educational activities') {
+
+              // First check client's direct data
+              let program = selectedClient?.trackable?.program;
+
+              // If no program found in client data, check localStorage
+              if (!program && typeof window !== 'undefined' && selectedClient?._id) {
+                try {
+                  const savedTrackable = localStorage.getItem(`trackable-${selectedClient._id}`);
+                  if (savedTrackable) {
+                    const parsedTrackable = JSON.parse(savedTrackable);
+                    if (parsedTrackable && parsedTrackable.program) {
+                      program = parsedTrackable.program;
+                    }
+                  }
+                } catch (e) {
+                  console.error('Error checking localStorage for program:', e);
+                }
+              }
+
+              // If client already has GED or HSED, remove that option
+              if (program === 'GED' || program === 'HSED') {
+                console.log('Found existing program in options view:', program, 'Filtering from options');
+                options = options.filter(option => option !== program);
+              }
+            }
+            
             setCurrentOptions(options);
           } catch (e) {
             console.error('Error getting object keys:', e);
@@ -770,7 +1007,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
         }
       } else if (Array.isArray(newObject)) {
         try {
-          setMultiSelectOptions(newObject.completed || newObject);
+          setMultiSelectOptions(newObject && newObject.completed || newObject);
           setCurrentOptions([]);
         } catch (e) {
           console.error('Error setting multi-select options:', e);
@@ -825,7 +1062,11 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
 
             // Safety check to ensure the item exists
             if (updatedItems[index]) {
-              updatedItems[index] = { ...updatedItems[index], completed: false };
+              updatedItems[index] = {
+                ...updatedItems[index],
+                completed: false,
+                savedInDatabase: false // Ensure it's marked as not saved
+              };
 
               // Update local trackable state
               const updatedTrackable = { ...trackable, items: updatedItems };
@@ -862,7 +1103,11 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
 
             // Safety check to ensure the item exists
             if (updatedItems[index]) {
-              updatedItems[index] = { ...updatedItems[index], completed: true };
+              updatedItems[index] = {
+                ...updatedItems[index],
+                completed: true,
+                savedInDatabase: false // Explicitly mark as not saved in database
+              };
 
               // Update local trackable state
               const updatedTrackable = { ...trackable, items: updatedItems };
@@ -944,50 +1189,124 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
           }
         } catch (trackableError) {
           console.error('Error updating trackable data:', trackableError);
-          // Continue with the save operation even if trackable update fails
+          // Continue with the save operation even if a trackable update fails
         }
       }
 
-      // Show loading state to user
+      // Show loading state to the user
       setFinalSelection('Saving activity...');
 
       try {
         // Make sure we're sending it true to indicate this is a multi-select submission
         console.log('Starting save operation for multi-select with path:', selectedPath);
 
-        // First create the optimistic update - this ensures it shows in the UI immediately
+        // First, create the optimistic update - this ensures it shows in the UI immediately
         const optimisticResult = {
           clientEmail: selectedClient.email || '',
           clientId: selectedClient._id, // Explicitly set the client ID
           fep: selectedClient.fep || '',
-          navigator: selectedClient.navigator || 'Unknown',
+          navigator: selectedClient.navigator || 'Navigator',
           path: selectedPath,
           statement: generateSentence(
-            selectedClient.navigator || 'Unknown',
+            selectedClient.navigator || 'Navigator',
             `${selectedClient.first_name || ''} ${selectedClient.last_name || ''}`.trim() || 'Client',
             multiSelectValues,
             selectedPath
-          ) || `${selectedClient.navigator || 'Navigator'} recorded selected activities for ${selectedClient.first_name || 'client'}: ${multiSelectValues.join(', ')}`,
+          ) || `${selectedClient.navigator || 'Navigator'} recorded activities for ${selectedClient.first_name || 'Client'}: ${multiSelectValues.join(', ')}`,
           selections: multiSelectValues,
           trackable: trackable,
           createdAt: new Date().toISOString(),
           _id: `temp-${Date.now()}`,
           type: 'activity',
           isOptimistic: true, // Flag as optimistic update
-          isPermaPersistent: true // Make it persistent
+          isPermaPersistent: true, // Make it persistent
+          preventDuplicates: `${selectedClient._id}-${Date.now()}` // Unique identifier to prevent duplicates
         };
 
-        // Add the optimistic update to the UI immediately through window.addItemToFeed
-        if (typeof window !== 'undefined' && window.addItemToFeed) {
-          console.log('Adding optimistic activity to feed:', optimisticResult);
-          window.addItemToFeed(optimisticResult);
-          // Fallbacks for older versions
-          if (window.addActivityToFeed) window.addActivityToFeed(optimisticResult);
-          if (window.addActivitySimplified) window.addActivitySimplified(optimisticResult);
+        // Track if we've already added this activity to prevent duplicates
+        let activityAdded = false;
+
+        // Add the optimistic update to the UI immediately
+        if (typeof window !== 'undefined') {
+          try {
+            // Try the direct addItemToFeed approach first
+            if (window.addItemToFeed && !activityAdded) {
+              console.log('Adding optimistic activity to feed via addItemToFeed');
+              window.addItemToFeed(optimisticResult);
+              activityAdded = true;
+            }
+            // Only try alternative methods if the activity hasn't been added yet
+            else if (window.addActivityToFeed && !activityAdded) {
+              console.log('Adding optimistic activity via addActivityToFeed');
+              window.addActivityToFeed(optimisticResult);
+              activityAdded = true;
+            } else if (window.addActivitySimplified && !activityAdded) {
+              console.log('Adding optimistic activity via addActivitySimplified');
+              window.addActivitySimplified(optimisticResult);
+              activityAdded = true;
+            } else if (!activityAdded) {
+              console.error('No activity display method available!');
+            }
+          } catch (e) {
+            console.error('Error adding activity to feed:', e);
+          }
         }
 
         // Now wait for the actual server response
         const result = await saveSelectionToMongoDB(selectedPath, true);
+
+        // When we get a successful response from the server after Save Selected Items is clicked,
+        // immediately mark all selected items as saved in the database
+        if (result && result.trackable && Array.isArray(result.trackable.items)) {
+          // Update trackable items to mark all selected ones as saved in the database
+          const savedItems = result.trackable.items.map(item => {
+            if (multiSelectValues.includes(item.name)) {
+              return {
+                ...item,
+                completed: true,
+                savedInDatabase: true // Mark all selected items as immediately saved in database
+              };
+            }
+            return item;
+          });
+
+          // Update the trackable with saved items
+          const updatedTrackable = {
+            ...result.trackable,
+            items: savedItems,
+            createdAt: result.trackable.createdAt || new Date().toISOString()
+          };
+
+          // Update client with the saved trackable
+          if (selectedClient) {
+            const updatedClient = {
+              ...selectedClient,
+              trackable: updatedTrackable
+            };
+            setPendingClientUpdate(updatedClient);
+
+            // Save to localStorage
+            if (typeof window !== 'undefined') {
+              try {
+                localStorage.setItem(`trackable-${selectedClient._id}`,
+                  JSON.stringify(updatedTrackable)
+                );
+
+                // Dispatch an event to notify other components of the trackable update
+                const trackableEvent = new CustomEvent('trackableUpdated', {
+                  detail: {
+                    clientId: selectedClient._id,
+                    trackable: updatedTrackable
+                  },
+                  bubbles: true
+                });
+                window.dispatchEvent(trackableEvent);
+              } catch (e) {
+                console.error('Failed to save trackable to localStorage:', e);
+              }
+            }
+          }
+        }
 
         // Set UI state to show completion only if save was successful
         if (result) {
@@ -1004,8 +1323,9 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
           // Close the modal if needed
           if (typeof setOpen === 'function') {
             setTimeout(() => {
+              console.log('Delayed modal close after successful save');
               setOpen(false);
-            }, 1500); // Brief delay so user can see success message
+            }, 1500); // Brief delay so the user can see a success message
           }
         } else {
           console.error('Save operation returned null or undefined result');
@@ -1024,7 +1344,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
             errorMessage = 'Activity was saved locally, but there was a server issue.';
           }
         }
-        // Show a friendly message that assumes optimistic update succeeded
+        // Show a friendly message that assumes the optimistic update succeeded
         setFinalSelection(`Activity saved. ${errorMessage}`);
       } finally {
         // Always reset the submitting state
@@ -1038,11 +1358,26 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
     }
   };
 
+  // Get client's trackable items to check which ones are completed
+  const getCompletedTrackableItems = () => {
+    if (selectedClient?.trackable?.items && Array.isArray(selectedClient.trackable.items)) {
+      return selectedClient.trackable.items.filter(item => item.completed).map(item => item.name);
+    }
+    return [];
+  };
+
+  const completedItems = getCompletedTrackableItems();
+
   const showDatePicker = selectedPath.length === 1; // Show DatePicker only at the beginning
+
+  // Check if we're showing trackable selection (display trackables only, not date/initial steps)
+  const isTrackableSelection = Array.isArray(multiSelectOptions) && trackable &&
+    Array.isArray(trackable.items) && trackable.items.length > 0;
 
   return (
     <div className="relative z-50">
-      {showDatePicker && (
+      {/* Only show date picker in initial step, not for trackables */}
+      {showDatePicker && !isTrackableSelection && (
         <label className="flex flex-col space-y-2 font-light">
           Date of activity:
           <input
@@ -1054,7 +1389,11 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
           />
         </label>
       )}
-      {selectedPath?.length > 0 && <div className="mt-2 text-sm text-gray-500">{selectedPath.join(' > ')}</div>}
+
+      {/* Only show path breadcrumb in initial steps, not for trackables */}
+      {selectedPath?.length > 0 && !isTrackableSelection && (
+        <div className="mt-2 text-sm text-gray-500">{selectedPath.join(' > ')}</div>
+      )}
 
       {finalSelection && finalSelection.startsWith('Error:') && (
         <div className="mt-4 text-red-600">
@@ -1097,7 +1436,10 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
         </label>
       )}
 
-      {currentOptions.length > 0 && !(selectedPath && Array.isArray(selectedPath) && selectedPath.some(p => p === 'other')) && (
+      {/* Only show dropdown in initial steps, not for trackables */}
+      {currentOptions.length > 0 &&
+        !(selectedPath && Array.isArray(selectedPath) && selectedPath.some(p => p === 'other')) &&
+        !isTrackableSelection && (
         <label className="mt-6 flex flex-col space-y-2 font-light capitalize">
           <select
             name={selectedPath[selectedPath.length - 1] || 'firstOption'}
@@ -1123,25 +1465,34 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
         </label>
       )}
 
-      {multiSelectOptions && (
+      {/* Modified multiSelect section with completed items disabled */}
+      {multiSelectOptions && isTrackableSelection && (
         <div className="mt-4">
-          <h3 className="mb-2 font-semibold">Select Multiple Options</h3>
+          <h3 className="mb-2 font-semibold">Select Trackable Items</h3>
           <div className="grid grid-cols-1 gap-2">
-            {Array.isArray(multiSelectOptions) && multiSelectOptions.map((option, index) => (
-              <label
-                key={`${option}-${index}`}
-                className="flex cursor-pointer items-center space-x-2"
-              >
-                <input
-                  type="checkbox"
-                  value={option}
-                  name={selectedPath[selectedPath.length - 1] || 'firstOption'}
-                  checked={Array.isArray(multiSelectValues) && multiSelectValues.includes(option)}
-                  onChange={() => handleMultiSelectChange(option, index)}
-                />
-                <span>{option}</span>
-              </label>
-            ))}
+            {Array.isArray(multiSelectOptions) && multiSelectOptions.map((option, index) => {
+              // Check if this item is already completed
+              const isCompleted = completedItems.includes(option);
+
+              return (
+                <label
+                  key={`${option}-${index}`}
+                  className={`flex cursor-pointer items-center space-x-2 ${isCompleted ? 'text-gray-400' : ''}`}
+                >
+                  <input
+                    type="checkbox"
+                    value={option}
+                    name={selectedPath[selectedPath.length - 1] || 'firstOption'}
+                    checked={Array.isArray(multiSelectValues) && multiSelectValues.includes(option) || isCompleted}
+                    onChange={() => handleMultiSelectChange(option, index)}
+                    disabled={isCompleted} // Disable completed items
+                    className={isCompleted ? 'opacity-50' : ''}
+                  />
+                  <span>{option}</span>
+                  {isCompleted && <span className="ml-2 text-xs text-green-500">(completed)</span>}
+                </label>
+              );
+            })}
           </div>
           <button
             className={`mt-4 rounded-lg p-2 text-white ${
@@ -1162,7 +1513,8 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
         currentOptions.length === 0 &&
         !finalSelection &&
         !(selectedPath && Array.isArray(selectedPath) && selectedPath.some(p => p === 'other')) &&
-        selectedPath.length > 0 && ( // Only show if we've started the flow
+        selectedPath.length > 0 && // Only show if we've started the flow
+        !isTrackableSelection && ( // Don't show for trackables
           <div className="mt-6">
             <button
               className={`rounded-lg p-2 text-white ${
