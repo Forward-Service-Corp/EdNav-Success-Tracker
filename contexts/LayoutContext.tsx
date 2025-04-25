@@ -9,7 +9,7 @@ type LayoutConfig = {
   details: number;
 };
 
-// Define context type
+// Define a context type
 type LayoutContextType = {
   currentLayout: LayoutConfig;
   setLayoutConfig: (configName: string) => void;
@@ -21,7 +21,7 @@ type LayoutContextType = {
 };
 
 // Define the possible layout configurations
-// Sidebar is now fixed at 230px width, but we use these values for sidebar visibility
+// Sidebar is now fixed at 230 px width, but we use these values for sidebar visibility
 export const LAYOUT_CONFIGS: { [key: string]: LayoutConfig } = {
   DEFAULT: { sidebar: 15, table: 45, details: 55 },
   NO_SIDEBAR: { sidebar: 0, table: 50, details: 50 },
@@ -80,7 +80,7 @@ export function LayoutProvider({ children }: LayoutProviderProps) {
       // If hiding sidebar, switch to a no-sidebar layout
       setLayoutConfig("NO_SIDEBAR");
     } else {
-      // If showing sidebar, switch to default layout
+      // If showing a sidebar, switch to the default layout
       setLayoutConfig("DEFAULT");
     }
   };
@@ -88,8 +88,8 @@ export function LayoutProvider({ children }: LayoutProviderProps) {
   // Initialize layout based on saved config or screen size
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      // Set up event listener for localStorage changes
-      const handleStorageChange = (e) => {
+      // Set up an event listener for localStorage changes
+      const handleStorageChange = (e: StorageEvent) => {
         if (e.key === 'currentLayout' && e.newValue) {
           console.log('Layout changed in storage:', e.newValue);
           if (LAYOUT_CONFIGS[e.newValue]) {
@@ -102,11 +102,11 @@ export function LayoutProvider({ children }: LayoutProviderProps) {
 
       window.addEventListener('storage', handleStorageChange);
 
-      // Try to get saved layout
+      // Try to get a saved layout
       const savedLayout = localStorage.getItem('currentLayout');
 
       if (savedLayout && LAYOUT_CONFIGS[savedLayout]) {
-        // Use saved layout if available
+        // Use a saved layout if available
         console.log('Restoring saved layout:', savedLayout);
         setCurrentLayout(LAYOUT_CONFIGS[savedLayout]);
         setIsSidebarVisible(LAYOUT_CONFIGS[savedLayout].sidebar > 0);
@@ -142,17 +142,17 @@ export function LayoutProvider({ children }: LayoutProviderProps) {
   // Adjust layout based on panel visibility
   useEffect(() => {
     if (!isSidebarVisible && !isDetailsVisible) {
-      // If both sidebar and details are hidden, show full table
+      // If both sidebar and details are hidden, show the full table
       setCurrentLayout({ sidebar: 0, table: 100, details: 0 });
     } else if (!isSidebarVisible && isDetailsVisible) {
-      // If only sidebar is hidden, show table and details
+      // If only the sidebar is hidden, show table and details
       setCurrentLayout(LAYOUT_CONFIGS.NO_SIDEBAR);
     } else if (isSidebarVisible && !isDetailsVisible) {
       // If only details is hidden, use the sidebar table only layout
       setCurrentLayout(LAYOUT_CONFIGS.SIDEBAR_TABLE_ONLY);
     } else if (isSidebarVisible && isDetailsVisible) {
       // If both are visible, ensure we're using the DEFAULT layout
-      // (but keep the current layout if its one with a sidebar)
+      // (but keep the current layout if it's one with a sidebar)
       if (currentLayout.sidebar === 0) {
         setCurrentLayout(LAYOUT_CONFIGS.DEFAULT);
       }
