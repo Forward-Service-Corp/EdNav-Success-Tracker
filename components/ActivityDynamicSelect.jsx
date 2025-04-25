@@ -122,54 +122,54 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
   // Effect to handle client-trackable updates when needed
   useEffect(() => {
     if (pendingClientUpdate) {
-      // Set the client update first
-      setSelectedClient(pendingClientUpdate);
+      // Use a small timeout to ensure state is settled before processing
+      setTimeout(() => {
+        // Set the client update first - make a clean copy to avoid reference issues
+        const clientToUpdate = JSON.parse(JSON.stringify(pendingClientUpdate));
+        setSelectedClient(clientToUpdate);
 
-      // Update client orientation/tabe/transcripts status based on trackable type,
-      // but ONLY if the specific trackable items are actually completed
-      if (pendingClientUpdate.trackable && Array.isArray(pendingClientUpdate.trackable.items)) {
-        const trackableItems = pendingClientUpdate.trackable.items || [];
+        // Update client orientation/tabe/transcripts status based on trackable type,
+        // but ONLY if the specific trackable items are actually completed
+        if (clientToUpdate.trackable && Array.isArray(clientToUpdate.trackable.items)) {
+          const trackableItems = clientToUpdate.trackable.items || [];
 
-        // Only get the COMPLETED trackable item names (not just any trackable items)
-        const completedItemNames = trackableItems
-          .filter(item => item && typeof item.name === 'string' && item.completed === true)
-          .map(item => item.name.toLowerCase());
+          // Only get the COMPLETED trackable item names (not just any trackable items)
+          const completedItemNames = trackableItems
+            .filter(item => item && typeof item.name === 'string' && item.completed === true)
+            .map(item => item.name.toLowerCase());
 
-        console.log('Completed trackable items:', completedItemNames);
+          console.log('Completed trackable items:', completedItemNames);
 
-        // Check for specific trackable types and activate if they are completed
-        setTimeout(() => {
-          // Only enable the relevant sections in ClientProfileTabeOrientation if completed
-          if (completedItemNames.includes('orientation')) {
-            activateClientSection('orientation');
-          }
+          // Process each section that needs activation
+          completedItemNames.forEach(itemName => {
+            // Only enable the relevant sections in ClientProfileTabeOrientation if completed
+            if (itemName === 'orientation' || itemName === 'tabe' || itemName === 'transcripts') {
+              activateClientSection(itemName);
+            }
+          });
+        }
 
-          if (completedItemNames.includes('tabe')) {
-            activateClientSection('tabe');
-          }
-
-          if (completedItemNames.includes('transcripts')) {
-            activateClientSection('transcripts');
-          }
-        }, 0);
-      }
-
-      // Clear the pending update after processing
-      setPendingClientUpdate(null);
+        // Clear the pending update after processing
+        setPendingClientUpdate(null);
+      }, 50); // Small delay to ensure state is settled
     }
   }, [pendingClientUpdate, setSelectedClient]);
 
   // Helper function to activate sections in ClientProfileTabeOrientation
   const activateClientSection = (sectionName) => {
+    // Normalize the section name to lowercase for consistency
+    const normalizedSectionName = sectionName.toLowerCase();
+    console.log(`Activating client section: ${normalizedSectionName}`);
+    
     // Create a date for today
     const today = new Date();
 
     // Create an updated client with the section enabled
     const updatedClient = {
       ...selectedClient,
-      [sectionName]: {
-        ...(selectedClient[sectionName] || {}),
-        referralDate: selectedClient[sectionName]?.referralDate || today.toISOString(),
+      [normalizedSectionName]: {
+        ...(selectedClient[normalizedSectionName] || {}),
+        referralDate: selectedClient[normalizedSectionName]?.referralDate || today.toISOString(),
         completionDate: today.toISOString() // Set the completion date today since we're marking it as complete
       }
     };
@@ -177,31 +177,45 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
     // Also update the trackable items to mark this item as completed
     if (selectedClient?.trackable?.items && Array.isArray(selectedClient.trackable.items)) {
       const updatedItems = [...selectedClient.trackable.items];
+      let itemUpdated = false;
 
-      // Find the item with a matching name and mark it as completed AND saved in a database
+      // Find the item with a matching name and mark it as completed AND saved
       for (let i = 0; i < updatedItems.length; i++) {
-        if (updatedItems[i]?.name?.toLowerCase() === sectionName.toLowerCase()) {
+        if (updatedItems[i]?.name?.toLowerCase() === normalizedSectionName) {
           updatedItems[i] = {
             ...updatedItems[i],
             completed: true,
             savedInDatabase: true // Mark this specific item as saved in a database
           };
+          itemUpdated = true;
           break;
         }
       }
 
-      // Update the client with a completed trackable item
+      // If we didn't find a matching item, it might not exist yet - create it
+      if (!itemUpdated) {
+        updatedItems.push({
+          name: normalizedSectionName,
+          completed: true,
+          savedInDatabase: true,
+          id: `item-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
+        });
+      }
+
+      // Update the client with the completed trackable item
       updatedClient.trackable = {
         ...selectedClient.trackable,
-        items: updatedItems
+        program: selectedClient.trackable?.program || '', // Preserve program
+        items: updatedItems,
+        createdAt: selectedClient.trackable?.createdAt || new Date().toISOString()
       };
 
       // Save the updated trackable data to localStorage for persistence
       if (typeof window !== 'undefined') {
         try {
-          localStorage.setItem(`trackable-${selectedClient._id}`,
-            JSON.stringify(updatedClient.trackable)
-          );
+          const trackableJson = JSON.stringify(updatedClient.trackable);
+          console.log(`Saving updated trackable to localStorage:`, trackableJson);
+          localStorage.setItem(`trackable-${selectedClient._id}`, trackableJson);
 
           // Dispatch an event to notify other components of the trackable update
           const trackableEvent = new CustomEvent('trackableUpdated', {
@@ -218,24 +232,51 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
       }
     }
 
-    // Update the client
-    setSelectedClient(updatedClient);
+    // Update the client - use fresh copy to avoid reference issues
+    const clientToUpdate = JSON.parse(JSON.stringify(updatedClient));
+    setSelectedClient(clientToUpdate);
 
     // Find the section in the DOM and remove the blur
     if (typeof window !== 'undefined') {
       setTimeout(() => {
-        const section = document.getElementById(sectionName);
+        console.log(`Looking for DOM element with id: ${normalizedSectionName}`);
+        const section = document.getElementById(normalizedSectionName);
         if (section) {
           // Find the message overlay and hide it
           const overlay = section.querySelector('.absolute');
           if (overlay) {
+            console.log(`Found overlay, making invisible`);
             overlay.classList.add('invisible');
+          } else {
+            console.error(`Could not find overlay in section ${normalizedSectionName}`);
           }
 
           // Find the card and remove the blur
           const card = section.querySelector('.card');
           if (card) {
+            console.log(`Found card, removing blur`);
             card.classList.remove('opacity-50', 'blur-[2px]');
+          } else {
+            console.error(`Could not find card in section ${normalizedSectionName}`);
+          }
+        } else {
+          console.error(`Could not find section with id: ${normalizedSectionName}`);
+
+          // Try more general DOM search as fallback
+          const possibleSections = document.querySelectorAll(`[id*="${normalizedSectionName}"]`);
+          if (possibleSections.length > 0) {
+            console.log(`Found ${possibleSections.length} possible matching sections using broader search`);
+            possibleSections.forEach(section => {
+              try {
+                const overlay = section.querySelector('.absolute');
+                if (overlay) overlay.classList.add('invisible');
+
+                const card = section.querySelector('.card');
+                if (card) card.classList.remove('opacity-50', 'blur-[2px]');
+              } catch (e) {
+                console.error(`Error modifying possible section:`, e);
+              }
+            });
           }
         }
       }, 100);
@@ -1049,6 +1090,20 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
   };
 
   const handleMultiSelectChange = (option, index) => {
+    console.log(`MultiSelect change: ${option} at index ${index}`);
+
+    // First check if this item is already completed in the database
+    // If it is, we shouldn't allow unchecking it
+    const isAlreadySavedInDatabase = trackable &&
+      Array.isArray(trackable.items) &&
+      index < trackable.items.length &&
+      trackable.items[index]?.savedInDatabase === true;
+
+    if (isAlreadySavedInDatabase) {
+      console.log(`Item ${option} is already saved in database, cannot change`);
+      return; // Don't allow changes to items saved in database
+    }
+    
     // Update multiSelectValues state safely
     setMultiSelectValues((prev) => {
       try {
@@ -1062,32 +1117,37 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
 
             // Safety check to ensure the item exists
             if (updatedItems[index]) {
-              updatedItems[index] = {
-                ...updatedItems[index],
-                completed: false,
-                savedInDatabase: false // Ensure it's marked as not saved
-              };
-
-              // Update local trackable state
-              const updatedTrackable = { ...trackable, items: updatedItems };
-              setTrackable(updatedTrackable);
-
-              // Schedule client update
-              if (selectedClient) {
-                const updatedClient = {
-                  ...selectedClient,
-                  trackable: updatedTrackable
+              // Only update if it's not already saved in database
+              if (!updatedItems[index].savedInDatabase) {
+                updatedItems[index] = {
+                  ...updatedItems[index],
+                  completed: false,
+                  savedInDatabase: false // Ensure it's marked as not saved
                 };
-                setPendingClientUpdate(updatedClient);
 
-                // Save to localStorage
-                if (typeof window !== 'undefined') {
-                  try {
-                    localStorage.setItem(`trackable-${selectedClient._id}`,
-                      JSON.stringify(updatedTrackable)
-                    );
-                  } catch (e) {
-                    console.error('Failed to save trackable to localStorage:', e);
+                // Update local trackable state
+                const updatedTrackable = { ...trackable, items: updatedItems };
+                setTrackable(updatedTrackable);
+
+                // Skip the pending update queue and update directly to avoid race conditions
+                if (selectedClient) {
+                  const updatedClient = {
+                    ...selectedClient,
+                    trackable: updatedTrackable
+                  };
+
+                  // Direct update instead of queueing
+                  setSelectedClient(updatedClient);
+
+                  // Save to localStorage
+                  if (typeof window !== 'undefined') {
+                    try {
+                      localStorage.setItem(`trackable-${selectedClient._id}`,
+                        JSON.stringify(updatedTrackable)
+                      );
+                    } catch (e) {
+                      console.error('Failed to save trackable to localStorage:', e);
+                    }
                   }
                 }
               }
@@ -1103,23 +1163,28 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
 
             // Safety check to ensure the item exists
             if (updatedItems[index]) {
+              // Check current status - preserve savedInDatabase if it's already true
+              const currentSavedStatus = updatedItems[index].savedInDatabase || false;
+              
               updatedItems[index] = {
                 ...updatedItems[index],
                 completed: true,
-                savedInDatabase: false // Explicitly mark as not saved in a database
+                savedInDatabase: currentSavedStatus // Maintain the existing database status
               };
 
               // Update local trackable state
               const updatedTrackable = { ...trackable, items: updatedItems };
               setTrackable(updatedTrackable);
 
-              // Schedule client update
+              // Skip the pending update queue and update directly
               if (selectedClient) {
                 const updatedClient = {
                   ...selectedClient,
                   trackable: updatedTrackable
                 };
-                setPendingClientUpdate(updatedClient);
+
+                // Direct update
+                setSelectedClient(updatedClient);
 
                 // Save to localStorage
                 if (typeof window !== 'undefined') {
@@ -1283,7 +1348,22 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
               ...selectedClient,
               trackable: updatedTrackable
             };
-            setPendingClientUpdate(updatedClient);
+
+            // Directly update the client state instead of using the pending update
+            // This prevents race conditions with multiple updates
+            setSelectedClient(updatedClient);
+
+            // Also activate any special sections if needed
+            const completedItems = savedItems
+              .filter(item => item && item.completed && item.savedInDatabase)
+              .map(item => item.name.toLowerCase());
+
+            // Check for specific trackable types and activate if they are completed
+            completedItems.forEach(itemName => {
+              if (itemName === 'orientation' || itemName === 'tabe' || itemName === 'transcripts') {
+                activateClientSection(itemName);
+              }
+            });
 
             // Save to localStorage
             if (typeof window !== 'undefined') {
@@ -1360,10 +1440,37 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
 
   // Get client's trackable items to check which ones are completed
   const getCompletedTrackableItems = () => {
+    let completedItems = [];
+
+    // First check client's direct data for completed items
     if (selectedClient?.trackable?.items && Array.isArray(selectedClient.trackable.items)) {
-      return selectedClient.trackable.items.filter(item => item.completed).map(item => item.name);
+      completedItems = selectedClient.trackable.items
+        .filter(item => item && item.completed === true)
+        .map(item => item.name);
     }
-    return [];
+
+    // If no completed items found in client data, try localStorage as backup
+    if (completedItems.length === 0 && typeof window !== 'undefined' && selectedClient?._id) {
+      try {
+        const savedTrackable = localStorage.getItem(`trackable-${selectedClient._id}`);
+        if (savedTrackable) {
+          const parsedTrackable = JSON.parse(savedTrackable);
+          if (parsedTrackable && Array.isArray(parsedTrackable.items)) {
+            // Get items that are marked as completed (regardless of savedInDatabase status)
+            const localItems = parsedTrackable.items
+              .filter(item => item && item.completed === true)
+              .map(item => item.name);
+
+            // Combine with any existing items without duplicates
+            completedItems = [...new Set([...completedItems, ...localItems])];
+          }
+        }
+      } catch (e) {
+        console.error('Error checking localStorage for completed trackable items:', e);
+      }
+    }
+
+    return completedItems;
   };
 
   const completedItems = getCompletedTrackableItems();
@@ -1465,19 +1572,45 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
         </label>
       )}
 
-      {/* Modified multiSelect section with completed items disabled */}
+      {/* Modified multiSelect section with improved handling of completed items */}
       {multiSelectOptions && isTrackableSelection && (
         <div className="mt-4">
           <h3 className="mb-2 font-semibold">Select Trackable Items</h3>
           <div className="grid grid-cols-1 gap-2">
             {Array.isArray(multiSelectOptions) && multiSelectOptions.map((option, index) => {
-              // Check if this item is already completed
+              // Check if this item is already completed in any source
               const isCompleted = completedItems.includes(option);
 
+              // Check if the item is specifically saved in database and can't be changed
+              // First check trackable state
+              let isSavedInDatabase = false;
+              if (trackable && Array.isArray(trackable.items) && index < trackable.items.length) {
+                isSavedInDatabase = trackable.items[index]?.savedInDatabase === true;
+              }
+
+              // If not found in trackable, also check the selectedClient as backup
+              if (!isSavedInDatabase && selectedClient?.trackable?.items &&
+                Array.isArray(selectedClient.trackable.items)) {
+                isSavedInDatabase = selectedClient.trackable.items.some(item =>
+                  item.name === option && item.savedInDatabase === true
+                );
+              }
+
+              // Display the appropriate message based on status
+              let statusLabel = '';
+              if (isSavedInDatabase) {
+                statusLabel = '(saved)';
+              } else if (isCompleted) {
+                statusLabel = '(selected)';
+              }
+              
               return (
                 <label
                   key={`${option}-${index}`}
-                  className={`flex cursor-pointer items-center space-x-2 ${isCompleted ? 'text-gray-400' : ''}`}
+                  className={`flex cursor-pointer items-center space-x-2 ${isSavedInDatabase ? 'text-gray-400' : ''}`}
+                  title={isSavedInDatabase ? 'This item is saved in the database and cannot be changed' :
+                    isCompleted ? 'This item is selected but not yet saved to the database' :
+                      'Click to select this item'}
                 >
                   <input
                     type="checkbox"
@@ -1485,11 +1618,15 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
                     name={selectedPath[selectedPath.length - 1] || 'firstOption'}
                     checked={Array.isArray(multiSelectValues) && multiSelectValues.includes(option) || isCompleted}
                     onChange={() => handleMultiSelectChange(option, index)}
-                    disabled={isCompleted} // Disable completed items
-                    className={isCompleted ? 'opacity-50' : ''}
+                    disabled={isSavedInDatabase} // Only disable items saved in database
+                    className={isSavedInDatabase ? 'opacity-50' : ''}
                   />
                   <span>{option}</span>
-                  {isCompleted && <span className="ml-2 text-xs text-green-500">(completed)</span>}
+                  {statusLabel && (
+                    <span className={`ml-2 text-xs ${isSavedInDatabase ? 'text-green-500' : 'text-yellow-500'}`}>
+                      {statusLabel}
+                    </span>
+                  )}
                 </label>
               );
             })}

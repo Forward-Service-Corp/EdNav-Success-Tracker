@@ -90,28 +90,75 @@ function ClientProfileProgress({
 
   // Check if the program was recently selected
   const checkIfRecentlySelected = (items) => {
-    if (!selectedClient?.trackable?.program) return;
+    if (!selectedClient?.trackable?.program) {
+      console.log('No program selected yet');
+      return;
+    }
 
     // Check if there are any saved items - if none, it's a new selection
     // Explicitly check for the savedInDatabase flag from ActivityDynamicSelect
     const hasSavedItems = items.some(item => item.savedInDatabase === true);
+    console.log('Has saved items?', hasSavedItems);
 
     if (!hasSavedItems) {
-      // Check timestamp if available
-      const trackableTimestamp = selectedClient.trackable.createdAt
-        ? new Date(selectedClient.trackable.createdAt)
-        : null;
+      // Also check localStorage as a backup for saved items
+      let hasSavedItemsInStorage = false;
+      if (typeof window !== 'undefined' && selectedClient?._id) {
+        try {
+          const savedTrackable = localStorage.getItem(`trackable-${selectedClient._id}`);
+          if (savedTrackable) {
+            const parsedTrackable = JSON.parse(savedTrackable);
+            if (parsedTrackable && Array.isArray(parsedTrackable.items)) {
+              hasSavedItemsInStorage = parsedTrackable.items.some(item =>
+                item && item.savedInDatabase === true
+              );
+              console.log('Has saved items in localStorage?', hasSavedItemsInStorage);
+            }
+          }
+        } catch (e) {
+          console.error('Error checking localStorage for saved items:', e);
+        }
+      }
 
-      if (trackableTimestamp) {
-        const currentTime = new Date();
-        const timeDiff = (currentTime - trackableTimestamp) / 1000; // in seconds
+      // If we still don't have saved items, check timestamp
+      if (!hasSavedItemsInStorage) {
+        // Check timestamp if available
+        // First try client state
+        let trackableTimestamp = selectedClient.trackable?.createdAt
+          ? new Date(selectedClient.trackable.createdAt)
+          : null;
 
-        // Consider it recent if less than 5 minutes old
-        const isRecentSelection = timeDiff < 300; // 5 minutes
-        setRecentlySelectedProgram(isRecentSelection);
+        // Then check localStorage as backup
+        if (!trackableTimestamp && typeof window !== 'undefined' && selectedClient?._id) {
+          try {
+            const savedTrackable = localStorage.getItem(`trackable-${selectedClient._id}`);
+            if (savedTrackable) {
+              const parsedTrackable = JSON.parse(savedTrackable);
+              if (parsedTrackable && parsedTrackable.createdAt) {
+                trackableTimestamp = new Date(parsedTrackable.createdAt);
+              }
+            }
+          } catch (e) {
+            console.error('Error checking localStorage for timestamp:', e);
+          }
+        }
+
+        if (trackableTimestamp) {
+          const currentTime = new Date();
+          const timeDiff = (currentTime - trackableTimestamp) / 1000; // in seconds
+
+          // Consider it recent if less than 5 minutes old
+          const isRecentSelection = timeDiff < 300; // 5 minutes
+          console.log('Is recent selection based on timestamp?', isRecentSelection, 'Time diff:', timeDiff);
+          setRecentlySelectedProgram(isRecentSelection);
+        } else {
+          // No timestamp, assume it's recent
+          console.log('No timestamp found, assuming recent selection');
+          setRecentlySelectedProgram(true);
+        }
       } else {
-        // No timestamp, assume it's recent
-        setRecentlySelectedProgram(true);
+        // Has saved items in localStorage, not a recent selection
+        setRecentlySelectedProgram(false);
       }
     } else {
       // Has saved items, not a recent selection

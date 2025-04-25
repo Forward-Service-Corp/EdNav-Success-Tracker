@@ -20,6 +20,12 @@ function ClientProfileTabeOrientation({ isNarrow }) {
   });
 
   useEffect(() => {
+    console.log('ClientProfileTABEOrientation: selectedClient updated:', {
+      hasOrientation: !!selectedClient?.orientation?.referralDate,
+      hasTabe: !!selectedClient?.tabe?.referralDate,
+      hasTranscripts: !!selectedClient?.transcripts?.referralDate
+    });
+    
     setDateValue({
       orientation: {
         referralDate: selectedClient?.orientation?.referralDate || null,
@@ -34,6 +40,67 @@ function ClientProfileTabeOrientation({ isNarrow }) {
         completionDate: selectedClient?.transcripts?.completionDate || null,
       },
     });
+
+    // Check for trackable items that should unlock sections
+    if (selectedClient?.trackable?.items && Array.isArray(selectedClient.trackable.items)) {
+      const completedItems = selectedClient.trackable.items
+        .filter(item => item && item.completed === true)
+        .map(item => item.name.toLowerCase());
+
+      console.log('Checking trackable items for TABE/Orientation sections:', completedItems);
+
+      // If we have completed trackable items but sections aren't unlocked,
+      // force the sections to unlock by updating DOM directly
+      setTimeout(() => {
+        if (completedItems.includes('orientation') && !selectedClient?.orientation?.referralDate) {
+          console.log('Force unlocking orientation section based on trackable item');
+          const section = document.getElementById('orientation');
+          if (section) {
+            try {
+              const overlay = section.querySelector('.absolute');
+              if (overlay) overlay.classList.add('invisible');
+
+              const card = section.querySelector('.card');
+              if (card) card.classList.remove('opacity-50', 'blur-[2px]');
+            } catch (e) {
+              console.error('Error forcing orientation section unlock:', e);
+            }
+          }
+        }
+
+        if (completedItems.includes('tabe') && !selectedClient?.tabe?.referralDate) {
+          console.log('Force unlocking tabe section based on trackable item');
+          const section = document.getElementById('tabe');
+          if (section) {
+            try {
+              const overlay = section.querySelector('.absolute');
+              if (overlay) overlay.classList.add('invisible');
+
+              const card = section.querySelector('.card');
+              if (card) card.classList.remove('opacity-50', 'blur-[2px]');
+            } catch (e) {
+              console.error('Error forcing tabe section unlock:', e);
+            }
+          }
+        }
+
+        if (completedItems.includes('transcripts') && !selectedClient?.transcripts?.referralDate) {
+          console.log('Force unlocking transcripts section based on trackable item');
+          const section = document.getElementById('transcripts');
+          if (section) {
+            try {
+              const overlay = section.querySelector('.absolute');
+              if (overlay) overlay.classList.add('invisible');
+
+              const card = section.querySelector('.card');
+              if (card) card.classList.remove('opacity-50', 'blur-[2px]');
+            } catch (e) {
+              console.error('Error forcing transcripts section unlock:', e);
+            }
+          }
+        }
+      }, 300); // Give some time for the component to render
+    }
   }, [selectedClient]);
 
   function hasValidKey(obj, key) {
