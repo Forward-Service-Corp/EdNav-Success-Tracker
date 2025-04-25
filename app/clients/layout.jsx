@@ -1,7 +1,7 @@
 "use client";
-import React from "react";
-import Notification from "../../components/Notification";
-import { useNotification } from "../../contexts/NotificationContext";
+import React from 'react';
+import Notification from '../../components/Notification';
+import { useNotification } from '../../contexts/NotificationContext';
 
 function Layout({ children }) {
   const { notify, setNotify } = useNotification(false);

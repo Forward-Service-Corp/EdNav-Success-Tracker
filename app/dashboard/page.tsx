@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { LayoutProvider } from '@/contexts/LayoutContext';
+import { LayoutProvider, useLayout } from '@/contexts/LayoutContext';
 import AppLayout from '@/components/AppLayout';
 import LayoutControls from '@/components/LayoutControls';
 import ClientTableNew from '@/components/ClientTableNew';
@@ -16,7 +16,7 @@ import { NotificationProvider } from '@/contexts/NotificationContext';
 import FilterSidebar from '@/components/FilterSidebar';
 import ModalPortal from '@/components/ModalPortal';
 
-export default function Dashboard() {
+function DashboardContent() {
   const [selectedPanel, setSelectedPanel] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
@@ -54,6 +54,56 @@ export default function Dashboard() {
   }
 
   return (
+    <div className="bg-base-100 flex h-screen flex-col">
+      {/* Layout Controls */}
+      <LayoutControls />
+
+      {/* Main Layout */}
+      <div className="flex-1 overflow-hidden relative">
+        <AppLayout
+          sidebarContent={
+            <FilterSidebar
+              menuOpen={menuOpen}
+              setMenuOpen={setMenuOpen}
+              toggleSidebar={toggleSidebar}
+            />
+          }
+          tableContent={
+            <ClientTableNew
+              menuOpen={menuOpen}
+              setMenuOpen={setMenuOpen}
+              toggleSidebar={toggleSidebar}
+              setOpenPanel={setSelectedPanel}
+            />
+          }
+          detailsContent={
+            selectedPanel === 'profile' ? (
+              <ClientProfileWithActivity setOpenPanel={setSelectedPanel} />
+            ) : (
+              <div className="text-base-content flex h-full items-center justify-center opacity-50">
+                <div className="text-center">
+                  <h3 className="text-lg font-medium">
+                    No Client Selected
+                  </h3>
+                  <p>
+                    Select a client from the table to view
+                    details
+                  </p>
+                </div>
+              </div>
+            )
+          }
+        />
+      </div>
+
+      {/* Standalone Modal Portal as a failsafe */}
+      <ModalPortal />
+    </div>
+  );
+}
+
+export default function Dashboard() {
+  return (
     <NotificationProvider>
       <EditingProvider>
         <ClientListProvider>
@@ -62,51 +112,7 @@ export default function Dashboard() {
               <NavigatorsProvider>
                 <FepsLeftProvider>
                   <LayoutProvider>
-                    <div className="bg-base-100 flex h-screen flex-col">
-                      {/* Layout Controls */}
-                      <LayoutControls />
-
-                      {/* Main Layout */}
-                      <div className="flex-1 overflow-hidden relative">
-                        <AppLayout
-                          sidebarContent={
-                            <FilterSidebar
-                              menuOpen={menuOpen}
-                              setMenuOpen={setMenuOpen}
-                              toggleSidebar={toggleSidebar}
-                            />
-                          }
-                          tableContent={
-                            <ClientTableNew
-                              menuOpen={menuOpen}
-                              setMenuOpen={setMenuOpen}
-                              toggleSidebar={toggleSidebar}
-                              setOpenPanel={setSelectedPanel}
-                            />
-                          }
-                          detailsContent={
-                            selectedPanel === "profile" ? (
-                              <ClientProfileWithActivity setOpenPanel={setSelectedPanel} />
-                            ) : (
-                              <div className="text-base-content flex h-full items-center justify-center opacity-50">
-                                <div className="text-center">
-                                  <h3 className="text-lg font-medium">
-                                    No Client Selected
-                                  </h3>
-                                  <p>
-                                    Select a client from the table to view
-                                    details
-                                  </p>
-                                </div>
-                              </div>
-                            )
-                          }
-                        />
-                      </div>
-
-                      {/* Standalone Modal Portal as a failsafe */}
-                      <ModalPortal />
-                    </div>
+                    <DashboardContent />
                   </LayoutProvider>
                 </FepsLeftProvider>
               </NavigatorsProvider>
