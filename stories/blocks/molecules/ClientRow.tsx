@@ -1,7 +1,6 @@
 // /components/blocks/molecules/ClientRow.tsx
 import { useClient } from '@/contexts/ClientContext';
 import { useEditing } from '@/contexts/EditingContext';
-import { getBGColor } from '@/lib/ColorMap';
 import { Dispatch, SetStateAction } from 'react';
 import AvatarCircle from '../atoms/AvatarCircle';
 import ClientNameBlock from '../atoms/ClientNameBlock';
@@ -45,11 +44,9 @@ export default function ClientRow({
   };
 
   return (
-    <table className="table w-full min-w-[450px] max-w-[980px] ">
-      <tbody>
     <tr
-      className={`cursor-pointer bg-base-200 transition-colors duration-300 ${
-        selected ? getBGColor(person?.clientStatus?.toLowerCase()) : ''
+      className={`cursor-pointer bg-base-200/30 hover:bg-base-200/45 transition-colors duration-300 ${
+        selected ? 'bg-base-200' : ''
       }`}
       onClick={handleClick}
     >
@@ -84,7 +81,5 @@ export default function ClientRow({
         </button>
       </th>
     </tr>
-      </tbody>
-    </table>
   );
 }

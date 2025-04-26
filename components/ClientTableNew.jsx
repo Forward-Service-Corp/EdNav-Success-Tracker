@@ -6,10 +6,8 @@ import { useEditing } from '/contexts/EditingContext';
 import { useNavigator } from '/contexts/NavigatorsContext';
 import { useLayout } from '/contexts/LayoutContext';
 import { useFepsLeft } from '/contexts/FepsLeftContext';
-import { getBadgeColor, getBGColor } from '/lib/ColorMap';
 import SearchField from './SearchField';
-import Avvvatars from 'avvvatars-react';
-import Badge from './Badge';
+import ClientsTable from '../stories/blocks/organisms/ClientsTable';
 
 export default function ClientTableNew({
   menuOpen,
@@ -23,6 +21,7 @@ export default function ClientTableNew({
   const { setEditing } = useEditing();
   const { selectedClient, setSelectedClient } = useClient({});
   const { currentLayout } = useLayout();
+  const [selected, setSelected] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const [viewMode, setViewMode] = useState(null);
   const [filterOpen, setFilterOpen] = useState(false);
@@ -190,21 +189,6 @@ export default function ClientTableNew({
     }
   };
 
-  // Function to fetch the latest client data
-  // const fetchLatestClientData = async (clientId) => {
-  //   try {
-  //     // If the API route isn't implemented, this will 404
-  //     const response = await fetch(`/api/clients/${clientId}`);
-  //     if (!response.ok) {
-  //       throw new Error (`Error fetching a client: ${response.status}`);
-  //     }
-  //     return await response.json();
-  //   } catch (error) {
-  //     console.error("Error fetching client data:", error);
-  //     return null;
-  //   }
-  // };
-
   // Render loading state
   if (loading) {
     return (
@@ -329,84 +313,12 @@ export default function ClientTableNew({
   return (
     <div className="h-full w-full flex flex-col" ref={tableRef}>
       <div className="bg-base-300 sticky top-0 z-50 flex h-[80px] items-center justify-between px-3 py-4 shadow w-full">
-        <SearchField
-          menuOpen={menuOpen}
-          setMenuOpen={setMenuOpen}
-          setFilterOpen={setFilterOpen}
-          toggleSidebar={toggleSidebar}
-          filterOpen={filterOpen}
-          setViewMode={setViewMode}
-          setStatusCollapse={setStatusCollapse}
-        />
-        {/* Display current width for debugging */}
-        {process.env.NODE_ENV === 'development' && (
-          <div className="text-xs opacity-50">Width: {containerWidth}px</div>
-        )}
+        <SearchField />
       </div>
 
       <div className="flex-1 overflow-y-auto w-full no-scrollbar">
         <div className="w-full">
-          <table className="table w-full">
-            <thead className="sticky top-0 z-10 border-none">
-            <tr className="bg-info/5 border-none">
-              <th
-                className={`${visibleColumns.status && visibleColumns.county ? 'w-1/2' : 'w-2/3'} border-none`}>Client
-              </th>
-              {visibleColumns.status && <th className="w-1/6 border-none">Status</th>}
-              {visibleColumns.county && <th className="w-1/6 border-none">County</th>}
-              {visibleColumns.details && <th className="w-1/6 border-none">Action</th>}
-            </tr>
-            </thead>
-            <tbody>
-              {Array.isArray(clientsToShow) &&
-                clientsToShow.map((person, i) => (
-                  <tr
-                    key={i}
-                    className={`cursor-pointer transition-colors duration-300 ${selectedClient?._id === person._id ? getBGColor(person.clientStatus.toLowerCase()) + getBadgeColor('white') : ''}`}
-                    onClick={() => handleClientSelect(person)}
-                  >
-                    <td>
-                      <div className="flex items-center gap-3">
-                        <div className="avatar">
-                          <div className="mask mask-squircle h-12 w-12">
-                            <Avvvatars
-                              value={person.first_name || ""}
-                              size={36}
-                              displayValue={`${(person.first_name || "").split("")[0] || ""} ${(person.last_name || "").split("")[0] || ""}`}
-                              style={{ borderRadius: "50%" }}
-                            />
-                          </div>
-                        </div>
-                        <div className="overflow-hidden">
-                          <div className="font-bold truncate">
-                            {person.first_name} {person.last_name}
-                          </div>
-                          <div className="text-sm opacity-50 truncate">
-                            {person.latestInteraction || "No recent activity"}
-                          </div>
-                          {/* Show status in name cell when status column is hidden */}
-                          {!visibleColumns.status && (
-                            <Badge use={person?.clientStatus.toLowerCase()} />
-                          )}
-                          {/* Show county in name cell when county column is hidden */}
-                          {!visibleColumns.county && (
-                            <div className="mt-1 text-sm truncate">
-                              {person.county ? `County: ${person.county}` : 'County: N/A'}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </td>
-                    {visibleColumns.status && (
-                      <td>
-                        <Badge use={person?.clientStatus.toLowerCase()} className="mt-1" />
-                      </td>
-                    )}
-                    {visibleColumns.county && <td className="truncate">{person.county || 'N/A'}</td>}
-                  </tr>
-                ))}
-            </tbody>
-          </table>
+          <ClientsTable clients={clientsToShow} selectedClientId={selectedClient?._id} setOpenPanel={setOpenPanel} />
         </div>
       </div>
     </div>
