@@ -31,7 +31,7 @@ function DashboardContent() {
     setIsMounted(true);
   }, []);
 
-  // Set up resize handler in a separate effect to avoid dependency issues
+  // Set up the resize handler in a separate effect to avoid dependency issues
   useEffect(() => {
     if (!isMounted) return;
 
