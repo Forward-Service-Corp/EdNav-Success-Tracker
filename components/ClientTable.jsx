@@ -9,7 +9,7 @@ import { useFepsLeft } from '/contexts/FepsLeftContext';
 import SearchField from './SearchField';
 import ClientsTable from '../stories/blocks/organisms/ClientsTable';
 
-export default function ClientTableNew({
+export default function ClientTable({
   menuOpen,
   setMenuOpen,
   toggleSidebar,
@@ -21,7 +21,6 @@ export default function ClientTableNew({
   const { setEditing } = useEditing();
   const { selectedClient, setSelectedClient } = useClient({});
   const { currentLayout } = useLayout();
-  const [selected, setSelected] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const [viewMode, setViewMode] = useState(null);
   const [filterOpen, setFilterOpen] = useState(false);
@@ -173,23 +172,7 @@ export default function ClientTableNew({
 
   // Prevent hydration mismatch by rendering only after mount
   if (!isMounted) return null;
-
-  const handleClientSelect = (person) => {
-    setEditing("client");
-
-    if (selectedClient?._id === person._id) {
-      setSelectedClient(null);
-      setOpenPanel(null);
-    } else {
-      // Skip API call and use the person data we already have
-      // This avoids 404 errors when the API route isn't available
-      setSelectedClient(person);
-      setOpenPanel('profile');
-      handleCollapseChange('Active');
-    }
-  };
-
-  // Render loading state
+// Render loading state
   if (loading) {
     return (
       <div className="h-full w-full">

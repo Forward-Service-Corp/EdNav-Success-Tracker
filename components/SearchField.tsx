@@ -4,7 +4,7 @@ import { useLayout } from '@/contexts/LayoutContext';
 import LayoutChangeButton from '@/components/LayoutChangeButton';
 
 function SearchField() {
-  const { selectedFepLeft, setSelectedFepLeft } = useFepsLeft();
+  const { setSelectedFepLeft } = useFepsLeft();
   const { setLayoutConfig, currentLayout, isSidebarVisible, isDetailsVisible } = useLayout();
   const [activeLayout, setActiveLayout] = useState('DEFAULT');
 

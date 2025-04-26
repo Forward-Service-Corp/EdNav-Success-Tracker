@@ -4,7 +4,7 @@ import { useClient } from '../../contexts/ClientContext';
 import { useLoading } from '../../contexts/LoadingContext';
 import { LayoutProvider } from '../../contexts/LayoutContext';
 import AddClientForm from '../../components/AddClientForm';
-import ClientTableNew from '../../components/ClientTableNew';
+import ClientTable from '../../components/ClientTable';
 import ClientProfile from '../../components/ClientProfile';
 import FilterSelectRadios from '../../components/FilterSelectRadios';
 import FilterSelectRadiosAge from '../../components/FilterSelectRadiosAge';
@@ -139,7 +139,7 @@ function ClientsPageContent({ openPanel, setOpenPanel, setMenuOpen, menuOpen }) 
           className="overflow-hidden h-full"
           style={styles.table}
         >
-          <ClientTableNew
+          <ClientTable
             setOpenPanel={setOpenPanel}
             setMenuOpen={setMenuOpen}
             menuOpen={menuOpen}
