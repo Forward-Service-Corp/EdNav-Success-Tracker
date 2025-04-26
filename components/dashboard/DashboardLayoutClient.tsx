@@ -1,12 +1,12 @@
 // components/dashboard/DashboardLayoutClient.tsx
 "use client";
 
-import React, { ReactNode, useEffect, useState } from "react";
-import Link from "next/link";
-import { Home, LogOut, Settings } from "lucide-react";
-import { Session } from "next-auth";
-import { signOut } from "next-auth/react";
-import Logo from "@/components/Logo";
+import React, { ReactNode, useEffect, useState } from 'react';
+import Link from 'next/link';
+import { Home, LogOut, Settings } from 'lucide-react';
+import { Session } from 'next-auth';
+import { signOut } from 'next-auth/react';
+import Logo from '@/components/Logo';
 
 export default function DashboardLayoutClient({
   children,
@@ -77,7 +77,7 @@ export default function DashboardLayoutClient({
         <div className="p-4">
           <nav className="space-y-1">
             <Link
-              href="/dashboard"
+              href="/clients"
               className="text-foreground hover:bg-info hover:text-accent-foreground flex items-center rounded-md px-4 py-2"
             >
               <Home className="mr-3 h-5 w-5" />
@@ -87,7 +87,7 @@ export default function DashboardLayoutClient({
             {(session.user.level === "admin" ||
               session.user.level === "IT") && (
               <a
-                href="/dashboard/admin-tools"
+                href="/admin/admin-tools"
                 className="text-foreground hover:bg-info hover:text-accent-foreground flex items-center rounded-md px-4 py-2"
               >
                 <Settings className="mr-3 h-5 w-5" />

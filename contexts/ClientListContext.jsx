@@ -1,6 +1,5 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
-import { useClients } from "./ClientsContext";
-import { useNavigators } from "./NavigatorsContext";
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { useNavigator } from './NavigatorsContext';
 
 export const ClientListContext = createContext();
 
@@ -8,19 +7,18 @@ export const ClientListProvider = ({ children }) => {
   const [clientList, setClientList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { selectedClient } = useClients();
-  const { selectedNavigator } = useNavigators();
+  const { selectedNavigator } = useNavigator();
 
   // Function to fetch clients, optionally filtered by navigator
-  const fetchClients = async (navigatorName) => {
+  const fetchClients = async () => {
     setLoading(true);
     setError(null);
 
     try {
-      // Build the URL with query parameter if navigatorName is provided
+      // Build the URL with a query parameter if navigatorName is provided
       let url = "/api/clients";
-      if (navigatorName && navigatorName !== "All") {
-        url += `?navigator=${encodeURIComponent(navigatorName)}`;
+      if (selectedNavigator && selectedNavigator?.name !== 'All') {
+        url += `?navigator=${encodeURIComponent(selectedNavigator?.name)}`;
       }
 
       const res = await fetch(url);
@@ -38,13 +36,13 @@ export const ClientListProvider = ({ children }) => {
     }
   };
 
-  // Fetch clients on initial load and when selectedNavigator changes
+  // Fetch clients on an initial load and when selectedNavigator changes
   useEffect(() => {
     // Get the navigator name to filter by, if any
     const navigatorName = selectedNavigator?.name;
 
     // Fetch clients, filtered by navigator if needed
-    fetchClients(navigatorName);
+    fetchClients(navigatorName).then();
 
     // If the selectedNavigator changes, we want to refetch clients
   }, [selectedNavigator]);

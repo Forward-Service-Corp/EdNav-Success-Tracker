@@ -1,17 +1,12 @@
 "use client";
-import React, { useState } from "react";
-import {
-  Dialog,
-  DialogBackdrop,
-  DialogPanel,
-  DialogTitle,
-} from "@headlessui/react";
-import { useClients } from "../contexts/ClientsContext";
-import { useNavigators } from "../contexts/NavigatorsContext";
+import React, { useState } from 'react';
+import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
+import { useClients } from '../contexts/ClientsContext';
+import { useNavigator } from '../contexts/NavigatorsContext';
 
 export default function NoteModal({ open, setOpen }) {
   const { selectedClient } = useClients();
-  const { selectedNavigator } = useNavigators();
+  const { selectedNavigator } = useNavigator();
   // const [notes, setNotes] = useState([]);
   // const [openNote, setOpenNote] = useState('');
   const [note, setNote] = useState({
@@ -22,14 +17,14 @@ export default function NoteModal({ open, setOpen }) {
   });
 
   const handleSave = async () => {
-    console.log(note);
+    // console.log(note);
     note.clientId = selectedClient?._id;
     const response = await fetch("/api/notes", {
       method: "POST",
       body: JSON.stringify({ note: note }),
     });
-    const data = await response.json();
-    console.log(data);
+    await response.json();
+// console.log(data);
     setOpen("");
     setNote((prev) => ({ ...prev, noteContent: "" }));
   };

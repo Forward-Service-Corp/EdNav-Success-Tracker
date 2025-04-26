@@ -62,7 +62,7 @@ export function LayoutProvider({ children }: LayoutProviderProps) {
         if (typeof window !== 'undefined') {
           try {
             localStorage.setItem('currentLayout', configName);
-            console.log('Layout saved to localStorage:', configName);
+            // console.log('Layout saved to localStorage:', configName);
           } catch (e) {
             console.error('Error saving layout to localStorage:', e);
           }
@@ -91,7 +91,7 @@ export function LayoutProvider({ children }: LayoutProviderProps) {
       // Set up an event listener for localStorage changes
       const handleStorageChange = (e: StorageEvent) => {
         if (e.key === 'currentLayout' && e.newValue) {
-          console.log('Layout changed in storage:', e.newValue);
+          // console.log('Layout changed in storage:', e.newValue);
           if (LAYOUT_CONFIGS[e.newValue]) {
             setCurrentLayout(LAYOUT_CONFIGS[e.newValue]);
             setIsSidebarVisible(LAYOUT_CONFIGS[e.newValue].sidebar > 0);
@@ -107,7 +107,7 @@ export function LayoutProvider({ children }: LayoutProviderProps) {
 
       if (savedLayout && LAYOUT_CONFIGS[savedLayout]) {
         // Use a saved layout if available
-        console.log('Restoring saved layout:', savedLayout);
+        // console.log('Restoring saved layout:', savedLayout);
         setCurrentLayout(LAYOUT_CONFIGS[savedLayout]);
         setIsSidebarVisible(LAYOUT_CONFIGS[savedLayout].sidebar > 0);
         setIsDetailsVisible(LAYOUT_CONFIGS[savedLayout].details > 0);

@@ -8,7 +8,7 @@ function FilterSelectRadios() {
   useEffect(() => {
     setSelectedFepLeft((prevState) => {
       if (prevState.status !== 'All') {
-        console.log('Setting status to All');
+        // console.log('Setting status to All');
         return { ...prevState, status: 'All' };
       }
       return prevState;

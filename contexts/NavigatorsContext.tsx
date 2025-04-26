@@ -1,17 +1,27 @@
-import React, { createContext, Dispatch, ReactNode, SetStateAction, useContext, useEffect, useState } from 'react';
+import React, {
+  createContext,
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState
+} from 'react';
 
-type Navigator = {
+// Properly typed model with required/optional fields
+interface Navigator {
   _id: string;
   name: string;
-  pinned: Array<string>;
+  pinned: string[];
   preferences: {
     theme: string;
     lastAgeFilter: string;
     lastStatusFilter: string;
   };
   notifications: {
-    unread: Array<string>;
-    read: Array<string>;
+    unread: string[];
+    read: string[];
   };
   streak: {
     active: boolean;
@@ -20,157 +30,73 @@ type Navigator = {
     longestStreak: number;
     longestStreakDate: number;
   };
-};
+}
 
-type NavigatorsContextType = {
+// Type safety with no nulls in the interface
+interface NavigatorContextType {
   selectedNavigator: Navigator | null;
   setSelectedNavigator: Dispatch<SetStateAction<Navigator | null>>;
-  navigators: Navigator[];
+  navigatorList: Navigator[];
   loading: boolean;
   error: string | null;
-};
+}
 
-export const NavigatorsContext = createContext<NavigatorsContextType>({
+// Context with default values
+export const NavigatorContext = createContext<NavigatorContextType>({
   selectedNavigator: null,
   setSelectedNavigator: () => {},
-  navigators: [],
+  navigatorList: [],
   loading: false,
-  error: null,
+  error: null
 });
 
-export const NavigatorsProvider = ({ children }: { children: ReactNode }) => {
-  const [selectedNavigator, setSelectedNavigator] = useState<Navigator | null>(
-    null,
-  );
-  const [navigators, setNavigators] = useState<Navigator[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+export let NavigatorProvider: ({ children }: { children: React.ReactNode }) => JSX.Element = ({ children }) => {
+  const [selectedNavigator, setSelectedNavigator] = useState<Navigator | null>(null);
+  const [navigatorList, setNavigatorList] = useState<Navigator[]>([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch navigators on initial load
-  useEffect(() => {
-    const fetchNavigators = async () => {
-      setLoading(true);
-      setError(null);
+  // Memoized fetch function to avoid recreating on every render
+  const fetchNavigatorList = useCallback(async () => {
+    setLoading(true);
+    setError(null);
 
-      try {
-        // Get logged in user first to get their navigator role
-        let loggedInUser;
-        try {
-          const userRes = await fetch("/api/auth/me");
-          if (userRes.ok) {
-            loggedInUser = await userRes.json();
-          }
-        } catch (e) {
-          console.error("Error fetching logged in user:", e);
-        }
-
-        // Now fetch navigators
-        const res = await fetch("/api/navigators");
-        if (!res.ok) {
-          throw new Error(`Failed to fetch navigators: ${res.status}`);
-        }
-
-        const data = await res.json();
-
-        // Add the "All" option
-        const allOption = {
-          _id: "all",
-          name: "All",
-          pinned: [],
-          preferences: {
-            theme: "default",
-            lastAgeFilter: "All",
-            lastStatusFilter: "All",
-          },
-          notifications: {
-            unread: [],
-            read: [],
-          },
-          streak: {
-            active: false,
-            streak: 0,
-            lastDate: "",
-            longestStreak: 0,
-            longestStreakDate: 0,
-          },
-        };
-
-        const navigatorsData = [allOption, ...data];
-        setNavigators(navigatorsData);
-
-        // Set initial selected navigator
-        if (loggedInUser?.navigator) {
-          // If user is a navigator, find their entry
-          const userNavigator = navigatorsData.find(
-            (nav) =>
-              nav.name === loggedInUser.navigator ||
-              nav._id === loggedInUser.navigator,
-          );
-
-          if (userNavigator) {
-            setSelectedNavigator(userNavigator);
-          } else {
-            // Default to "All" if user's navigator not found
-            setSelectedNavigator(allOption);
-          }
-        } else {
-          // Default to "All" for non-navigator users
-          setSelectedNavigator(allOption);
-        }
-      } catch (err) {
-        console.error("Failed to fetch navigators:", err);
-        // Type guard to ensure we can access the message property
-        const errorMessage = err instanceof Error ? err.message : 'Failed to load navigators';
-        setError(errorMessage);
-        // Set the "All" option as a fallback
-        const fallbackOption = {
-          _id: "all",
-          name: "All",
-          pinned: [],
-          preferences: {
-            theme: "default",
-            lastAgeFilter: "All",
-            lastStatusFilter: "All",
-          },
-          notifications: { unread: [], read: [] },
-          streak: {
-            active: false,
-            streak: 0,
-            lastDate: "",
-            longestStreak: 0,
-            longestStreakDate: 0,
-          },
-        };
-        setNavigators([fallbackOption]);
-        setSelectedNavigator(fallbackOption);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchNavigators();
+    const navigatorsRes = await fetch('/api/navigators');
+    // if (!navigatorsRes.ok) {
+    //   throw new Error ('Failed to fetch navigators: ${navigatorsRes.status}');
+    // }
+    const res = await navigatorsRes.json();
+    setNavigatorList(res);
+    setSelectedNavigator(res[0]);
+    setLoading(false);
   }, []);
 
+  // Effect runs only once on a component mount
+  useEffect(() => {
+    fetchNavigatorList().then();
+  }, [fetchNavigatorList]);
+
+  // Memoized context value to prevent unnecessary re-renders
+  const contextValue = useMemo(() => ({
+    selectedNavigator,
+    setSelectedNavigator,
+    navigatorList,
+    loading,
+    error
+  }), [selectedNavigator, navigatorList, loading, error]);
+
   return (
-    <NavigatorsContext.Provider
-      value={{
-        selectedNavigator,
-        setSelectedNavigator,
-        navigators,
-        loading,
-        error,
-      }}
-    >
+    <NavigatorContext.Provider value={contextValue}>
       {children}
-    </NavigatorsContext.Provider>
+    </NavigatorContext.Provider>
   );
 };
 
 // Custom hook for consuming context
-export const useNavigators = () => {
-  const context = useContext(NavigatorsContext);
+export const useNavigator = () => {
+  const context = useContext(NavigatorContext);
   if (!context) {
-    throw new Error("useNavigators must be used within a NavigatorContext");
+    throw new Error('useNavigator must be used within a NavigatorProvider');
   }
   return context;
 };

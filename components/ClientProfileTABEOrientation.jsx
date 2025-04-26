@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import moment from 'moment/moment';
-import { useClients } from '@/contexts/ClientsContext';
+import { useClients } from '/contexts/ClientsContext';
 
 function ClientProfileTabeOrientation({ isNarrow }) {
   const { selectedClient } = useClients();
@@ -20,11 +20,11 @@ function ClientProfileTabeOrientation({ isNarrow }) {
   });
 
   useEffect(() => {
-    console.log('ClientProfileTABEOrientation: selectedClient updated:', {
-      hasOrientation: !!selectedClient?.orientation?.referralDate,
-      hasTabe: !!selectedClient?.tabe?.referralDate,
-      hasTranscripts: !!selectedClient?.transcripts?.referralDate
-    });
+    // console.log('ClientProfileTABEOrientation: selectedClient updated:', {
+    //   hasOrientation: !!selectedClient?.orientation?.referralDate,
+    //   hasTabe: !!selectedClient?.tabe?.referralDate,
+    //   hasTranscripts: !!selectedClient?.transcripts?.referralDate
+    // });
     
     setDateValue({
       orientation: {
@@ -47,13 +47,13 @@ function ClientProfileTabeOrientation({ isNarrow }) {
         .filter(item => item && item.completed === true)
         .map(item => item.name.toLowerCase());
 
-      console.log('Checking trackable items for TABE/Orientation sections:', completedItems);
+      // console.log('Checking trackable items for TABE/Orientation sections:', completedItems);
 
       // If we have completed trackable items but sections aren't unlocked,
       // force the sections to unlock by updating DOM directly
       setTimeout(() => {
         if (completedItems.includes('orientation') && !selectedClient?.orientation?.referralDate) {
-          console.log('Force unlocking orientation section based on trackable item');
+          // console.log('Force unlocking orientation section based on trackable item');
           const section = document.getElementById('orientation');
           if (section) {
             try {
@@ -69,7 +69,7 @@ function ClientProfileTabeOrientation({ isNarrow }) {
         }
 
         if (completedItems.includes('tabe') && !selectedClient?.tabe?.referralDate) {
-          console.log('Force unlocking tabe section based on trackable item');
+          // console.log('Force unlocking tabe section based on trackable item');
           const section = document.getElementById('tabe');
           if (section) {
             try {
@@ -85,7 +85,7 @@ function ClientProfileTabeOrientation({ isNarrow }) {
         }
 
         if (completedItems.includes('transcripts') && !selectedClient?.transcripts?.referralDate) {
-          console.log('Force unlocking transcripts section based on trackable item');
+          // console.log('Force unlocking transcripts section based on trackable item');
           const section = document.getElementById('transcripts');
           if (section) {
             try {

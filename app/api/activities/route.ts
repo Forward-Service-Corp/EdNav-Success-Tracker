@@ -21,7 +21,7 @@ const safeObjectId = (id: string) => {
     }
 
     // If all else fails, return the original ID
-    console.log(`Unable to convert ID to ObjectId: ${id}`);
+    // console.log(`Unable to convert ID to ObjectId: ${id}`);
     return id;
   } catch (error) {
     console.error(`Error converting ObjectId: ${error}`);
@@ -30,7 +30,7 @@ const safeObjectId = (id: string) => {
 };
 
 // Helper function to flatten activity data for Power BI and other tools
-// This ensures consistent structure between GET and POST responses
+// This ensures a consistent structure between GET and POST responses
 const flattenActivityData = (activity: any) => {
   if (!activity) return {};
 
@@ -67,7 +67,7 @@ const flattenActivityData = (activity: any) => {
     // Add any other valuable fields here that would be useful at the top level
     // for Power BI analysis, such as client information, timestamps, etc.
 
-    // Ensure dates are in proper format if they exist
+    // Ensure dates are in the proper format if they exist
     if (activity.createdAt) {
       flattenedActivity.created_date = activity.createdAt.split('T')[0] || '';
     }
@@ -145,7 +145,7 @@ export async function POST(request: NextRequest) {
   try {
     // Parse the JSON body and log for debugging
     const body = await request.json();
-    console.log('Received activity request body:', JSON.stringify(body, null, 2));
+    // console.log('Received activity request body:', JSON.stringify(body, null, 2));
     
     const actionsCollection = await getCollection("actions");
     const clientsCollection = await getCollection("clients");
@@ -246,12 +246,12 @@ export async function POST(request: NextRequest) {
     if (body.note && body.note.isNote) {
       try {
         const clientId = body.note.clientId;
-        // Use safe conversion function
+        // Use a safe conversion function
         const clientObjectId = typeof clientId === 'string'
           ? safeObjectId(clientId)
           : clientId;
 
-        // Find client with flexible query  
+        // Find a client with a flexible query
         const client = await clientsCollection.findOne({
           $or: [
             { _id: clientObjectId },
@@ -261,7 +261,7 @@ export async function POST(request: NextRequest) {
 
         if (client) {
           await notesCollection.insertOne(body.note);
-          // Update with flexible query
+          // Update with a flexible query
           await clientsCollection.updateOne(
             {
               $or: [
@@ -278,7 +278,7 @@ export async function POST(request: NextRequest) {
             .sort({ createdAt: -1 })
             .toArray();
 
-          // Use safe conversion for activities query  
+          // Use safe conversion for an activities query
           const activities = await actionsCollection
             .find({
               $or: [
@@ -288,7 +288,7 @@ export async function POST(request: NextRequest) {
             })
             .toArray();
 
-          // Use safe conversion for comments query
+          // Use safe conversion for a comment query
           const comments = commentsCollection.find({
             $or: [
               { _id: clientObjectId },
@@ -338,7 +338,7 @@ export async function POST(request: NextRequest) {
           ? safeObjectId(clientId)
           : clientId;
 
-        // Find client with flexible query  
+        // Find a client with a flexible query
         const client = await clientsCollection.findOne({
           $or: [
             { _id: clientObjectId },
@@ -475,7 +475,7 @@ export async function POST(request: NextRequest) {
         ? safeObjectId(body.clientId)
         : body.clientId;
 
-      // Find client with flexible query
+      // Find a client with a flexible query
       const client = await clientsCollection.findOne({
         $or: [
           { _id: clientObjectId },
@@ -532,9 +532,9 @@ export async function POST(request: NextRequest) {
             },
           );
 
-          console.log(
-            `Client status updated to ${newStatus} for client ${clientId}`,
-          );
+          // console.log(
+          //   `Client status updated to ${newStatus} for client ${clientId}`,
+          // );
         } catch (error) {
           console.error("Error updating client status:", error);
         }
@@ -555,13 +555,13 @@ export async function POST(request: NextRequest) {
     
     let user;
 
-    // Update last activity with flexible query
+    // Update the last activity with a flexible query
     user = await clientsCollection.updateOne(query, {
       $set: { lastActivity: new Date().toISOString() },
     });
 
     if (body.trackable) {
-      // Update trackable with flexible query
+      // Update trackable with a flexible query
       user = await clientsCollection.updateOne(query, {
         $set: {
           trackable: body.trackable,
@@ -629,9 +629,9 @@ export async function POST(request: NextRequest) {
           : body.selectedDate || new Date().toISOString()
       };
 
-      console.log('Inserting activity with payload:', JSON.stringify(cleanPayload, null, 2));
+      // console.log('Inserting activity with payload:', JSON.stringify(cleanPayload, null, 2));
       const result = await actionsCollection.insertOne(cleanPayload);
-      console.log('Activity inserted successfully with ID:', result.insertedId);
+      // console.log('Activity inserted successfully with ID:', result.insertedId);
 
       const userActions = await actionsCollection
         .find({ clientId: body.clientId })
@@ -646,7 +646,7 @@ export async function POST(request: NextRequest) {
       // Handle potential conversion errors with client ID
       let wholeUser = null;
       try {
-        // Find user with flexible query
+        // Find a user with a flexible query
         wholeUser = await clientsCollection.findOne({
           $or: [
             { _id: clientObjectId },
@@ -655,7 +655,7 @@ export async function POST(request: NextRequest) {
         });
       } catch (clientLookupError) {
         console.error('Error looking up client with ID:', body.clientId, clientLookupError);
-        // Try a direct lookup without conversion as fallback
+        // Try a direct lookup without conversion as a fallback
         try {
           wholeUser = await clientsCollection.findOne({ _id: body.clientId });
         } catch (directLookupError) {
@@ -669,14 +669,14 @@ export async function POST(request: NextRequest) {
         _id: result.insertedId
       };
 
-      // Create flattened version of the saved activity for Power BI
+      // Create a flattened version of the saved activity for Power BI
       const flattenedActivity = flattenActivityData(savedActivity);
 
-      console.log('API response:', {
-        message: 'Action added successfully',
-        activity: savedActivity,
-        flattenedActivity
-      });
+      // console.log('API response:', {
+      //   message: 'Action added successfully',
+      //   activity: savedActivity,
+      //   flattenedActivity
+      // });
 
       return NextResponse.json(
         {

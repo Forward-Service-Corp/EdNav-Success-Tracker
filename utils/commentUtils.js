@@ -13,12 +13,12 @@ export const isValidObjectId = (id) => {
 // Log comment data before saving
 export const logCommentData = (commentData) => {
   console.group('Comment Data');
-  console.log('Parent ID:', commentData.parentId, isValidObjectId(commentData.parentId) ? '(valid ObjectId)' : '(not ObjectId format)');
-  console.log('Client ID:', commentData.clientId, isValidObjectId(commentData.clientId) ? '(valid ObjectId)' : '(not ObjectId format)');
-  console.log('Text:', commentData.commentText?.substring(0, 30) + (commentData.commentText?.length > 30 ? '...' : ''));
-  console.log('Text length:', commentData.commentText?.length || 0);
-  console.log('Author:', commentData.author);
-  console.log('Created:', commentData.createdAt);
+  // console.log('Parent ID:', commentData.parentId, isValidObjectId(commentData.parentId) ? '(valid ObjectId)' : '(not ObjectId format)');
+  // console.log('Client ID:', commentData.clientId, isValidObjectId(commentData.clientId) ? '(valid ObjectId)' : '(not ObjectId format)');
+  // console.log('Text:', commentData.commentText?.substring(0, 30) + (commentData.commentText?.length > 30 ? '...' : ''));
+  // console.log('Text length:', commentData.commentText?.length || 0);
+  // console.log('Author:', commentData.author);
+  // console.log('Created:', commentData.createdAt);
   console.groupEnd();
 
   return commentData;

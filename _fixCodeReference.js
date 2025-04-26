@@ -1,48 +1,26 @@
 // Replace these functions in CombinedFeed.jsx
 
 // Improved toggleComments function
-const toggleComments = (itemId) => {
-  console.log('Toggle comments called for item:', itemId);
+function setExpandedComments() {
 
-  // Toggle the expanded state
-  setExpandedComments(prev => {
-    const newState = {
-      ...prev,
-      [itemId]: !prev[itemId]
-    };
-
-    console.log('Updated expanded comments state:', newState);
-
-    // When opening a comments section, set the active comment form
-    if (newState[itemId]) {
-      console.log('Setting active comment form to:', itemId);
-      // Use setTimeout to ensure state update has completed
-      setTimeout(() => {
-        setActiveCommentForm(itemId);
-      }, 10);
-    }
-
-    return newState;
-  });
-};
+}
 
 // Improved handleCommentFocus function
 const handleCommentFocus = (itemId) => {
-  console.log('Comment focus requested for item:', itemId);
+  // console.log('Comment focus requested for item:', itemId);
 
   // Ensure the comments section is expanded
   setExpandedComments(prev => {
-    const newState = {
+    // console.log('Expanding comments for focus:', newState);
+    return {
       ...prev,
       [itemId]: true // Always ensure expanded when focusing
     };
-    console.log('Expanding comments for focus:', newState);
-    return newState;
   });
 
   // Set active comment form with slight delay to ensure DOM is ready
   setTimeout(() => {
-    console.log('Setting active comment form to:', itemId);
+    // console.log('Setting active comment form to:', itemId);
     setActiveCommentForm(itemId);
   }, 10);
 };

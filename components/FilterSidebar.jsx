@@ -1,18 +1,16 @@
 "use client";
 
-import { useFepsLeft } from "@/contexts/FepsLeftContext";
-import { useNavigators } from "@/contexts/NavigatorsContext";
+import { useFepsLeft } from '/contexts/FepsLeftContext';
+import { useNavigator } from '/contexts/NavigatorsContext';
 
 export default function FilterSidebar({
-  menuOpen,
-  setMenuOpen,
   toggleSidebar,
 }) {
   const {
     navigators = [],
     selectedNavigator,
     setSelectedNavigator,
-  } = useNavigators();
+  } = useNavigator();
   const { selectedFepLeft, setSelectedFepLeft } = useFepsLeft();
 
   const handleStatusChange = (status) => {

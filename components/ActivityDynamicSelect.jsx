@@ -4,7 +4,7 @@ import { useActivities } from '@/contexts/ActivityContext';
 import { generateSentence } from '@/utils/generateSentence';
 
 const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
-  console.log('ActivityDynamicSelect initialized with questions:', questions);
+  // console.log('ActivityDynamicSelect initialized with questions:', questions);
   
   const { selectedActivity, setSelectedActivity } = useActivities();
   const { selectedClient, setSelectedClient } = useClients();
@@ -106,7 +106,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
     // If we found a program (either GED or HSED) that has been saved to a database,
     // remove it from educational activities options
     if ((program === 'GED' || program === 'HSED') && isProgramSavedInDatabase) {
-      console.log('Found existing saved program:', program, 'Filtering from options');
+      // console.log('Found existing saved program:', program, 'Filtering from options');
 
       // Remove the program from a list of available options
       filteredOptions = options.filter(option => option !== program);
@@ -138,7 +138,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
             .filter(item => item && typeof item.name === 'string' && item.completed === true)
             .map(item => item.name.toLowerCase());
 
-          console.log('Completed trackable items:', completedItemNames);
+          // console.log('Completed trackable items:', completedItemNames);
 
           // Process each section that needs activation
           completedItemNames.forEach(itemName => {
@@ -159,7 +159,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
   const activateClientSection = (sectionName) => {
     // Normalize the section name to lowercase for consistency
     const normalizedSectionName = sectionName.toLowerCase();
-    console.log(`Activating client section: ${normalizedSectionName}`);
+    // console.log(`Activating client section: ${normalizedSectionName}`);
     
     // Create a date for today
     const today = new Date();
@@ -214,7 +214,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
       if (typeof window !== 'undefined') {
         try {
           const trackableJson = JSON.stringify(updatedClient.trackable);
-          console.log(`Saving updated trackable to localStorage:`, trackableJson);
+          // console.log(`Saving updated trackable to localStorage:`, trackableJson);
           localStorage.setItem(`trackable-${selectedClient._id}`, trackableJson);
 
           // Dispatch an event to notify other components of the trackable update
@@ -239,13 +239,13 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
     // Find the section in the DOM and remove the blur
     if (typeof window !== 'undefined') {
       setTimeout(() => {
-        console.log(`Looking for DOM element with id: ${normalizedSectionName}`);
+        // console.log(`Looking for DOM element with id: ${normalizedSectionName}`);
         const section = document.getElementById(normalizedSectionName);
         if (section) {
           // Find the message overlay and hide it
           const overlay = section.querySelector('.absolute');
           if (overlay) {
-            console.log(`Found overlay, making invisible`);
+            // console.log(`Found overlay, making invisible`);
             overlay.classList.add('invisible');
           } else {
             console.error(`Could not find overlay in section ${normalizedSectionName}`);
@@ -254,7 +254,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
           // Find the card and remove the blur
           const card = section.querySelector('.card');
           if (card) {
-            console.log(`Found card, removing blur`);
+            // console.log(`Found card, removing blur`);
             card.classList.remove('opacity-50', 'blur-[2px]');
           } else {
             console.error(`Could not find card in section ${normalizedSectionName}`);
@@ -265,7 +265,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
           // Try more general DOM search as a fallback
           const possibleSections = document.querySelectorAll(`[id*="${normalizedSectionName}"]`);
           if (possibleSections.length > 0) {
-            console.log(`Found ${possibleSections.length} possible matching sections using broader search`);
+            // console.log(`Found ${possibleSections.length} possible matching sections using broader search`);
             possibleSections.forEach(section => {
               try {
                 const overlay = section.querySelector('.absolute');
@@ -417,11 +417,11 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
       }
 
       // Debug output - useful to see the client ID format
-      console.log('Using client ID:', {
-        original: selectedClient._id,
-        formatted: clientIdStr,
-        type: typeof selectedClient._id
-      });
+      // console.log('Using client ID:', {
+      //   original: selectedClient._id,
+      //   formatted: clientIdStr,
+      //   type: typeof selectedClient._id
+      // });
 
       // Create the base data object with safe values
       const data = {
@@ -609,7 +609,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
         preventDuplicates: `${clientIdStr}-${Date.now()}` // Unique flag to prevent duplicate activities
       };
 
-      console.log('Created optimistic activity:', optimisticActivity);
+      // console.log('Created optimistic activity:', optimisticActivity);
 
       // Track if we've already added this activity to prevent duplicates
       let activityAdded = false;
@@ -619,19 +619,19 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
         try {
           // First, try the direct addItemToFeed approach
           if (window.addItemToFeed && !activityAdded) {
-            console.log('ACTIVITY DEBUG: Using direct addItemToFeed for immediate display');
+            // console.log('ACTIVITY DEBUG: Using direct addItemToFeed for immediate display');
             window.addItemToFeed(optimisticActivity);
             activityAdded = true;
           }
           // Then, if that didn't work, try the simplified approach
           else if (window.addActivitySimplified && !activityAdded) {
-            console.log('ACTIVITY DEBUG: Using addActivitySimplified');
+            // console.log('ACTIVITY DEBUG: Using addActivitySimplified');
             window.addActivitySimplified(optimisticActivity);
             activityAdded = true;
           }
           // Fall back to the original approach as a last resort
           else if (window.addActivityToFeed && !activityAdded) {
-            console.log('ACTIVITY DEBUG: Falling back to legacy addActivityToFeed');
+            // console.log('ACTIVITY DEBUG: Falling back to legacy addActivityToFeed');
             window.addActivityToFeed(optimisticActivity);
             activityAdded = true;
           } else if (!activityAdded) {
@@ -641,7 +641,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
           // Only dispatch event if we didn't successfully add the activity through other means
           // This prevents duplicate activity posts
           if (!activityAdded) {
-            console.log('ACTIVITY DEBUG: Dispatching activityAdded event as last resort');
+            // console.log('ACTIVITY DEBUG: Dispatching activityAdded event as last resort');
             const activityAddedEvent = new CustomEvent('activityAdded', {
               detail: optimisticActivity,
               bubbles: true,
@@ -649,7 +649,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
             });
             window.dispatchEvent(activityAddedEvent);
           } else {
-            console.log('ACTIVITY DEBUG: Activity already added, skipping event dispatch');
+            // console.log('ACTIVITY DEBUG: Activity already added, skipping event dispatch');
           }
         } catch (e) {
           console.error('ACTIVITY DEBUG: Error adding activity to feed:', e);
@@ -659,7 +659,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
       }
 
       // Send the API request asynchronously but don't wait for it
-      console.log('Sending API request with data:', { data });
+      // console.log('Sending API request with data:', { data });
       try {
         // Format clientId as a string MongoDB can work with
         let clientIdStr = '';
@@ -739,7 +739,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
         }
 
         // Log the exact payload being sent to the API for debugging
-        console.log('Sending clean activity payload to API:', JSON.stringify(payload, null, 2));
+        // console.log('Sending clean activity payload to API:', JSON.stringify(payload, null, 2));
 
         const response = await fetch('/api/activities', {
           method: 'POST',
@@ -793,7 +793,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
         }
 
         const result = await response.json();
-        console.log('Received API response:', result);
+        // console.log('Received API response:', result);
 
         // We'll update the activity list if actionRes exists, but we're
         // NOT replacing the optimistic activity in the feed, as that
@@ -807,7 +807,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
 
         // Call onSuccess with the result
         if (typeof onSuccess === 'function') {
-          console.log('Calling onSuccess with result');
+          // console.log('Calling onSuccess with result');
           onSuccess(result);
         }
 
@@ -869,12 +869,12 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
     if (isSubmitting) return;
 
     // Debug info
-    console.log('handleAdvance called with:', {
-      selectedValue,
-      selectedPath,
-      isSubmitting,
-      currentOptions
-    });
+    // console.log('handleAdvance called with:', {
+    //   selectedValue,
+    //   selectedPath,
+    //   isSubmitting,
+    //   currentOptions
+    // });
 
     try {
       if (!selectedValue) {
@@ -926,14 +926,14 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
             createdAt: new Date().toISOString()
           };
 
-          console.log('Created trackable data with program:', trackableData);
+          // console.log('Created trackable data with program:', trackableData);
 
           // Set a trackable state
           setTrackable(trackableData);
 
           // Schedule client update for the next render cycle
           if (selectedClient) {
-            console.log('Preparing client with trackable data');
+            // console.log('Preparing client with trackable data');
             const updatedClient = {
               ...selectedClient,
               trackable: trackableData
@@ -948,7 +948,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
                 localStorage.setItem(`trackable-${selectedClient._id}`,
                   JSON.stringify(trackableData)
                 );
-                console.log('Trackable data saved to localStorage');
+                // console.log('Trackable data saved to localStorage');
               } catch (e) {
                 console.error('Failed to save trackable data to localStorage:', e);
               }
@@ -1035,7 +1035,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
 
               // If a client already has GED or HSED, remove that option
               if (program === 'GED' || program === 'HSED') {
-                console.log('Found existing program in options view:', program, 'Filtering from options');
+                // console.log('Found existing program in options view:', program, 'Filtering from options');
                 options = options.filter(option => option !== program);
               }
             }
@@ -1090,7 +1090,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
   };
 
   const handleMultiSelectChange = (option, index) => {
-    console.log(`MultiSelect change: ${option} at index ${index}`);
+    // console.log(`MultiSelect change: ${option} at index ${index}`);
 
     // First, check if this item is already completed in the database
     // If it is, we shouldn't allow unchecking it
@@ -1100,7 +1100,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
       trackable.items[index]?.savedInDatabase === true;
 
     if (isAlreadySavedInDatabase) {
-      console.log(`Item ${option} is already saved in database, cannot change`);
+      // console.log(`Item ${option} is already saved in database, cannot change`);
       return; // Don't allow changes to items saved in a database
     }
     
@@ -1265,7 +1265,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
 
       try {
         // Make sure we're sending it true to indicate this is a multi-select submission
-        console.log('Starting save operation for multi-select with path:', selectedPath);
+        // console.log('Starting save operation for multi-select with path:', selectedPath);
 
         // First, create the optimistic update - this ensures it shows in the UI immediately
         const optimisticResult = {
@@ -1298,17 +1298,17 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
           try {
             // Try the direct addItemToFeed approach first
             if (window.addItemToFeed && !activityAdded) {
-              console.log('Adding optimistic activity to feed via addItemToFeed');
+              // console.log('Adding optimistic activity to feed via addItemToFeed');
               window.addItemToFeed(optimisticResult);
               activityAdded = true;
             }
             // Only try alternative methods if the activity hasn't been added yet
             else if (window.addActivityToFeed && !activityAdded) {
-              console.log('Adding optimistic activity via addActivityToFeed');
+              // console.log('Adding optimistic activity via addActivityToFeed');
               window.addActivityToFeed(optimisticResult);
               activityAdded = true;
             } else if (window.addActivitySimplified && !activityAdded) {
-              console.log('Adding optimistic activity via addActivitySimplified');
+              // console.log('Adding optimistic activity via addActivitySimplified');
               window.addActivitySimplified(optimisticResult);
               activityAdded = true;
             } else if (!activityAdded) {
@@ -1392,7 +1392,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
 
         // Set UI state to show completion only if save was successful
         if (result) {
-          console.log('Save operation successful:', result);
+          // console.log('Save operation successful:', result);
           setMultiSelectOptions(null);
           setCurrentOptions([]);
           setFinalSelection('Activity saved successfully');
@@ -1405,7 +1405,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
           // Close the modal if needed
           if (typeof setOpen === 'function') {
             setTimeout(() => {
-              console.log('Delayed modal close after successful save');
+              // console.log('Delayed modal close after successful save');
               setOpen(false);
             }, 1500); // Brief delay so the user can see a success message
           }

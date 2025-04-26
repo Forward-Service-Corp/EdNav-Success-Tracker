@@ -105,11 +105,11 @@ export default function ClientProfile({ setOpenPanel }) {
 
       // Only set up modal function if it doesn't already exist
       if (!window.openActivityModal) {
-        console.log('Setting up openActivityModal from ClientProfile');
+        // console.log('Setting up openActivityModal from ClientProfile');
         window.openActivityModal = () => {
           // Only allow opening the activity modal if a client is selected
           if (selectedClient) {
-            console.log('Opening activity modal from ClientProfile');
+            // console.log('Opening activity modal from ClientProfile');
             setActivityModalOpen('activity');
           } else {
             console.warn('Cannot open activity modal: No client selected');
@@ -129,7 +129,7 @@ export default function ClientProfile({ setOpenPanel }) {
 
       // Listen for trackable updates
       const handleTrackableUpdate = (event) => {
-        console.log('Received trackableUpdated event in ClientProfile:', event.detail);
+        // console.log('Received trackableUpdated event in ClientProfile:', event.detail);
 
         // Get the current selected client from data attribute
         const currentClientId = document.getElementById('client-profile-root')?.dataset?.clientId;
@@ -138,7 +138,7 @@ export default function ClientProfile({ setOpenPanel }) {
           event.detail.clientId &&
           (currentClientId === event.detail.clientId ||
             (selectedClient && selectedClient._id === event.detail.clientId))) {
-          console.log('Applying trackable update to current client');
+          // console.log('Applying trackable update to current client');
 
           // Schedule update for next render cycle
           setTimeout(() => {
@@ -159,7 +159,7 @@ export default function ClientProfile({ setOpenPanel }) {
                 trackable: event.detail.trackable
               };
 
-              console.log('Updating client with trackable data:', updatedClient);
+              // console.log('Updating client with trackable data:', updatedClient);
               setSelectedClient(updatedClient);
 
               // Update local trackable state
@@ -206,11 +206,11 @@ export default function ClientProfile({ setOpenPanel }) {
 
   useEffect(() => {
     if (selectedClient && selectedClient._id) {
-      console.log('ClientProfile: Client selected, checking for trackable data');
+      // console.log('ClientProfile: Client selected, checking for trackable data');
 
       // Safety check for trackable data
       if (selectedClient.trackable && Array.isArray(selectedClient.trackable.items)) {
-        console.log('ClientProfile: Setting hasTrackable from client', selectedClient.trackable);
+        // console.log('ClientProfile: Setting hasTrackable from client', selectedClient.trackable);
         setHasTrackable(selectedClient.trackable.items);
 
         // Only create copy if it hasn't been updated yet
@@ -226,7 +226,7 @@ export default function ClientProfile({ setOpenPanel }) {
             const cachedTrackable = localStorage.getItem(`trackable-${selectedClient._id}`);
             if (cachedTrackable) {
               const parsed = JSON.parse(cachedTrackable);
-              console.log('Found cached trackable data:', parsed);
+              // console.log('Found cached trackable data:', parsed);
 
               // Only use cached data if it has items array
               if (parsed && Array.isArray(parsed.items)) {
@@ -235,7 +235,7 @@ export default function ClientProfile({ setOpenPanel }) {
                   .filter(item => item && item.completed).length;
 
                 if (cachedCompleted > currentCompleted) {
-                  console.log('Using cached trackable data with more completed items');
+                  // console.log('Using cached trackable data with more completed items');
                   setHasTrackable(parsed.items);
                   setHasTrackableCopy(JSON.parse(JSON.stringify(parsed.items)));
                   setHasTrackableUpdated(true);
@@ -266,7 +266,7 @@ export default function ClientProfile({ setOpenPanel }) {
         setHasTrackableUpdated(false);
       } else {
         // No trackable data at all
-        console.log('Client has no trackable data');
+        // console.log('Client has no trackable data');
         setHasTrackable([]);
         setHasTrackableCopy([]);
         setHasTrackableUpdated(false);
@@ -285,14 +285,14 @@ export default function ClientProfile({ setOpenPanel }) {
 
   // Handle activity addition success
   const handleActivitySuccess = (result) => {
-    console.log('Activity successfully added in ClientProfile:', result);
+    // console.log('Activity successfully added in ClientProfile:', result);
     
     // Refresh activities
     getActions().then();
 
     // Check if this is a trackable activity (GED/HSED)
     if (result && result.trackable) {
-      console.log('Trackable activity detected:', result.trackable);
+      // console.log('Trackable activity detected:', result.trackable);
 
       // If we have a selected client, update its trackable data
       if (selectedClient) {
@@ -345,7 +345,7 @@ export default function ClientProfile({ setOpenPanel }) {
 
   // Handle closing the activity modal when there's no selected client
   const handleActivityModalOpen = (state) => {
-    console.log('Activity modal open state changing from', activityModalOpen, 'to', state);
+    // console.log('Activity modal open state changing from', activityModalOpen, 'to', state);
 
     if (!selectedClient && state) {
       console.warn('Cannot open activity modal: No client selected');
@@ -362,11 +362,11 @@ export default function ClientProfile({ setOpenPanel }) {
 
     // If we're closing the modal, make sure we preserve the selected client
     if (state === '' && selectedClient) {
-      console.log('Closing activity modal while preserving selected client:', selectedClient._id);
+      // console.log('Closing activity modal while preserving selected client:', selectedClient._id);
       // Force a refresh of the client data to ensure it's not lost
       setTimeout(() => {
         if (selectedClient) {
-          console.log('Refreshing client data after modal close');
+          // console.log('Refreshing client data after modal close');
           setSelectedClient({ ...selectedClient });
         }
       }, 100);

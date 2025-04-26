@@ -1,15 +1,15 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useClientList } from '@/contexts/ClientListContext';
-import { useClients } from '@/contexts/ClientsContext';
-import { useEditing } from '@/contexts/EditingContext';
-import { useNavigators } from '@/contexts/NavigatorsContext';
-import { getBadgeColor, getBGColor } from '@/lib/ColorMap';
-import Badges from './Badges';
+import { useClientList } from '/contexts/ClientListContext';
+import { useClients } from '/contexts/ClientsContext';
+import { useEditing } from '/contexts/EditingContext';
+import { useNavigator } from '/contexts/NavigatorsContext';
+import { useLayout } from '/contexts/LayoutContext';
 import { useFepsLeft } from '/contexts/FepsLeftContext';
+import { getBadgeColor, getBGColor } from '/lib/ColorMap';
+import Badges from './Badges';
 import SearchField from './SearchField';
 import Avvvatars from 'avvvatars-react';
-import { useLayout } from '@/contexts/LayoutContext';
 
 export default function ClientTableNew({
   menuOpen,
@@ -18,15 +18,15 @@ export default function ClientTableNew({
   setOpenPanel,
 }) {
   const { clientList, loading, error } = useClientList();
-  const { selectedNavigator } = useNavigators();
+  const { selectedNavigator } = useNavigator();
   const { selectedFepLeft } = useFepsLeft();
+  const { setEditing } = useEditing();
+  const { selectedClient, setSelectedClient } = useClients({});
+  const { currentLayout } = useLayout();
   const [isMounted, setIsMounted] = useState(false);
   const [viewMode, setViewMode] = useState(null);
   const [filterOpen, setFilterOpen] = useState(false);
   const [, setStatusCollapse] = useState([]);
-  const { setEditing } = useEditing();
-  const { selectedClient, setSelectedClient } = useClients({});
-  const { currentLayout } = useLayout();
   const tableRef = useRef(null);
 
   // State for tracking container width and visible columns
@@ -102,12 +102,13 @@ export default function ClientTableNew({
   };
 
   const filteredClients = useMemo(() => {
+    // console.log(clientList);
     if (!clientList) return [];
 
     return clientList
       .filter((client) =>
-        selectedNavigator?.name !== "All"
-          ? client?.navigator === selectedNavigator?.name
+        selectedNavigator !== 'All'
+          ? client?.navigator === selectedNavigator
           : true,
       )
       .filter((client) => {
@@ -332,7 +333,7 @@ export default function ClientTableNew({
           menuOpen={menuOpen}
           setMenuOpen={setMenuOpen}
           setFilterOpen={setFilterOpen}
-          toggleSidebar={toggleSidebar || (() => console.log('toggleSidebar not provided'))}
+          toggleSidebar={toggleSidebar}
           filterOpen={filterOpen}
           setViewMode={setViewMode}
           setStatusCollapse={setStatusCollapse}

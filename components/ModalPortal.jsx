@@ -12,13 +12,13 @@ export default function ModalPortal() {
     // Add a global function to open this modal directly
     if (typeof window !== 'undefined') {
       window.directOpenModal = () => {
-        console.log('Opening modal via direct portal');
+        // console.log('Opening modal via direct portal');
         setIsOpen(true);
       };
 
       // Listen for the custom event
-      const handleOpenModal = (event) => {
-        console.log('Modal portal received event:', event.detail);
+      const handleOpenModal = () => {
+        // console.log('Modal portal received event:', event.detail);
         setIsOpen(true);
       };
 
@@ -30,14 +30,14 @@ export default function ModalPortal() {
           const response = await fetch('/api/questions');
           const data = await response.json();
           setQuestions(data);
-          console.log('Modal portal loaded questions:', data);
+          // console.log('Modal portal loaded questions:', data);
         } catch (error) {
           console.error('Error loading questions:', error);
           setQuestions({ adult: {}, youth: {} });
         }
       };
 
-      loadQuestions();
+      loadQuestions().then();
 
       return () => {
         delete window.directOpenModal;
@@ -48,7 +48,7 @@ export default function ModalPortal() {
 
   // Handle successful activity
   const handleSuccess = (result) => {
-    console.log('Activity added via portal:', result);
+    // console.log('Activity added via portal:', result);
     setIsOpen(false);
 
     // Dispatch success event

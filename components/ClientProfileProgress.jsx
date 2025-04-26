@@ -29,7 +29,7 @@ function ClientProfileProgress({
       // Calculate completion based on display items
       const percentage = calculateCompletionPercentage(displayItems);
       setCompletionPercentage(percentage);
-      console.log('Updated completion percentage:', percentage);
+      // console.log('Updated completion percentage:', percentage);
     } else {
       setSavedItems([]);
       setNewSelections([]);
@@ -90,14 +90,14 @@ function ClientProfileProgress({
   // Check if the program was recently selected
   const checkIfRecentlySelected = (items) => {
     if (!selectedClient?.trackable?.program) {
-      console.log('No program selected yet');
+      // console.log('No program selected yet');
       return;
     }
 
     // Check if there are any saved items - if none, it's a new selection
     // Explicitly check for the savedInDatabase flag from ActivityDynamicSelect
     const hasSavedItems = items.some(item => item.savedInDatabase === true);
-    console.log('Has saved items?', hasSavedItems);
+    // console.log('Has saved items?', hasSavedItems);
 
     if (!hasSavedItems) {
       // Also check localStorage as a backup for saved items
@@ -111,7 +111,7 @@ function ClientProfileProgress({
               hasSavedItemsInStorage = parsedTrackable.items.some(item =>
                 item && item.savedInDatabase === true
               );
-              console.log('Has saved items in localStorage?', hasSavedItemsInStorage);
+              // console.log('Has saved items in localStorage?', hasSavedItemsInStorage);
             }
           }
         } catch (e) {
@@ -148,11 +148,11 @@ function ClientProfileProgress({
 
           // Consider it recent if less than 5 minutes old
           const isRecentSelection = timeDiff < 300; // 5 minutes
-          console.log('Is recent selection based on timestamp?', isRecentSelection, 'Time diff:', timeDiff);
+          // console.log('Is recent selection based on timestamp?', isRecentSelection, 'Time diff:', timeDiff);
           setRecentlySelectedProgram(isRecentSelection);
         } else {
           // No timestamp, assume it's recent
-          console.log('No timestamp found, assuming recent selection');
+          // console.log('No timestamp found, assuming recent selection');
           setRecentlySelectedProgram(true);
         }
       } else {
@@ -207,7 +207,7 @@ function ClientProfileProgress({
     setIsUpdating(true);
 
     try {
-      console.log('Updating trackable items:', displayItems);
+      // console.log('Updating trackable items:', displayItems);
 
       // Safety check
       if (!selectedClient || !selectedClient._id) {
@@ -247,7 +247,7 @@ function ClientProfileProgress({
         }
       };
 
-      console.log('Sending trackable update with program:', program);
+      // console.log('Sending trackable update with program:', program);
 
       // Update client in context for UI updates
       setSelectedClient(updatedClient);
@@ -268,7 +268,7 @@ function ClientProfileProgress({
         }
       }
 
-      console.log('Sending trackable update to API:', updatedClient);
+      // console.log('Sending trackable update to API:', updatedClient);
 
       // Send update to the API
       const res = await fetch(`/api/trackable?clientId=${selectedClient._id}`, {
@@ -283,7 +283,7 @@ function ClientProfileProgress({
       if (data.error) {
         console.error('API error:', data.error);
       } else {
-        console.log('Trackable update successful:', data);
+        // console.log('Trackable update successful:', data);
 
         // Update state to reflect that everything is now saved
         if (data.trackable && data.trackable.items) {
@@ -358,7 +358,7 @@ function ClientProfileProgress({
             // If we have valid trackable data with GED/HSED in localStorage but not in the client,
             // update the client to include this data
             if (selectedClient?.trackable?.program !== 'GED' && selectedClient?.trackable?.program !== 'HSED') {
-              console.log('Restoring saved trackable program data from localStorage');
+              // console.log('Restoring saved trackable program data from localStorage');
               setTimeout(() => {
                 const updatedClient = {
                   ...selectedClient,
@@ -381,7 +381,7 @@ function ClientProfileProgress({
       // Set up listener for trackableUpdated events from ActivityDynamicSelect
       const handleTrackableUpdate = (event) => {
         if (event.detail && event.detail.trackable && event.detail.clientId === selectedClient._id) {
-          console.log('ClientProfileProgress received trackableUpdated event:', event.detail);
+          // console.log('ClientProfileProgress received trackableUpdated event:', event.detail);
 
           // Get the trackable data from the event
           const trackableData = event.detail.trackable;
@@ -418,7 +418,7 @@ function ClientProfileProgress({
 
     // If item is already saved in database, don't allow changes
     if (currentItem.savedInDatabase) {
-      console.log('Item is saved in database, cannot change:', currentItem);
+      // console.log('Item is saved in database, cannot change:', currentItem);
       return;
     }
 

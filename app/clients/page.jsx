@@ -51,12 +51,11 @@ function ClientsPageContent({ openPanel, setOpenPanel, setMenuOpen, menuOpen }) 
     isDetailsVisible,
     toggleSidebar
   } = useLayout();
-
-  // Direct panel styling based on the current layout
+// Direct panel styling based on the current layout
   const getPanelStyles = () => {
     return {
       sidebar: {
-        width: isSidebarVisible ? '230px' : '0', // Fixed 230px width
+        width: isSidebarVisible ? '230px' : '0', // Fixed 230 px width
         maxWidth: isSidebarVisible ? '230px' : '0',
         display: isSidebarVisible ? 'block' : 'none',
         transition: 'all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1)'
@@ -81,7 +80,7 @@ function ClientsPageContent({ openPanel, setOpenPanel, setMenuOpen, menuOpen }) 
   useEffect(() => {
     const handleStorageChange = (e) => {
       if (e.key === 'currentLayout' && e.newValue) {
-        console.log('Layout changed in storage:', e.newValue);
+        // console.log('Layout changed in storage:', e.newValue);
         setLayoutConfig(e.newValue);
       }
     };

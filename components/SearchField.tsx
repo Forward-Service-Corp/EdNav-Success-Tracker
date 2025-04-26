@@ -54,7 +54,7 @@ function SearchField({
 
   // Function to handle layout changes
   const handleLayoutChange = (layoutName: string) => {
-    console.log('Setting layout to:', layoutName);
+    // console.log('Setting layout to:', layoutName);
 
     // Apply layout directly through context
     setLayoutConfig(layoutName);

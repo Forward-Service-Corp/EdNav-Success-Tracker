@@ -1,21 +1,21 @@
 "use client";
 import React, { useCallback, useEffect, useState } from 'react';
-import { useClients } from '@/contexts/ClientsContext';
+import { useClients } from '/contexts/ClientsContext';
 import { format } from 'date-fns';
-import { useNotification } from '@/contexts/NotificationContext';
-import { useNavigators } from '@/contexts/NavigatorsContext';
+import { useNotification } from '/contexts/NotificationContext';
+import { useNavigator } from '/contexts/NavigatorsContext';
 
 export default function CombinedFeed({ isNarrow }) {
   const { selectedClient } = useClients();
-  const { selectedNavigator } = useNavigators();
-  const [activities, setActivities] = useState([]);
-  const [notes, setNotes] = useState([]);
+  const { selectedNavigator } = useNavigator();
+  const [, setActivities] = useState([]);
+  const [, setNotes] = useState([]);
   const [comments, setComments] = useState([]);
   const [combinedFeed, setCombinedFeed] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isAddingNote, setIsAddingNote] = useState(false);
   const [noteContent, setNoteContent] = useState("");
-  const [commentingOn, setCommentingOn] = useState(null); // {id, type} of item being commented on
+  const [commentingOn, setCommentingOn] = useState(null); // {id, type} of the item being commented on
   const [commentContent, setCommentContent] = useState("");
   const [expandedComments, setExpandedComments] = useState({}); // Track which items have expanded comments
   const { setNotification } = useNotification();
@@ -24,27 +24,27 @@ export default function CombinedFeed({ isNarrow }) {
   const addActivityToFeed = useCallback(
     (activity) => {
       if (!activity || !selectedClient) {
-        console.log('Unable to add activity: No activity or no selected client', { activity, selectedClient });
+        // console.log('Unable to add activity: No activity or no selected client', { activity, selectedClient });
         return;
       }
 
       // Skip empty "Activity recorded" activities without valuable content
       if (!activity.statement && !activity.description && !activity.details && !activity.category) {
-        console.log('Skipping empty activity with no valuable content');
+        // console.log('Skipping empty activity with no valuable content');
         return;
       }
 
-      console.log('Adding activity to feed:', activity);
+      // console.log('Adding activity to feed:', activity);
 
       // Check if this is a replacement for a temporary activity
       if (activity.replace) {
-        console.log(`Replacing temporary activity with ID ${activity.replace}`);
+        // console.log(`Replacing temporary activity with ID ${activity.replace}`);
         setActivities((prevActivities) => {
           // Find the temporary activity to replace
           const tempActivity = prevActivities.find(a => a._id === activity.replace);
 
           if (!tempActivity) {
-            console.log(`Temporary activity with ID ${activity.replace} not found, adding as new`);
+            // console.log(`Temporary activity with ID ${activity.replace} not found, adding as new`);
             // Mark as permanent so it doesn't get removed
             return [{
               ...activity,
@@ -54,17 +54,15 @@ export default function CombinedFeed({ isNarrow }) {
             }, ...prevActivities];
           }
 
-          console.log(`Found temporary activity to replace:`, tempActivity);
+          // console.log(`Found temporary activity to replace:`, tempActivity);
 
-          // Create a new array with the replaced activity, marking as permanent
-          const updatedActivities = prevActivities.map((a) =>
+          // Create a new array with the replaced activity, marking as a permanent
+          // console.log(`Updated activities array:`, updatedActivities);
+          return prevActivities.map((a) =>
             a._id === activity.replace
               ? { ...activity, replace: undefined, isPermaPersistent: true, isOptimistic: false }
               : a,
           );
-
-          console.log(`Updated activities array:`, updatedActivities);
-          return updatedActivities;
         });
         return;
       }
@@ -74,7 +72,7 @@ export default function CombinedFeed({ isNarrow }) {
         ...activity,
         type: "activity",
         date: new Date(activity.timestamp || activity.createdAt || Date.now()),
-        isPermaPersistent: true, // Mark as permanent so it doesn't get removed
+        isPermaPersistent: true, // Mark as permanent, so it doesn't get removed
         // Add a unique fingerprint for better duplicate detection
         fingerprint: JSON.stringify({
           statement: activity.statement || '',
@@ -88,7 +86,7 @@ export default function CombinedFeed({ isNarrow }) {
         formattedActivity._id = `perm-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
       }
 
-      console.log('Formatted activity with permanent flag:', formattedActivity);
+      // console.log('Formatted activity with permanent flag:', formattedActivity);
 
       // Add to activities state
       setActivities((prevActivities) => {
@@ -96,13 +94,13 @@ export default function CombinedFeed({ isNarrow }) {
         const isDuplicate = prevActivities.some((a) => {
           // Check by exact ID match
           if (a._id && formattedActivity._id && a._id.toString() === formattedActivity._id.toString()) {
-            console.log('Duplicate detected by ID match');
+            // console.log('Duplicate detected by ID match');
             return true;
           }
 
           // Check by fingerprint
           if (a.fingerprint && formattedActivity.fingerprint && a.fingerprint === formattedActivity.fingerprint) {
-            console.log('Duplicate detected by fingerprint match');
+            // console.log('Duplicate detected by fingerprint match');
             return true;
           }
 
@@ -114,7 +112,7 @@ export default function CombinedFeed({ isNarrow }) {
             const timeDiffSeconds = Math.abs(aTime - newTime) / 1000;
 
             if (timeDiffSeconds < 60) {
-              console.log('Duplicate detected by content similarity and timestamp proximity');
+              // console.log('Duplicate detected by content similarity and timestamp proximity');
               return true;
             }
           }
@@ -123,7 +121,7 @@ export default function CombinedFeed({ isNarrow }) {
         });
 
         if (isDuplicate) {
-          console.log('Activity already exists in feed, not adding duplicate');
+          // console.log('Activity already exists in feed, not adding duplicate');
           return prevActivities;
         }
 
@@ -145,16 +143,16 @@ export default function CombinedFeed({ isNarrow }) {
             if (!existsInStorage) {
               storedActivities.push(formattedActivity);
               localStorage.setItem(key, JSON.stringify(storedActivities));
-              console.log('Activity stored in localStorage for permanent backup');
+              // console.log('Activity stored in localStorage for permanent backup');
             } else {
-              console.log('Activity already exists in localStorage, not adding duplicate');
+              // console.log('Activity already exists in localStorage, not adding duplicate');
             }
           } catch (e) {
             console.error('Failed to store in localStorage:', e);
           }
         }
 
-        console.log('Adding new permanent activity to state', [formattedActivity, ...prevActivities]);
+        // console.log('Adding new permanent activity to state', [formattedActivity, ...prevActivities]);
         return [formattedActivity, ...prevActivities];
       });
 
@@ -171,7 +169,7 @@ export default function CombinedFeed({ isNarrow }) {
             if (a.fingerprint && formattedActivity.fingerprint &&
               a.fingerprint === formattedActivity.fingerprint) return true;
 
-            // Check by content + timestamp
+            // Check by content and timestamp
             if (a.statement === formattedActivity.statement) {
               const timeDiff = Math.abs(
                 new Date(a.timestamp || a.createdAt || 0).getTime() -
@@ -184,7 +182,7 @@ export default function CombinedFeed({ isNarrow }) {
           });
 
           if (!exists) {
-            console.log(`Activity integrity check: re-adding activity that may have disappeared`);
+            // console.log(`Activity integrity check: re-adding activity that may have disappeared`);
             return [formattedActivity, ...prevActivities];
           }
           return prevActivities;
@@ -208,17 +206,17 @@ export default function CombinedFeed({ isNarrow }) {
 
   // Create a memoized refresh function
   const refreshFeed = useCallback(() => {
-    console.log('Manual refresh of feed requested');
+    // console.log('Manual refresh of feed requested');
     if (selectedClient && selectedClient._id) {
       // Always preserve optimistic updates when manually refreshing
-      loadData(true);
+      loadData(true).then();
     }
   }, [selectedClient]);
 
   // Expose the functions globally
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      console.log('Exposing global feed functions');
+      // console.log('Exposing global feed functions');
 
       // Original function maintained for backward compatibility
       window.addActivityToFeed = addActivityToFeed;
@@ -227,7 +225,7 @@ export default function CombinedFeed({ isNarrow }) {
 
       // New ultra simple approach for adding items directly to the feed
       window.addItemToFeed = (item) => {
-        console.log('FEED DEBUG: Adding item directly to combined feed:', item);
+        // console.log('FEED DEBUG: Adding item directly to combined feed:', item);
 
         // If no client selected, can't add items
         if (!selectedClient || !selectedClient._id) {
@@ -237,14 +235,14 @@ export default function CombinedFeed({ isNarrow }) {
 
         // Make sure the item has a client ID that matches the selected client
         if (!item.clientId) {
-          console.log('FEED DEBUG: Item missing clientId, adding current client ID');
+          // console.log('FEED DEBUG: Item missing clientId, adding current client ID');
           item.clientId = selectedClient._id;
         } else if (item.clientId !== selectedClient._id) {
           console.warn('FEED DEBUG: Item has different clientId than selected client, skipping');
           return null; // Don't add items for other clients
         }
 
-        // Format the item with proper type and date
+        // Format the item with the proper type and date
         const formattedItem = {
           ...item,
           clientId: selectedClient._id, // Ensure client ID is set
@@ -252,24 +250,23 @@ export default function CombinedFeed({ isNarrow }) {
           date: new Date(item.timestamp || item.createdAt || Date.now())
         };
 
-        console.log('FEED DEBUG: Formatted item:', formattedItem);
+        // console.log('FEED DEBUG: Formatted item:', formattedItem);
 
         // MOST DIRECT APPROACH: Add directly to the combined feed first for immediate display
         setCombinedFeed(prev => {
           // Skip if already in the feed
           if (prev.some(existing => existing._id === formattedItem._id)) {
-            console.log('FEED DEBUG: Item already in feed, not adding duplicate');
+            // console.log('FEED DEBUG: Item already in feed, not adding duplicate');
             return prev;
           }
 
-          const newFeed = [formattedItem, ...prev].sort((a, b) => b.date - a.date);
-          console.log('FEED DEBUG: Added item to feed, new length:', newFeed.length);
-          return newFeed;
+          // console.log('FEED DEBUG: Added item to feed, new length:', newFeed.length);
+          return [formattedItem, ...prev].sort((a, b) => b.date - a.date);
         });
 
-        // Also add to appropriate state collection for consistency
+        // Also add to an appropriate state collection for consistency
         if (formattedItem.type === 'note' || formattedItem.isNote || formattedItem.noteContent) {
-          console.log('FEED DEBUG: Adding note to state for consistency');
+          // console.log('FEED DEBUG: Adding note to state for consistency');
           setNotes(prev => {
             // Skip if already in notes
             if (prev.some(note => note._id === formattedItem._id)) {
@@ -278,7 +275,7 @@ export default function CombinedFeed({ isNarrow }) {
             return [formattedItem, ...prev];
           });
         } else {
-          console.log('FEED DEBUG: Adding activity to state for consistency');
+          // console.log('FEED DEBUG: Adding activity to state for consistency');
           setActivities(prev => {
             // Skip if already in activities
             if (prev.some(activity => activity._id === formattedItem._id)) {
@@ -298,7 +295,7 @@ export default function CombinedFeed({ isNarrow }) {
             if (!stored.some(s => s._id === formattedItem._id)) {
               stored.push(formattedItem);
               localStorage.setItem(key, JSON.stringify(stored));
-              console.log('FEED DEBUG: Also saved to localStorage');
+              // console.log('FEED DEBUG: Also saved to localStorage');
             }
           } catch (e) {
             console.error('FEED DEBUG: Error saving to localStorage:', e);
@@ -310,19 +307,18 @@ export default function CombinedFeed({ isNarrow }) {
 
       // New simplified optimistic update functions
       window.optimisticallyAddActivity = (activity) => {
-        console.log('Optimistically adding activity to state:', activity);
+        // console.log('Optimistically adding activity to state:', activity);
 
         // Add directly to state with a forced re-render
         setActivities(prev => {
-          console.log('Current activities before adding:', prev.length);
-          const newActivities = [activity, ...prev];
-          console.log('New activities after adding:', newActivities.length);
-          return newActivities;
+          // console.log('Current activities before adding:', prev.length);
+          // console.log('New activities after adding:', newActivities.length);
+          return [activity, ...prev];
         });
 
         // Also add directly to the combined feed for immediate feedback
         setCombinedFeed(prev => {
-          console.log('Adding directly to combined feed for immediate display');
+          // console.log('Adding directly to combined feed for immediate display');
           const formattedActivity = {
             ...activity,
             type: 'activity',
@@ -334,11 +330,11 @@ export default function CombinedFeed({ isNarrow }) {
         // Force a check after a short delay
         setTimeout(() => {
           setActivities(prev => {
-            console.log('Checking if optimistic activity was added correctly');
+            // console.log('Checking if optimistic activity was added correctly');
             const hasActivity = prev.some(a => a._id === activity._id);
-            console.log('Activity present in state:', hasActivity);
+            // console.log('Activity present in state:', hasActivity);
             if (!hasActivity) {
-              console.log('Activity was not found, re-adding it');
+              // console.log('Activity was not found, re-adding it');
               return [activity, ...prev];
             }
             return prev;
@@ -347,7 +343,7 @@ export default function CombinedFeed({ isNarrow }) {
       };
 
       window.replaceOptimisticActivity = (tempId, realActivity) => {
-        console.log('Replacing optimistic activity with real one:', { tempId, realActivity });
+        // console.log('Replacing optimistic activity with real one:', { tempId, realActivity });
 
         // Replace in activities state
         setActivities(prev =>
@@ -379,7 +375,7 @@ export default function CombinedFeed({ isNarrow }) {
 
     return () => {
       if (typeof window !== "undefined") {
-        console.log('Cleaning up global feed functions');
+        // console.log('Cleaning up global feed functions');
         delete window.addActivityToFeed;
         delete window.removeActivityFromFeed;
         delete window.refreshActivityFeed;
@@ -392,11 +388,11 @@ export default function CombinedFeed({ isNarrow }) {
 
   // A completely simplified loadData function focused only on API calls
   const loadData = async () => {
-    console.log('LOAD DEBUG: loadData called');
+    // console.log('LOAD DEBUG: loadData called');
     
     // Only load data if there's a selected client
     if (!selectedClient || !selectedClient._id) {
-      console.log('LOAD DEBUG: No client selected, resetting states');
+      // console.log('LOAD DEBUG: No client selected, resetting states');
       setActivities([]);
       setNotes([]);
       setComments([]);
@@ -406,31 +402,31 @@ export default function CombinedFeed({ isNarrow }) {
 
     setLoading(true);
     try {
-      console.log('LOAD DEBUG: Loading data for client:', selectedClient._id);
+      // console.log('LOAD DEBUG: Loading data for client:', selectedClient._id);
 
       // Load all data - simplifying to just sequential calls for now
-      console.log('LOAD DEBUG: Fetching activities');
+      // console.log('LOAD DEBUG: Fetching activities');
       const activityResponse = await fetch(`/api/activities?clientId=${selectedClient._id}`);
       const activityData = activityResponse.ok ? await activityResponse.json() : { data: [] };
       const fetchedActivities = activityData.data || [];
-      console.log('LOAD DEBUG: Fetched activities:', fetchedActivities.length);
+      // console.log('LOAD DEBUG: Fetched activities:', fetchedActivities.length);
 
-      console.log('LOAD DEBUG: Fetching notes');
+      // console.log('LOAD DEBUG: Fetching notes');
       const notesResponse = await fetch(`/api/notes?clientId=${selectedClient._id}`);
       const notesData = notesResponse.ok ? await notesResponse.json() : [];
-      console.log('LOAD DEBUG: Fetched notes:', notesData.length);
+      // console.log('LOAD DEBUG: Fetched notes:', notesData.length);
 
-      console.log('LOAD DEBUG: Fetching comments');
+      // console.log('LOAD DEBUG: Fetching comments');
       const commentsResponse = await fetch(`/api/comments?clientId=${selectedClient._id}`);
       const commentsData = commentsResponse.ok ? await commentsResponse.json() : [];
-      console.log('LOAD DEBUG: Fetched comments:', commentsData.length);
+      // console.log('LOAD DEBUG: Fetched comments:', commentsData.length);
 
       // Process activities - filter out empty ones
-      console.log('LOAD DEBUG: Processing activities');
+      // console.log('LOAD DEBUG: Processing activities');
       const validActivities = fetchedActivities.filter(activity =>
         activity.statement || activity.description || activity.details || activity.category
       );
-      console.log('LOAD DEBUG: Valid activities after filtering:', validActivities.length);
+      // console.log('LOAD DEBUG: Valid activities after filtering:', validActivities.length);
 
       // Format activities for the feed
       const formattedActivities = validActivities.map(activity => ({
@@ -440,7 +436,7 @@ export default function CombinedFeed({ isNarrow }) {
       }));
 
       // Format notes for the feed
-      console.log('LOAD DEBUG: Processing notes');
+      // console.log('LOAD DEBUG: Processing notes');
       const formattedNotes = (notesData || []).map(note => ({
         ...note,
         type: 'note',
@@ -452,8 +448,8 @@ export default function CombinedFeed({ isNarrow }) {
       setNotes(formattedNotes);
       setComments(commentsData || []);
 
-      // Create combined feed with everything in a single array
-      console.log('LOAD DEBUG: Creating combined feed');
+      // Create a combined feed with everything in a single array
+      // console.log('LOAD DEBUG: Creating combined feed');
 
       // Start with a fresh array from API data
       let newFeed = [...formattedActivities, ...formattedNotes];
@@ -465,11 +461,11 @@ export default function CombinedFeed({ isNarrow }) {
         item.clientId === selectedClient._id &&
         // And are either flagged as optimistic
         (item.isOptimistic === true ||
-          // Or items with permanent flag
+          // Or items with a permanent flag
           item.isPermaPersistent === true)
       );
 
-      console.log(`LOAD DEBUG: Found ${existingItems.length} optimistic items for current client`);
+      // console.log(`LOAD DEBUG: Found ${existingItems.length} optimistic items for current client`);
 
       // Add existing optimistic items but avoid duplicates
       existingItems.forEach(item => {
@@ -482,12 +478,12 @@ export default function CombinedFeed({ isNarrow }) {
       // Sort the combined feed by date
       newFeed.sort((a, b) => b.date - a.date);
 
-      console.log('LOAD DEBUG: Combined feed created with items:', newFeed.length);
-      console.log('LOAD DEBUG: API activities:', formattedActivities.length);
-      console.log('LOAD DEBUG: API notes:', formattedNotes.length);
-      console.log('LOAD DEBUG: Preserved optimistic/permanent items:', existingItems.length);
+      // console.log('LOAD DEBUG: Combined feed created with items:', newFeed.length);
+      // console.log('LOAD DEBUG: API activities:', formattedActivities.length);
+      // console.log('LOAD DEBUG: API notes:', formattedNotes.length);
+      // console.log('LOAD DEBUG: Preserved optimistic/permanent items:', existingItems.length);
 
-      // Set combined feed state
+      // Set a combined feed state
       setCombinedFeed(newFeed);
       
     } catch (error) {
@@ -504,11 +500,11 @@ export default function CombinedFeed({ isNarrow }) {
 
   // Reset state when a client changes
   useEffect(() => {
-    console.log('Client selection changed, resetting state');
+    // console.log('Client selection changed, resetting state');
 
     // Only reset if the client has actually changed
     if (selectedClient && selectedClient._id) {
-      console.log('Resetting state for client:', selectedClient._id);
+      // console.log('Resetting state for client:', selectedClient._id);
 
       // Clear states when a client changes - we don't want to preserve
       // optimistic updates from a different client
@@ -524,8 +520,8 @@ export default function CombinedFeed({ isNarrow }) {
 
       // Load data for the new client - no need to preserve optimistic updates
       // as we just cleared them
-      console.log('Loading initial data for client:', selectedClient._id);
-      loadData(false);
+      // console.log('Loading initial data for client:', selectedClient._id);
+      loadData(false).then();
     }
   }, [selectedClient?._id]); // Only depend on client ID, not the entire selectedClient object
 
@@ -533,36 +529,10 @@ export default function CombinedFeed({ isNarrow }) {
   useEffect(() => {
     // Manually combine the feed only after client changes to avoid dependency issues
     if (selectedClient && selectedClient._id) {
-      console.log('Client selected, loading data initially');
-      loadData();
+      // console.log('Client selected, loading data initially');
+      loadData().then();
     }
   }, [selectedClient?._id]); // Only depend on client ID
-
-  // Add auto-refresh functionality - DISABLE AUTO-REFRESH FOR NOW
-  useEffect(() => {
-    // Only set up auto-refresh if we have a selected client
-    if (!selectedClient || !selectedClient._id) return;
-
-    console.log('Auto-refresh has been disabled to prevent activities from disappearing');
-
-    // Commented out to prevent auto-refresh from removing activities
-    /*
-    console.log('Setting up auto-refresh for client:', selectedClient._id);
-
-    // Set up a refresh interval (every 30 seconds)
-    const refreshInterval = setInterval(() => {
-      console.log('Auto-refreshing feed data...');
-      // Always preserve optimistic updates during auto-refresh
-      loadData(true);
-    }, 30000); // 30 seconds
-
-    // Clean up the interval when the component unmounts or client changes
-    return () => {
-      console.log('Cleaning up auto-refresh interval');
-      clearInterval(refreshInterval);
-    };
-    */
-  }, [selectedClient]);
 
   const handleAddNote = async () => {
     if (!noteContent.trim() || !selectedClient || !selectedClient._id) return;
@@ -598,9 +568,9 @@ export default function CombinedFeed({ isNarrow }) {
       // Add directly to both states to ensure visibility
       setNotes((prevNotes) => [optimisticNote, ...prevNotes]);
 
-      // Also add directly to combined feed for immediate visibility
+      // Also add directly to the combined feed for immediate visibility
       setCombinedFeed(prevFeed => {
-        // Check if already in feed
+        // Check if already in the feed
         if (prevFeed.some(item => item._id === tempId)) {
           return prevFeed;
         }
@@ -638,7 +608,7 @@ export default function CombinedFeed({ isNarrow }) {
         ),
       );
 
-      // Also update combined feed
+      // Also update the combined feed
       setCombinedFeed(prevFeed =>
         prevFeed.map(item =>
           (item._id === tempId && item.type === 'note') ? realNote : item
@@ -663,7 +633,7 @@ export default function CombinedFeed({ isNarrow }) {
         prevNotes.filter((note) => note._id !== tempId)
       );
 
-      // Also remove from combined feed
+      // Also remove from the combined feed
       setCombinedFeed(prevFeed =>
         prevFeed.filter(item => !(item._id === tempId && item.type === 'note'))
       );
@@ -787,22 +757,22 @@ export default function CombinedFeed({ isNarrow }) {
   const openActivityModal = () => {
     // This function should open the ActivityModal
     if (typeof window !== 'undefined') {
-      console.log('CombinedFeed trying to open activity modal');
-      console.log('window.openActivityModal exists:', !!window.openActivityModal);
+      // console.log('CombinedFeed trying to open activity modal');
+      // console.log('window.openActivityModal exists:', !!window.openActivityModal);
 
       // Force modal state directly if possible
       if (typeof window !== 'undefined') {
         // Create a custom event that will be picked up by any component listening for it
         const event = new CustomEvent('openActivityModal', { detail: { open: 'activity' } });
         window.dispatchEvent(event);
-        console.log('Dispatched openActivityModal event');
+        // console.log('Dispatched openActivityModal event');
       }
 
-      // Still try the traditional approach as fallback
+      // Still try the traditional approach as a fallback
       if (window.openActivityModal) {
         try {
           window.openActivityModal();
-          console.log('Activity modal should now be open via global function');
+          // console.log('Activity modal should now be open via global function');
         } catch (error) {
           console.error('Error opening activity modal:', error);
           setNotification({
@@ -818,11 +788,11 @@ export default function CombinedFeed({ isNarrow }) {
     }
   };
 
-  // Set up event listener for activity added events and check for persisted activities
+  // Set up event listener for activity, added events and check for persisted activities
   useEffect(() => {
     // Create a function to check for and restore persisted activities
     const checkPersistedActivities = () => {
-      console.log('Checking for persisted activities');
+      // console.log('Checking for persisted activities');
 
       if (typeof window !== 'undefined' && selectedClient?._id) {
         try {
@@ -830,7 +800,7 @@ export default function CombinedFeed({ isNarrow }) {
           const permKey = `permanentActivities-${selectedClient._id}`;
           const permActivities = JSON.parse(localStorage.getItem(permKey) || '[]');
 
-          console.log('Found stored permanent activities to restore:', permActivities.length);
+          // console.log('Found stored permanent activities to restore:', permActivities.length);
 
           if (permActivities.length > 0) {
             // Filter to ensure we only restore activities for THIS client
@@ -838,7 +808,7 @@ export default function CombinedFeed({ isNarrow }) {
               activity.clientId === selectedClient._id
             );
 
-            console.log(`Filtered activities for current client: ${clientActivities.length}`);
+            // console.log(`Filtered activities for current client: ${clientActivities.length}`);
 
             if (clientActivities.length > 0) {
               // DIRECT APPROACH: Add these activities directly to the combined feed
@@ -862,9 +832,8 @@ export default function CombinedFeed({ isNarrow }) {
 
                 // If we have new items, add them and re-sort
                 if (newItems.length > 0) {
-                  const newFeed = [...prev, ...newItems].sort((a, b) => b.date - a.date);
-                  console.log(`Added ${newItems.length} stored activities to feed`);
-                  return newFeed;
+                  // console.log(`Added ${newItems.length} stored activities to feed`);
+                  return [...prev, ...newItems].sort((a, b) => b.date - a.date);
                 }
 
                 return prev;
@@ -880,15 +849,15 @@ export default function CombinedFeed({ isNarrow }) {
     // Run the check immediately
     checkPersistedActivities();
 
-    // Set up event listener for activity added events
+    // Set up event listener for activity-added events
     const handleActivityAdded = (event) => {
-      console.log('Activity added event received:', event.detail);
+      // console.log('Activity added event received:', event.detail);
 
       // Only handle activities for the current client
       if (event.detail && event.detail.clientId === selectedClient?._id) {
-        console.log('Activity is for current client, will be displayed');
+        // console.log('Activity is for current client, will be displayed');
       } else {
-        console.log('Activity is for a different client, ignoring');
+        // console.log('Activity is for a different client, ignoring');
       }
     };
 
@@ -969,7 +938,7 @@ export default function CombinedFeed({ isNarrow }) {
             </button>
             <button
               onClick={() => {
-                // Show visual feedback when button is clicked
+                // Show visual feedback when a button is clicked
                 const btn = document.getElementById('postActivityButton');
                 if (btn) {
                   btn.innerText = 'Opening...';
@@ -983,10 +952,10 @@ export default function CombinedFeed({ isNarrow }) {
                 // Call the actual function
                 openActivityModal();
 
-                // Force direct open as last resort
+                // Force direct open as a last resort
                 if (typeof window !== 'undefined' && window.directOpenModal) {
                   setTimeout(() => {
-                    console.log('Attempting direct modal open as fallback');
+                    // console.log('Attempting direct modal open as fallback');
                     window.directOpenModal();
                   }, 200);
                 }

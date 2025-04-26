@@ -1,12 +1,12 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { useClients } from "@/contexts/ClientsContext";
-import { PinIcon } from "lucide-react";
-import { useNavigators } from "@/contexts/NavigatorsContext";
+import React, { useEffect, useState } from 'react';
+import { useClients } from '@/contexts/ClientsContext';
+import { PinIcon } from 'lucide-react';
+import { useNavigator } from '@/contexts/NavigatorsContext';
 
 function ClientProfilePin() {
   const { selectedClient } = useClients();
-  const { selectedNavigator, setSelectedNavigator } = useNavigators();
+  const { selectedNavigator, setSelectedNavigator } = useNavigator();
   const [, setPinned] = useState([]);
 
   useEffect(() => {

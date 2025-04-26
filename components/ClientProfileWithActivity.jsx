@@ -11,13 +11,13 @@ export default function ClientProfileWithActivity({ setOpenPanel }) {
     if (typeof window !== 'undefined') {
       // Define global function to open activity modal
       window.openActivityModal = () => {
-        console.log('Opening activity modal from ClientProfileWithActivity');
+        // console.log('Opening activity modal from ClientProfileWithActivity');
         setOpen('activity');
       };
 
       // Also listen for custom events
       const handleActivityModalEvent = (event) => {
-        console.log('Activity modal event received:', event.detail);
+        // console.log('Activity modal event received:', event.detail);
         if (event.detail && event.detail.open) {
           setOpen(event.detail.open);
         }
@@ -37,12 +37,12 @@ export default function ClientProfileWithActivity({ setOpenPanel }) {
 
   // Handle successful activity addition
   const handleActivitySuccess = (result) => {
-    console.log('Activity success in ClientProfileWithActivity:', result);
+    // console.log('Activity success in ClientProfileWithActivity:', result);
 
     // Create a custom event that the CombinedFeed component can listen for
     if (typeof window !== 'undefined') {
       try {
-        console.log('Dispatching activityAdded event from client profile wrapper');
+        // console.log('Dispatching activityAdded event from client profile wrapper');
 
         // Make sure the result has an _id and flag it as an optimistic update
         const enhancedResult = {
@@ -65,7 +65,7 @@ export default function ClientProfileWithActivity({ setOpenPanel }) {
 
         // Also dispatch a trackable update event if this activity has trackable data
         if (result.trackable) {
-          console.log('Dispatching trackableUpdated event for trackable activity');
+          // console.log('Dispatching trackableUpdated event for trackable activity');
           const trackableEvent = new CustomEvent('trackableUpdated', {
             detail: {
               clientId: result.clientId || result.data?.clientId,

@@ -8,11 +8,11 @@ export default function ActivityModal({ open, setOpen, onSuccess }) {
   const [isVisible, setIsVisible] = useState(false);
   const { selectedClient } = useClients();
 
-  console.log('ActivityModal rendering with open state:', open);
+  // console.log('ActivityModal rendering with open state:', open);
 
   // Force visibility when open changes
   useEffect(() => {
-    console.log('ActivityModal open state changed to:', open);
+    // console.log('ActivityModal open state changed to:', open);
     if (open === 'activity') {
       // Verify we have a selected client
       if (!selectedClient) {
@@ -53,7 +53,7 @@ export default function ActivityModal({ open, setOpen, onSuccess }) {
       cleanedQuestions.adult = adult;
       cleanedQuestions.youth = youth;
       setQuestions(cleanedQuestions);
-      console.log('Questions loaded:', cleanedQuestions);
+      // console.log('Questions loaded:', cleanedQuestions);
     } catch (error) {
       console.error('Error fetching questions:', error);
       // Set the default empty structure if questions can't be loaded
@@ -66,22 +66,22 @@ export default function ActivityModal({ open, setOpen, onSuccess }) {
   // Add activity directly to the feed (for optimistic updates)
   const addActivitySimplified = () => {
     // placeholder for optimistic updates
-    console.log('addActivitySimplified called');
+    // console.log('addActivitySimplified called');
   };
 
   useEffect(() => {
-    console.log('ActivityModal mounted');
+    // console.log('ActivityModal mounted');
     getQuestions().then();
     window.addActivitySimplified = addActivitySimplified;
 
     return () => {
-      console.log('ActivityModal unmounted');
+      // console.log('ActivityModal unmounted');
     };
   }, []);
 
   // When an activity is successfully added, pass it to parent components
   const handleActivitySuccess = (result) => {
-    console.log('Activity successfully added, result:', result);
+    // console.log('Activity successfully added, result:', result);
 
     // Make sure we have a valid result with necessary data
     if (!result) {
@@ -92,18 +92,18 @@ export default function ActivityModal({ open, setOpen, onSuccess }) {
     try {
       // First check if simplified approach is available
       if (typeof window !== 'undefined' && window.addActivitySimplified) {
-        console.log('Using simplified activity approach with optimistic updates');
+        // console.log('Using simplified activity approach with optimistic updates');
 
         // Extract the activity data from the result
         const activityData = result.activity || result.data || result;
 
         // Add directly via API with optimistic update built in
         window.addActivitySimplified(activityData);
-        console.log(window.addActivitySimplified(activityData));
+        // console.log(window.addActivitySimplified(activityData));
       }
       // Fall back to the original approach if simplified is not available
       else if (typeof window !== 'undefined' && window.addActivityToFeed) {
-        console.log('Using original activity approach as fallback');
+        // console.log('Using original activity approach as fallback');
 
         // Extract the activity data from the result
         const activityData = result.activity || result.data || result;
@@ -111,7 +111,7 @@ export default function ActivityModal({ open, setOpen, onSuccess }) {
         // Skip meaningless activities
         if (!activityData.statement && !activityData.description &&
           !activityData.details && !activityData.category) {
-          console.log('Skipping activity with no meaningful content');
+          // console.log('Skipping activity with no meaningful content');
           setOpen('');
           return;
         }
@@ -140,16 +140,16 @@ export default function ActivityModal({ open, setOpen, onSuccess }) {
 
       // Call the provided onSuccess callback
       if (onSuccess) {
-        console.log('Calling onSuccess callback');
+        // console.log('Calling onSuccess callback');
         onSuccess(result);
       }
     } catch (error) {
       console.error('Error in handleActivitySuccess:', error);
     } finally {
       // Always close the modal after a short delay to allow state updates to complete
-      console.log('Scheduling activity modal close');
+      // console.log('Scheduling activity modal close');
       setTimeout(() => {
-        console.log('Closing activity modal');
+        // console.log('Closing activity modal');
         setOpen('');
       }, 500); // Add a small delay to prevent race conditions with state updates
     }
