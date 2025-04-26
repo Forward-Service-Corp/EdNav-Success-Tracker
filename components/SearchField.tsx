@@ -5,9 +5,9 @@ import { XCircle } from 'phosphor-react';
 import { useLayout } from '@/contexts/LayoutContext';
 
 function SearchField({
-  filterOpen,
+                       filterOpen,
                        setViewMode
-}: {
+                     }: {
   menuOpen: boolean;
   filterOpen: boolean;
   setFilterOpen: (open: boolean) => void;

@@ -24,7 +24,7 @@ export default function ClientProfile({ setOpenPanel }) {
   const profileRef = useRef(null);
 
   // State for tracking container width and layout config
-  const [containerWidth, setContainerWidth] = useState(0);
+  const [, setContainerWidth] = useState(0);
   const [layoutConfig, setLayoutConfig] = useState({
     isNarrow: false,
     isMedium: false,
@@ -411,12 +411,12 @@ export default function ClientProfile({ setOpenPanel }) {
       )}
 
       {/* Width debug indicator */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="absolute top-2 right-2 z-50 bg-base-300 text-xs px-2 py-1 rounded-md opacity-50">
-          Width: {containerWidth}px |
-          {layoutConfig.isNarrow ? ' Narrow' : layoutConfig.isMedium ? ' Medium' : ' Wide'}
-        </div>
-      )}
+      {/*{process.env.NODE_ENV === 'development' && (*/}
+      {/*  <div className="absolute top-2 right-2 z-50 bg-base-300 text-xs px-2 py-1 rounded-md opacity-50">*/}
+      {/*    Width: {containerWidth}px |*/}
+      {/*    {layoutConfig.isNarrow? 'Narrow': layoutConfig.isMedium? 'Medium': 'Wide'}*/}
+      {/*  </div>*/}
+      {/*)}*/}
 
       <div
         className={`no-scrollbar absolute top-0 right-0 bottom-0 left-0 overflow-y-scroll`}
