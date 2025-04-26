@@ -24,7 +24,7 @@ function ThemeWrapper({ children }: { children: React.ReactNode }) {
     <html
       suppressContentEditableWarning
       lang="en"
-      data-theme={selectedTheme}
+      data-theme={selectedTheme || 'light'}
       suppressHydrationWarning
       className={`font-family-sans no-scrollbar text-base-content text-xs`}
     >

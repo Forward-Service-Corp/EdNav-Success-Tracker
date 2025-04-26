@@ -3,18 +3,18 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import React from 'react';
 import ClientRow from './ClientRow';
-import { ClientsProvider } from '@/contexts/ClientContext';
+import { ClientProvider } from '@/contexts/ClientContext';
 
 const meta: Meta<typeof ClientRow> = {
   title: 'Components/ClientRow',
   component: ClientRow,
   decorators: [
     (Story) => (
-      <ClientsProvider>
+      <ClientProvider>
         <div className="max-w-4xl mx-auto">
           <Story />
         </div>
-      </ClientsProvider>
+      </ClientProvider>
     )
   ],
   args: {
@@ -23,7 +23,7 @@ const meta: Meta<typeof ClientRow> = {
       first_name: 'string',
       last_name: 'string',
       latestInteraction: 'string',
-      clientStatus: 'string',
+      clientStatus: 'active',
       county: 'string',
       navigator: 'string',
       group: 'string'
