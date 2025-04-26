@@ -2,7 +2,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useClientList } from '/contexts/ClientListContext';
 import { useClient } from '/contexts/ClientContext';
-import { useEditing } from '/contexts/EditingContext';
 import { useNavigator } from '/contexts/NavigatorsContext';
 import { useLayout } from '/contexts/LayoutContext';
 import { useFepsLeft } from '/contexts/FepsLeftContext';
@@ -18,8 +17,7 @@ export default function ClientTable({
   const { clientList, loading, error } = useClientList();
   const { selectedNavigator } = useNavigator();
   const { selectedFepLeft } = useFepsLeft();
-  const { setEditing } = useEditing();
-  const { selectedClient, setSelectedClient } = useClient({});
+  const { selectedClient } = useClient({});
   const { currentLayout } = useLayout();
   const [isMounted, setIsMounted] = useState(false);
   const [viewMode, setViewMode] = useState(null);
