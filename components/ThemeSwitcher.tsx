@@ -80,12 +80,13 @@ export default function ThemeSwitcher() {
   }, [theme, setSelectedTheme]);
 
   return (
-    <div className="relative" style={{ zIndex: 10 }}>
+    <div className="w-[180px]" style={{ zIndex: 10 }}>
+      <label htmlFor="theme-select" className="text-sm">Theme:
       <select
         name="theme-select"
         id="theme-select"
         value={theme}
-        className="select mt-2 capitalize"
+        className="select capitalize mt-1"
         onChange={(e) => setTheme(Number(e.target.value))}
       >
         {themes.map((theme, index) => (
@@ -94,6 +95,7 @@ export default function ThemeSwitcher() {
           </option>
         ))}
       </select>
+      </label>
     </div>
   );
 }

@@ -1,21 +1,22 @@
 "use client";
 import { useEffect, useState } from 'react';
+import { useClient } from '../../contexts/ClientContext';
+import { useLoading } from '../../contexts/LoadingContext';
+import { LayoutProvider } from '../../contexts/LayoutContext';
 import AddClientForm from '../../components/AddClientForm';
 import ClientTableNew from '../../components/ClientTableNew';
 import ClientProfile from '../../components/ClientProfile';
 import FilterSelectRadios from '../../components/FilterSelectRadios';
 import FilterSelectRadiosAge from '../../components/FilterSelectRadiosAge';
-import Logo from '../../components/Logo';
 import NavigatorSelector from '../../components/NavigatorSelector';
-import { useClient } from '../../contexts/ClientContext';
-import { useLoading } from '../../contexts/LoadingContext';
 import ThemeSwitcher from '../../components/ThemeSwitcher';
-import { LayoutProvider } from '../../contexts/LayoutContext';
+import Logo from '../../components/Logo';
+import Button from '../../components/Button';
 
 function ClientsPage() {
   const { setLoading } = useLoading(false);
-  const [openPanel, setOpenPanel] = useState(null);
   const { selectedClient } = useClient();
+  const [openPanel, setOpenPanel] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -105,26 +106,30 @@ function ClientsPageContent({ openPanel, setOpenPanel, setMenuOpen, menuOpen }) 
         {/* Sidebar Panel */}
         {isSidebarVisible && (
           <div
-            className="bg-base-300 flex flex-col items-center justify-start gap-4 overflow-hidden h-full"
+            className="bg-base-300 flex flex-col px-4 items-center justify-start gap-4 overflow-hidden h-full relative"
             style={styles.sidebar}
           >
             <Logo />
             <div
-              className={`text-base-content/40 mx-4 box-border flex w-full flex-col gap-4 pr-4 pl-4 md:pr-12 md:pl-10`}
+              className={`text-base-content/40 box-border flex w-full flex-col gap-4  `}
             >
               <div className="divider mt-8 mb-3">Age Filters</div>
               <FilterSelectRadiosAge />
             </div>
             <div
-              className={`text-base-content/40 mx-4 box-border flex w-full flex-col gap-4 pr-4 pl-4 md:pr-12 md:pl-10`}
+              className={`text-base-content/40 box-border flex w-full flex-col gap-4 `}
             >
               <div className="divider mt-8">Status Filters</div>
               <FilterSelectRadios />
             </div>
 
-            <div className="sticky bottom-0 left-0 mt-auto p-6 w-full space-y-6">
+            <div
+              className="absolute flex flex-col justify-between items-center w-[210px] h-[310px] bottom-0 left-0 mt-auto border-t border-primary/20 gap-6 py-6">
               <ThemeSwitcher />
               <NavigatorSelector />
+              <Button use="primary" label="+ Add Client" onClick={() => setOpenPanel('form')}
+                      customStyle={`w-[180px]`} />
+              <Button use="secondary" label="Logout" onClick={() => setOpenPanel('form')} customStyle={`w-[180px]`} />
             </div>
           </div>
         )}

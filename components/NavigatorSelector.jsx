@@ -10,14 +10,15 @@ function NavigatorSelector() {
   }, [selectedNavigator])
 
   return (
-    <div className="relative" style={{ zIndex: 10 }}>
+    <div className="w-[180px]" style={{ zIndex: 10 }}>
+      <label htmlFor="theme-select" className="text-sm">Navigator:
       <select
         id="navigator-select"
         value={selectedNavigator || ''}
         onChange={(e) => {
           setSelectedNavigator(e.target.value);
         }}
-        className="select select-info border-info/50 mt-2 capitalize">
+        className="select capitalize mt-1">
         <option value="" disabled>
           Select a navigator
         </option>
@@ -28,6 +29,7 @@ function NavigatorSelector() {
           </option>
         ))}
       </select>
+      </label>
     </div>
   );
 }

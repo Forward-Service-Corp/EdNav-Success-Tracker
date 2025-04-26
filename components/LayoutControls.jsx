@@ -1,7 +1,6 @@
 "use client";
-
-import { useLayout } from '@/contexts/LayoutContext';
 import { useEffect, useState } from 'react';
+import { useLayout } from '@/contexts/LayoutContext';
 
 export default function LayoutControls() {
   const {
@@ -43,14 +42,14 @@ export default function LayoutControls() {
       if (windowWidth < 768) {
         // For small screens, focus on a table with minimal details
         setLayoutConfig('NARROW');
-      } else if (windowWidth < 1200 && currentLayout?.sidebar === 15) {
+      } else if (windowWidth < 1200 && currentLayout?.sidebar === 20) {
         // For medium screens with sidebar, balance table and details
         setLayoutConfig('MEDIUM_WITH_SIDEBAR');
       }
     }
   }, [isMounted, windowWidth, currentLayout?.sidebar]);
 
-  // Helper to get correct opacity based on current layout
+  // Helper to get correct opacity based on the current layout
   const getOpacity = (layoutName) => {
     // Get the current layout name from local storage or use DEFAULT
     const currentLayoutName = typeof window !== 'undefined'

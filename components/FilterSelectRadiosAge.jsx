@@ -1,4 +1,4 @@
-import { useFepsLeft } from "@/contexts/FepsLeftContext";
+import { useFepsLeft } from '../contexts/FepsLeftContext';
 
 function FilterSelectRadiosAge() {
   const { setSelectedFepLeft } = useFepsLeft();
@@ -22,7 +22,7 @@ function FilterSelectRadiosAge() {
           id={`filter-radio-6`}
           type="radio"
           name="filter-radio-age"
-          className="radio radio-base-content mt-3"
+          className="radio radio-sm radio-base-content mt-3"
           defaultChecked
         />
       </label>
@@ -38,7 +38,7 @@ function FilterSelectRadiosAge() {
           id={`filter-radio-7`}
           type="radio"
           name="filter-radio-age"
-          className="radio radio-success mt-3"
+          className="radio radio-sm radio-success mt-3"
         />
       </label>
 
@@ -53,7 +53,7 @@ function FilterSelectRadiosAge() {
           id={`filter-radio-8`}
           type="radio"
           name="filter-radio-age"
-          className="radio radio-info mt-3"
+          className="radio radio-sm radio-info mt-3"
         />
       </label>
     </div>

@@ -4,7 +4,7 @@ import React, { useEffect } from 'react';
 function FilterSelectRadios() {
   const { selectedFepLeft, setSelectedFepLeft } = useFepsLeft();
 
-  // Force "All" status on initial load
+  // Force "All" status on an initial load
   useEffect(() => {
     setSelectedFepLeft((prevState) => {
       if (prevState.status !== 'All') {
@@ -37,7 +37,7 @@ function FilterSelectRadios() {
             id={`filter-radio-1`}
             type="radio"
             name="filter-radio-status"
-            className="radio radio-base-content mt-3"
+            className="radio radio-sm radio-base-content mt-3"
             checked={selectedFepLeft.status === 'All'}
             onChange={() => {
             }} // React requires onChange with checked prop
@@ -55,7 +55,7 @@ function FilterSelectRadios() {
             id={`filter-radio-2`}
             type="radio"
             name="filter-radio-status"
-            className="radio radio-success mt-3"
+            className="radio radio-sm radio-success mt-3"
             checked={selectedFepLeft.status === 'In Progress'}
             onChange={() => {
             }}
@@ -73,48 +73,49 @@ function FilterSelectRadios() {
             id={`filter-radio-3`}
             type="radio"
             name="filter-radio-status"
-            className="radio radio-info mt-3"
+            className="radio radio-sm radio-info mt-3"
             checked={selectedFepLeft.status === 'Active'}
             onChange={() => {
             }}
           />
         </label>
+        <div className={`w-[180px] flex items-center justify-around`}>
+          <label
+            htmlFor={`filter-radio-4`}
+            className={`flex flex-col items-center justify-between`}
+          >
+            Graduated
+            <input
+              value="Graduated"
+              onClick={handleFilterChange}
+              id={`filter-radio-4`}
+              type="radio"
+              name="filter-radio-status"
+              className="radio radio-sm radio-warning mt-3"
+              checked={selectedFepLeft.status === 'Graduated'}
+              onChange={() => {
+              }}
+            />
+          </label>
 
-        <label
-          htmlFor={`filter-radio-4`}
-          className={`flex flex-col items-center justify-between`}
-        >
-          Graduated
-          <input
-            value="Graduated"
-            onClick={handleFilterChange}
-            id={`filter-radio-4`}
-            type="radio"
-            name="filter-radio-status"
-            className="radio radio-warning mt-3"
-            checked={selectedFepLeft.status === 'Graduated'}
-            onChange={() => {
-            }}
-          />
-        </label>
-
-        <label
-          htmlFor={`filter-radio-5`}
-          className={`flex flex-col items-center justify-between`}
-        >
-          Inactive
-          <input
-            value="Inactive"
-            onClick={handleFilterChange}
-            id={`filter-radio-5`}
-            type="radio"
-            name="filter-radio-status"
-            className="radio radio-error mt-3"
-            checked={selectedFepLeft.status === 'Inactive'}
-            onChange={() => {
-            }}
-          />
-        </label>
+          <label
+            htmlFor={`filter-radio-5`}
+            className={`flex flex-col items-center justify-between`}
+          >
+            Inactive
+            <input
+              value="Inactive"
+              onClick={handleFilterChange}
+              id={`filter-radio-5`}
+              type="radio"
+              name="filter-radio-status"
+              className="radio radio-sm radio-error mt-3"
+              checked={selectedFepLeft.status === 'Inactive'}
+              onChange={() => {
+              }}
+            />
+          </label>
+        </div>
       </div>
     </div>
   );
