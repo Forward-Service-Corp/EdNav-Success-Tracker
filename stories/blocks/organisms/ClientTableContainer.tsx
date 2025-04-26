@@ -8,6 +8,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 import ClientsTable from '@/stories/blocks/organisms/ClientsTable';
 import SearchBar from '../../../components/SearchField';
+import { LayoutProvider } from '@/contexts/LayoutContext';
 
 export default function ClientTableContainer({
                                                menuOpen,
@@ -95,6 +96,7 @@ export default function ClientTableContainer({
   if (!isMounted) return null;
 
   return (
+    <LayoutProvider>
     <div className="no-scrollbar relative z-0 h-full w-full">
       <div className="no-scrollbar absolute top-0 right-0 bottom-0 left-0 overflow-y-scroll">
         <div className="bg-base-200 sticky top-0 z-50 flex h-[80px] items-center justify-between px-3 py-4 shadow">
@@ -119,5 +121,6 @@ export default function ClientTableContainer({
         />
       </div>
     </div>
+    </LayoutProvider>
   );
 }

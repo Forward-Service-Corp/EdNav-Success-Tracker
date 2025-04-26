@@ -23,6 +23,6 @@ export const Default: Story = {
   args: {
     firstName: 'jimmy',
     lastName: 'johnsom',
-    size: 10
-  }
+    size: 38
+  },
 };

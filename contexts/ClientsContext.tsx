@@ -1,4 +1,4 @@
-import React, { createContext, ReactNode, useContext, useState } from "react";
+import React, { createContext, ReactNode, useContext, useState } from 'react';
 
 type Client = {
   _id: string;
@@ -50,7 +50,7 @@ type Client = {
 
 type ClientsContextType = {
   selectedClient: Client | null;
-  setSelectedClient: (client: Client | null) => void;
+  setSelectedClient: (client: any) => void;
 };
 
 export const ClientsContext = createContext<ClientsContextType | undefined>(

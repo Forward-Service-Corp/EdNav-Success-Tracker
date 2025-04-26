@@ -1,22 +1,45 @@
+// ClientRow.stories.tsx
+
 import type { Meta, StoryObj } from '@storybook/react';
+import React from 'react';
 import ClientRow from './ClientRow';
+import { ClientsProvider } from '@/contexts/ClientsContext';
 
 const meta: Meta<typeof ClientRow> = {
-  title: 'Tracker/Molecules/ClientRow',
+  title: 'Components/ClientRow',
   component: ClientRow,
-  parameters: {
-    docs: {
-      description: {
-        component:
-          'Each row in your table, like a well-behaved student in a classroom, waiting to be clicked. Shows avatar, name, status, county, and a \'details\' button'
-      }
+  decorators: [
+    (Story) => (
+      <ClientsProvider>
+        <div className="max-w-4xl mx-auto">
+          <Story />
+        </div>
+      </ClientsProvider>
+    )
+  ],
+  args: {
+    person: {
+      _id: 'string',
+      first_name: 'string',
+      last_name: 'string',
+      latestInteraction: 'string',
+      clientStatus: 'string',
+      county: 'string',
+      navigator: 'string',
+      group: 'string'
     }
   },
-  tags: ['#ohYeahPizza', 'tracker'],
-  args: {}
+  argTypes: {
+    person: {
+      clientStatus: {
+        control: { type: 'select', options: ['active', 'inactive', 'in-progress', 'graduated'] }
+      }
+    }
+  }
 };
 
 export default meta;
 type Story = StoryObj<typeof ClientRow>;
 
+// Default story with a static status
 export const Default: Story = {};

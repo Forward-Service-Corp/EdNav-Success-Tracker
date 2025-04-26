@@ -1,5 +1,4 @@
 // /components/blocks/molecules/ClientRow.tsx
-
 import { useClients } from '@/contexts/ClientsContext';
 import { useEditing } from '@/contexts/EditingContext';
 import { getBGColor } from '@/lib/ColorMap';
@@ -10,7 +9,16 @@ import StatusBadge from '../atoms/StatusBadge';
 
 type Edit = 'client' | null;
 type ClientRowProps = {
-  person: any; // Feel free to replace `any` with your actual Client type
+  person: {
+    _id: string;
+    first_name: string;
+    last_name: string;
+    latestInteraction: string;
+    clientStatus: string;
+    county: string;
+    navigator: string;
+    group: string;
+  }
   selected: boolean;
   setOpenPanel: (panel: string | null) => void;
 };
@@ -37,29 +45,31 @@ export default function ClientRow({
   };
 
   return (
+    <table className="table w-full min-w-[450px] max-w-[980px] ">
+      <tbody>
     <tr
-      className={`w-full cursor-pointer transition-colors duration-300 ${
-        selected ? getBGColor(person.clientStatus.toLowerCase()) : ''
+      className={`cursor-pointer bg-base-200 transition-colors duration-300 ${
+        selected ? getBGColor(person?.clientStatus?.toLowerCase()) : ''
       }`}
       onClick={handleClick}
     >
       <td>
         <div className="sticky top-80 z-20 flex items-center gap-3">
           <AvatarCircle
-            firstName={person.first_name}
-            lastName={person.last_name}
+            firstName={person?.first_name || 'John'}
+            lastName={person?.last_name || 'Doe'}
           />
           <ClientNameBlock
-            firstName={person.first_name}
-            lastName={person.last_name}
-            latestInteraction={person.latestInteraction}
+            firstName={person?.first_name || 'John'}
+            lastName={person?.last_name || 'Doe'}
+            latestInteraction={person?.latestInteraction || '2021-01-01'}
           />
         </div>
       </td>
       <td>
-        <StatusBadge status={person.clientStatus} isSelected={selected} />
+        <StatusBadge status={person?.clientStatus || 'Active'} isSelected={selected} />
       </td>
-      <td>{person.county}</td>
+      <td>{person?.county || 'Dane'}</td>
       <th>
         <button
           onClick={(e) => {
@@ -74,5 +84,7 @@ export default function ClientRow({
         </button>
       </th>
     </tr>
+      </tbody>
+    </table>
   );
 }

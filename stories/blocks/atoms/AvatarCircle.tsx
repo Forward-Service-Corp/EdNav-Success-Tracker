@@ -12,19 +12,21 @@ type AvatarCircleProps = {
 const AvatarCircle: React.FC<AvatarCircleProps> = ({
                                                      firstName,
                                                      lastName,
-                                                     size = 36
+                                                     size = 35
                                                    }) => {
   const initials = `${firstName[0]} ${lastName[0]}`;
 
   return (
+    <div className={`flex items-center justify-center`}>
     <div className="avatar">
-      <div className="mask mask-squircle h-12 w-12">
+      <div className="mask mask-squircle h-12 w-12 p-1">
         <Avvvatars
           value={firstName || ''}
           size={size || 36}
           displayValue={initials || 'rs'}
         ></Avvvatars>
       </div>
+    </div>
     </div>
   );
 };

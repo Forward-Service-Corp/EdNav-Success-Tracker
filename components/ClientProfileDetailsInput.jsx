@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { EditIcon, SaveIcon, XSquareIcon } from "lucide-react";
-import { useClients } from "../contexts/ClientsContext";
-import { adultSchools, youthSchools } from "../lib/schools";
+import React, { useEffect, useState } from 'react';
+import { EditIcon, SaveIcon, XSquareIcon } from 'lucide-react';
+import { useClients } from '../contexts/ClientsContext';
+import { adultSchools, youthSchools } from '../lib/schools';
 
 const counties = [
   "Brown",
@@ -152,7 +152,7 @@ function ClientProfileDetailsInput({ field, index, feps }) {
         return {
           ...prev,
           [field]: data.user[field],
-          changed: true,
+          changed: true
         };
       });
     } else {

@@ -1,5 +1,7 @@
 // /components/atoms/ClientNameBlock.tsx
 
+import React from 'react';
+
 type ClientNameBlockProps = {
   firstName: string;
   lastName: string;
@@ -14,9 +16,9 @@ const ClientNameBlock: React.FC<ClientNameBlockProps> = ({
   return (
     <div>
       <div className="font-bold">
-        {firstName} {lastName}
+        {firstName || 'John'} {lastName || 'Doe'}
       </div>
-      <div className="text-sm opacity-50">{latestInteraction}</div>
+      <div className="text-sm opacity-50">{latestInteraction || '2025-02-21'}</div>
     </div>
   );
 };
