@@ -43,34 +43,34 @@ function SearchField() {
   }, [currentLayout, isSidebarVisible, isDetailsVisible]);
 
   return (
-    <div className={`z-50 flex h-full items-center justify-start gap-2 ml-1`}>
-      {/* Layout Dropdown */}
-      <LayoutChangeButton activeLayout={activeLayout} setLayoutConfig={setLayoutConfig}
-                          setActiveLayout={setActiveLayout} />
+    <div className="bg-base-200 sticky top-0 z-50 flex h-[80px] items-center justify-between px-3 py-4 shadow">
+      <div className={`z-50 flex h-full items-center justify-start gap-2 ml-1`}>
+        {/* Layout Dropdown */}
+        <LayoutChangeButton activeLayout={activeLayout} setLayoutConfig={setLayoutConfig}
+                            setActiveLayout={setActiveLayout} />
 
-      <label className="input rounded-full ml-2 w-full bg-base-content/5 border border-base-content/8"
-             htmlFor="client-search" style={{ width: '100%' }}>
-        <svg className="h-[2em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-          <g
-            strokeLinejoin="round"
-            strokeLinecap="round"
-            strokeWidth="1"
-            fill="none"
-            stroke="currentColor"
-          >
-            <circle cx="11" cy="11" r="8"></circle>
-            <path d="m21 21-4.3-4.3"></path>
-          </g>
-        </svg>
-        <input type="search" className="grow rounded-full w-full" placeholder="Search" onChange={(e) => {
-          setSelectedFepLeft((prev) => ({
-            ...prev,
-            searchTerm: e.target.value
-          }));
-        }} />
-        {/*<kbd className="kbd kbd-sm">⌘</kbd>*/}
-        {/*<kbd className="kbd kbd-sm">K</kbd>*/}
-      </label>
+        <label className="input rounded-full ml-2 w-full bg-base-content/5 border border-base-content/8"
+               htmlFor="client-search" style={{ width: '100%' }}>
+          <svg className="h-[2em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <g
+              strokeLinejoin="round"
+              strokeLinecap="round"
+              strokeWidth="1"
+              fill="none"
+              stroke="currentColor"
+            >
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.3-4.3"></path>
+            </g>
+          </svg>
+          <input type="search" className="grow rounded-full w-full" placeholder="Search" onChange={(e) => {
+            setSelectedFepLeft((prev) => ({
+              ...prev,
+              searchTerm: e.target.value
+            }));
+          }} />
+        </label>
+      </div>
     </div>
   );
 }

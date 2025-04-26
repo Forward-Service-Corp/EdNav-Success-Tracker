@@ -10,11 +10,7 @@ import ClientsTable from '@/stories/blocks/organisms/ClientsTable';
 import SearchBar from '../../../components/SearchField';
 import { LayoutProvider } from '@/contexts/LayoutContext';
 
-export default function ClientTableContainer({
-                                               menuOpen,
-                                               setOpenPanel,
-                                               toggleSidebar
-                                             }: {
+export default function ClientTableContainer({ setOpenPanel }: {
   menuOpen: boolean;
   setMenuOpen?: (val: boolean) => void; // Made optional since it's commented out
   toggleSidebar: () => void;
@@ -26,8 +22,7 @@ export default function ClientTableContainer({
   const { selectedClient } = useClient();
 
   const [isMounted, setIsMounted] = useState(false);
-  const [viewMode, setViewMode] = useState<"pinned" | "grouped" | null>(null);
-  const [filterOpen, setFilterOpen] = useState(false);
+  const [viewMode] = useState<'pinned' | 'grouped' | null>(null);
 
   const pinnedIds = selectedNavigator?.pinned || [];
 
@@ -43,7 +38,7 @@ export default function ClientTableContainer({
           group?: string;
           _id: { toString(): string };
         }) =>
-          selectedNavigator?.name !== "All"
+          selectedNavigator?.name !== 'All'
             ? client?.navigator === selectedNavigator?.name
             : true
       )
@@ -63,11 +58,11 @@ export default function ClientTableContainer({
               .includes(selectedFepLeft.searchTerm.toLowerCase());
 
           const matchesStatus =
-            selectedFepLeft.status === "All" ||
+            selectedFepLeft.status === 'All' ||
             client?.clientStatus === selectedFepLeft.status;
 
           const matchesGroup =
-            selectedFepLeft.age === "All" ||
+            selectedFepLeft.age === 'All' ||
             client?.group === selectedFepLeft.age;
 
           return matchesSearch && matchesStatus && matchesGroup;
@@ -78,7 +73,7 @@ export default function ClientTableContainer({
   const clientsToShow = useMemo(() => {
     if (!filteredClients) return [];
 
-    if (viewMode === "pinned") {
+    if (viewMode === 'pinned') {
       return [...filteredClients].sort((a, b) => {
         const aPinned = pinnedIds.includes(a._id.toString());
         const bPinned = pinnedIds.includes(b._id.toString());
@@ -97,30 +92,16 @@ export default function ClientTableContainer({
 
   return (
     <LayoutProvider>
-    <div className="no-scrollbar relative z-0 h-full w-full">
-      <div className="no-scrollbar absolute top-0 right-0 bottom-0 left-0 overflow-y-scroll">
-        <div className="bg-base-200 sticky top-0 z-50 flex h-[80px] items-center justify-between px-3 py-4 shadow">
-          <SearchBar
-            menuOpen={menuOpen}
-            // setMenuOpen={setMenuOpen}
-            setFilterOpen={setFilterOpen}
-            filterOpen={filterOpen}
-            setViewMode={(mode: string) => {
-              // Convert the string to the appropriate type
-              if (mode === "pinned" || mode === "grouped" || mode === "") {
-                setViewMode(mode === "" ? null : mode as "pinned" | "grouped");
-              }
-            }}
-            toggleSidebar={toggleSidebar}
+      <div className="no-scrollbar relative z-0 h-full w-full">
+        <div className="no-scrollbar absolute top-0 right-0 bottom-0 left-0 overflow-y-scroll">
+          <SearchBar />
+          <ClientsTable
+            clients={clientsToShow}
+            selectedClientId={selectedClient?._id || null}
+            setOpenPanel={setOpenPanel}
           />
         </div>
-        <ClientsTable
-          clients={clientsToShow}
-          selectedClientId={selectedClient?._id || null}
-          setOpenPanel={setOpenPanel}
-        />
       </div>
-    </div>
     </LayoutProvider>
   );
 }
