@@ -21,7 +21,7 @@ export default function Combobox() {
       });
 
   return (
-    <ComboboxMaster
+    <Combobox
       as="div"
       value={selectedPerson}
       onChange={(person) => {
@@ -68,6 +68,6 @@ export default function Combobox() {
           </ComboboxOptions>
         )}
       </div>
-    </ComboboxMaster>
+    </Combobox>
   );
 }
