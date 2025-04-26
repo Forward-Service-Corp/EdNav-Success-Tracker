@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { EditIcon, SaveIcon, XSquareIcon } from 'lucide-react';
-import { useClients } from '../contexts/ClientsContext';
+import { useClient } from '../contexts/ClientContext';
 import { adultSchools, youthSchools } from '../lib/schools';
 
 const counties = [
@@ -53,7 +53,7 @@ const navigators = [
 ];
 
 function ClientProfileDetailsInput({ field, index, feps }) {
-  const { selectedClient, setSelectedClient } = useClients();
+  const { selectedClient, setSelectedClient } = useClient();
   const [updating, setUpdating] = useState(false);
   const [clientCopy, setClientCopy] = useState({});
   const [showSuccess, setShowSuccess] = useState(false);

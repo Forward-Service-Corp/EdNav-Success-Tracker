@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useClients } from '@/contexts/ClientsContext';
+import { useClient } from '@/contexts/ClientContext';
 import { useActivities } from '@/contexts/ActivityContext';
 import { generateSentence } from '@/utils/generateSentence';
 
@@ -7,7 +7,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
   // console.log('ActivityDynamicSelect initialized with questions:', questions);
   
   const { selectedActivity, setSelectedActivity } = useActivities();
-  const { selectedClient, setSelectedClient } = useClients();
+  const { selectedClient, setSelectedClient } = useClient();
   const [selectedPath, setSelectedPath] = useState([]);
   const [currentOptions, setCurrentOptions] = useState([]);
   const [, setCurrentObject] = useState({});

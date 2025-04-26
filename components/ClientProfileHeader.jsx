@@ -1,12 +1,12 @@
-import React from "react";
-import { XSquare } from "phosphor-react";
-import { getBadgeColor } from "../lib/ColorMap";
-import { useClients } from "/contexts/ClientsContext";
-import ClientProfilePin from "./ClientProfilePin";
-import { useEditing } from "../contexts/EditingContext";
+import React from 'react';
+import { XSquare } from 'phosphor-react';
+import { getBadgeColor } from '../lib/ColorMap';
+import { useClient } from '/contexts/ClientContext';
+import ClientProfilePin from './ClientProfilePin';
+import { useEditing } from '../contexts/EditingContext';
 
 export default function ClientProfileHeader({ setOpenPanel }) {
-  const { selectedClient, setSelectedClient } = useClients();
+  const { selectedClient, setSelectedClient } = useClient();
   const { setEditing } = useEditing();
 
   return (

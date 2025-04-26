@@ -1,12 +1,12 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import ActivityDynamicSelect from './ActivityDynamicSelect';
-import { useClients } from '@/contexts/ClientsContext';
+import { useClient } from '@/contexts/ClientContext';
 
 export default function ActivityModal({ open, setOpen, onSuccess }) {
   const [questions, setQuestions] = useState([]);
   const [isVisible, setIsVisible] = useState(false);
-  const { selectedClient } = useClients();
+  const { selectedClient } = useClient();
 
   // console.log('ActivityModal rendering with open state:', open);
 

@@ -7,7 +7,7 @@ import FilterSelectRadios from '../../components/FilterSelectRadios';
 import FilterSelectRadiosAge from '../../components/FilterSelectRadiosAge';
 import Logo from '../../components/Logo';
 import NavigatorSelector from '../../components/NavigatorSelector';
-import { useClients } from '../../contexts/ClientsContext';
+import { useClient } from '../../contexts/ClientContext';
 import { useLoading } from '../../contexts/LoadingContext';
 import ThemeSwitcher from '../../components/ThemeSwitcher';
 import { LayoutProvider } from '../../contexts/LayoutContext';
@@ -15,7 +15,7 @@ import { LayoutProvider } from '../../contexts/LayoutContext';
 function ClientsPage() {
   const { setLoading } = useLoading(false);
   const [openPanel, setOpenPanel] = useState(null);
-  const { selectedClient } = useClients();
+  const { selectedClient } = useClient();
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {

@@ -1,11 +1,11 @@
 "use client";
 import React, { useState } from 'react';
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
-import { useClients } from '../contexts/ClientsContext';
+import { useClient } from '../contexts/ClientContext';
 import { useNavigator } from '../contexts/NavigatorsContext';
 
 export default function NoteModal({ open, setOpen }) {
-  const { selectedClient } = useClients();
+  const { selectedClient } = useClient();
   const { selectedNavigator } = useNavigator();
   // const [notes, setNotes] = useState([]);
   // const [openNote, setOpenNote] = useState('');

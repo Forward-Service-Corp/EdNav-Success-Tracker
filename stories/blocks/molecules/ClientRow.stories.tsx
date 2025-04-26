@@ -3,7 +3,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import React from 'react';
 import ClientRow from './ClientRow';
-import { ClientsProvider } from '@/contexts/ClientsContext';
+import { ClientsProvider } from '@/contexts/ClientContext';
 
 const meta: Meta<typeof ClientRow> = {
   title: 'Components/ClientRow',

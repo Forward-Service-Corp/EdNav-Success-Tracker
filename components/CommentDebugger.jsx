@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from "react";
-import { useClients } from "@/contexts/ClientsContext";
+import React, { useEffect, useState } from 'react';
+import { useClient } from '@/contexts/ClientContext';
 
 /**
  * A debugging component to help troubleshoot comment-saving issues
  * You can add this temporarily to any page that needs comment debugging
  */
 const CommentDebugger = () => {
-  const { selectedClient } = useClients();
+  const { selectedClient } = useClient();
   const [parentId, setParentId] = useState("");
   const [commentText, setCommentText] = useState("Test comment");
   const [isSubmitting, setIsSubmitting] = useState(false);

@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { useClients } from '@/contexts/ClientsContext';
+import { useClient } from '@/contexts/ClientContext';
 import ClientProfileDetailsInput from '@/components/ClientProfileDetailsInput';
 
 function ClientProfilePersonalOrganization({ isNarrow, isMedium }) {
-  const { selectedClient } = useClients();
+  const { selectedClient } = useClient();
   const [error, setError] = useState("");
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [feps, setFeps] = useState([]);

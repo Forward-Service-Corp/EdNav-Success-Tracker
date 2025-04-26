@@ -48,30 +48,30 @@ type Client = {
   ttsDream: string;
 };
 
-type ClientsContextType = {
+type ClientContextType = {
   selectedClient: Client | null;
   setSelectedClient: (client: any) => void;
 };
 
-export const ClientsContext = createContext<ClientsContextType | undefined>(
+export const ClientContext = createContext<ClientContextType | undefined>(
   undefined,
 );
 
-export const ClientsProvider = ({ children }: { children: ReactNode }) => {
+export const ClientProvider = ({ children }: { children: ReactNode }) => {
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
 
   return (
-    <ClientsContext.Provider value={{ selectedClient, setSelectedClient }}>
+    <ClientContext.Provider value={{ selectedClient, setSelectedClient }}>
       {children}
-    </ClientsContext.Provider>
+    </ClientContext.Provider>
   );
 };
 
 // Custom hook for consuming context
-export const useClients = () => {
-  const context = useContext(ClientsContext);
+export const useClient = () => {
+  const context = useContext(ClientContext);
   if (!context) {
-    throw new Error("useClients must be used within a ClientsProvider");
+    throw new Error('useClient must be used within a ClientsProvider');
   }
   return context;
 };

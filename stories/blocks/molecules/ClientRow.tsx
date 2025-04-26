@@ -1,5 +1,5 @@
 // /components/blocks/molecules/ClientRow.tsx
-import { useClients } from '@/contexts/ClientsContext';
+import { useClient } from '@/contexts/ClientContext';
 import { useEditing } from '@/contexts/EditingContext';
 import { getBGColor } from '@/lib/ColorMap';
 import { Dispatch, SetStateAction } from 'react';
@@ -28,7 +28,7 @@ export default function ClientRow({
                                     selected,
                                     setOpenPanel
                                   }: ClientRowProps) {
-  const { setSelectedClient } = useClients();
+  const { setSelectedClient } = useClient();
   const { setEditing } = useEditing() as {
     setEditing: Dispatch<SetStateAction<Edit>>;
   };

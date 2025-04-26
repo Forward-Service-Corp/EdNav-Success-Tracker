@@ -1,12 +1,12 @@
 "use client";
 import React, { useCallback, useEffect, useState } from 'react';
-import { useClients } from '/contexts/ClientsContext';
+import { useClient } from '/contexts/ClientContext';
 import { format } from 'date-fns';
 import { useNotification } from '/contexts/NotificationContext';
 import { useNavigator } from '/contexts/NavigatorsContext';
 
 export default function CombinedFeed({ isNarrow }) {
-  const { selectedClient } = useClients();
+  const { selectedClient } = useClient();
   const { selectedNavigator } = useNavigator();
   const [, setActivities] = useState([]);
   const [, setNotes] = useState([]);

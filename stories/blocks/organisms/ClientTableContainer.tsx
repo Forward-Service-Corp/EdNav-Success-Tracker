@@ -1,7 +1,7 @@
 // /components/blocks/organisms/ClientTableContainer.tsx
 
 import { useClientList } from '@/contexts/ClientListContext';
-import { useClients } from '@/contexts/ClientsContext';
+import { useClient } from '@/contexts/ClientContext';
 import { useFepsLeft } from '@/contexts/FepsLeftContext';
 import { useNavigator } from '@/contexts/NavigatorsContext';
 import { useEffect, useMemo, useState } from 'react';
@@ -23,7 +23,7 @@ export default function ClientTableContainer({
   const { clientList } = useClientList();
   const { selectedNavigator } = useNavigator();
   const { selectedFepLeft } = useFepsLeft();
-  const { selectedClient } = useClients();
+  const { selectedClient } = useClient();
 
   const [isMounted, setIsMounted] = useState(false);
   const [viewMode, setViewMode] = useState<"pinned" | "grouped" | null>(null);

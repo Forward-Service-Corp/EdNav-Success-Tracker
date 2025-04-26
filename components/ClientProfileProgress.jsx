@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { CheckCircleIcon } from '@heroicons/react/20/solid';
-import { useClients } from '@/contexts/ClientsContext';
+import { useClient } from '@/contexts/ClientContext';
 
 function ClientProfileProgress({
   hasTrackable,
@@ -10,7 +10,7 @@ function ClientProfileProgress({
   hasTrackableCopy,
                                  isNarrow
                                }) {
-  const { selectedClient, setSelectedClient } = useClients();
+  const { selectedClient, setSelectedClient } = useClient();
   const [completionPercentage, setCompletionPercentage] = useState(0);
   const [isUpdating, setIsUpdating] = useState(false);
 

@@ -3,7 +3,7 @@ import { SessionProvider } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { ActivityProvider } from '../contexts/ActivityContext';
 import { ClientListProvider } from '../contexts/ClientListContext';
-import { ClientsProvider } from '../contexts/ClientsContext';
+import { ClientProvider } from '../contexts/ClientContext';
 import { EditingProvider } from '../contexts/EditingContext';
 import { FepsLeftProvider } from '../contexts/FepsLeftContext';
 import { LoadingProvider } from '../contexts/LoadingContext';
@@ -18,7 +18,7 @@ export default function RootLayout({ children }) {
     <SessionProvider>
       <ThemesProvider>
         <ThemeWrapper>
-          <ClientsProvider>
+          <ClientProvider>
             <LoadingProvider>
               <EditingProvider>
                 <FepsLeftProvider>
@@ -32,7 +32,7 @@ export default function RootLayout({ children }) {
                 </FepsLeftProvider>
               </EditingProvider>
             </LoadingProvider>
-          </ClientsProvider>
+          </ClientProvider>
         </ThemeWrapper>
       </ThemesProvider>
     </SessionProvider>

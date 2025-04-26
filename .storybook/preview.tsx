@@ -1,5 +1,5 @@
 import type { Preview } from '@storybook/react';
-import { ClientsProvider } from '../contexts/ClientsContext';
+import { ClientsProvider } from '../contexts/ClientContext';
 import React, { useEffect, useState } from 'react';
 import { SessionProvider } from 'next-auth/react';
 import { ThemesProvider, useThemes } from '../contexts/ThemesContext';

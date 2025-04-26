@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import moment from 'moment/moment';
-import { useClients } from '/contexts/ClientsContext';
+import { useClient } from '/contexts/ClientContext';
 
 function ClientProfileTabeOrientation({ isNarrow }) {
-  const { selectedClient } = useClients();
+  const { selectedClient } = useClient();
   const [, setDateValue] = useState({
     orientation: {
       referralDate: selectedClient?.orientation?.referralDate || null,

@@ -5,14 +5,14 @@ import ClientProfileHeader from '../components/ClientProfileHeader';
 import ClientProfileProgress from '../components/ClientProfileProgress';
 import ClientProfilePersonalOrganization from '../components/ClientProfilePersonalOrganization';
 import ClientProfileTABEOrientation from '../components/ClientProfileTABEOrientation';
-import { useClients } from '@/contexts/ClientsContext';
+import { useClient } from '/contexts/ClientContext';
 import ActivityModal from '../components/ActivityModal';
-import { useLayout } from '@/contexts/LayoutContext';
+import { useLayout } from '/contexts/LayoutContext';
 
 export default function ClientProfile({ setOpenPanel }) {
   const [isMounted, setIsMounted] = useState(false);
   const [, setSelectedNavigator] = useState("");
-  const { selectedClient, setSelectedClient } = useClients();
+  const { selectedClient, setSelectedClient } = useClient();
   const [, setActions] = useState([]); // actions are the activities
   const [hasTrackable, setHasTrackable] = useState([]);
   const [hasTrackableUpdated, setHasTrackableUpdated] = useState(false);
@@ -49,7 +49,7 @@ export default function ClientProfile({ setOpenPanel }) {
     }
   }, [currentLayout, isMounted]);
 
-  // Set up resize observer to track container width changes
+  // Set up a resize observer to track container width changes
   useEffect(() => {
     if (!profileRef.current) return;
 
@@ -103,7 +103,7 @@ export default function ClientProfile({ setOpenPanel }) {
       const storedNavigator = localStorage.getItem("navigatorName") || "";
       setSelectedNavigator(storedNavigator);
 
-      // Only set up modal function if it doesn't already exist
+      // Only set up a modal function if it doesn't already exist
       if (!window.openActivityModal) {
         // console.log('Setting up openActivityModal from ClientProfile');
         window.openActivityModal = () => {
@@ -131,16 +131,16 @@ export default function ClientProfile({ setOpenPanel }) {
       const handleTrackableUpdate = (event) => {
         // console.log('Received trackableUpdated event in ClientProfile:', event.detail);
 
-        // Get the current selected client from data attribute
+        // Get the current selected client from the data attribute
         const currentClientId = document.getElementById('client-profile-root')?.dataset?.clientId;
 
         if (event.detail && event.detail.trackable &&
           event.detail.clientId &&
           (currentClientId === event.detail.clientId ||
             (selectedClient && selectedClient._id === event.detail.clientId))) {
-          // console.log('Applying trackable update to current client');
+          // console.log('Applying trackable update to the current client');
 
-          // Schedule update for next render cycle
+          // Schedule update for the next render cycle
           setTimeout(() => {
             try {
               // Get the latest selected client inside the timeout
@@ -210,10 +210,10 @@ export default function ClientProfile({ setOpenPanel }) {
 
       // Safety check for trackable data
       if (selectedClient.trackable && Array.isArray(selectedClient.trackable.items)) {
-        // console.log('ClientProfile: Setting hasTrackable from client', selectedClient.trackable);
+        // console.log('ClientProfile: Setting hasTrackable from a client', selectedClient.trackable);
         setHasTrackable(selectedClient.trackable.items);
 
-        // Only create copy if it hasn't been updated yet
+        // Only create a copy if it hasn't been updated yet
         if (!hasTrackableUpdated) {
           const copy = JSON.parse(JSON.stringify(selectedClient.trackable.items));
           setHasTrackableCopy(copy);
@@ -228,7 +228,7 @@ export default function ClientProfile({ setOpenPanel }) {
               const parsed = JSON.parse(cachedTrackable);
               // console.log('Found cached trackable data:', parsed);
 
-              // Only use cached data if it has items array
+              // Only use cached data if it has an item array
               if (parsed && Array.isArray(parsed.items)) {
                 const cachedCompleted = parsed.items.filter(item => item && item.completed).length;
                 const currentCompleted = selectedClient.trackable.items
@@ -240,7 +240,7 @@ export default function ClientProfile({ setOpenPanel }) {
                   setHasTrackableCopy(JSON.parse(JSON.stringify(parsed.items)));
                   setHasTrackableUpdated(true);
 
-                  // Update client object with cached data for consistency
+                  // Update a client object with cached data for consistency
                   setTimeout(() => {
                     const updatedClient = {
                       ...selectedClient,
@@ -319,7 +319,7 @@ export default function ClientProfile({ setOpenPanel }) {
           // Update local state but preserve savedInDatabase flags
           setHasTrackable(trackableWithTimestamp.items);
 
-          // For hasTrackableCopy, only mark items as completed if they're saved in database
+          // For hasTrackableCopy, only mark items as completed if they're saved in a database
           const itemsForCopy = trackableWithTimestamp.items.map(item => ({
             ...item,
             completed: item.savedInDatabase === true ? item.completed : false
@@ -362,7 +362,7 @@ export default function ClientProfile({ setOpenPanel }) {
 
     // If we're closing the modal, make sure we preserve the selected client
     if (state === '' && selectedClient) {
-      // console.log('Closing activity modal while preserving selected client:', selectedClient._id);
+      // console.log('Closing activity modal while preserving a selected client:', selectedClient._id);
       // Force a refresh of the client data to ensure it's not lost
       setTimeout(() => {
         if (selectedClient) {

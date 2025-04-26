@@ -1,19 +1,19 @@
 // components/AddClientForm.jsx
 
 "use client";
-import React, { useEffect, useState } from "react";
-import { adultSchools, youthSchools } from "/lib/schools";
-import { useClients } from "../contexts/ClientsContext";
-import InputVariants from "../components/InputVariants";
-import { useEditing } from "../contexts/EditingContext";
-import { validation } from "../lib/validation";
-import { XCircle } from "phosphor-react";
+import React, { useEffect, useState } from 'react';
+import { adultSchools, youthSchools } from '/lib/schools';
+import { useClient } from '../contexts/ClientContext';
+import InputVariants from '../components/InputVariants';
+import { useEditing } from '../contexts/EditingContext';
+import { validation } from '../lib/validation';
+import { XCircle } from 'phosphor-react';
 
 function AddClientForm({ setOpenPanel }) {
   const [feps] = useState([]);
   const [errors, setErrors] = useState({});
   const { setEditing } = useEditing();
-  const { setSelectedClient } = useClients(null);
+  const { setSelectedClient } = useClient(null);
   const [formData, setFormData] = useState({
     caseNumber: "",
     clientStatus: "In Progress",
