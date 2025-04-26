@@ -1,22 +1,22 @@
 import React from 'react';
 import { ClientListProvider } from '../contexts/ClientListContext';
-import { ClientsProvider } from '../contexts/ClientContext';
+import { ClientProvider } from '../contexts/ClientContext';
 import { EditingProvider } from '../contexts/EditingContext';
 import { FepsLeftProvider } from '../contexts/FepsLeftContext';
-import { NavigatorsProvider } from '../contexts/NavigatorsContext';
+import { NavigatorProvider } from '../contexts/NavigatorsContext';
 
 export const withProviders = (Story: React.ComponentType) => {
   return (
-    <ClientsProvider>
+    <ClientProvider>
       <ClientListProvider>
         <EditingProvider>
-          <NavigatorsProvider>
+          <NavigatorProvider>
             <FepsLeftProvider>
               <Story />
             </FepsLeftProvider>
-          </NavigatorsProvider>
+          </NavigatorProvider>
         </EditingProvider>
       </ClientListProvider>
-    </ClientsProvider>
+    </ClientProvider>
   );
 };

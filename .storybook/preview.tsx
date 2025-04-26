@@ -1,5 +1,5 @@
 import type { Preview } from '@storybook/react';
-import { ClientsProvider } from '../contexts/ClientContext';
+import { ClientProvider } from '../contexts/ClientContext';
 import React, { useEffect, useState } from 'react';
 import { SessionProvider } from 'next-auth/react';
 import { ThemesProvider, useThemes } from '../contexts/ThemesContext';
@@ -52,7 +52,7 @@ const preview: Preview = {
       <SessionProvider>
         <ThemesProvider>
           <ThemeWrapper>
-            <ClientsProvider>
+            <ClientProvider>
               <LoadingProvider>
                 <EditingProvider>
                   <FepsLeftProvider>
@@ -70,7 +70,7 @@ const preview: Preview = {
                   </FepsLeftProvider>
                 </EditingProvider>
               </LoadingProvider>
-            </ClientsProvider>
+            </ClientProvider>
           </ThemeWrapper>
         </ThemesProvider>
       </SessionProvider>
