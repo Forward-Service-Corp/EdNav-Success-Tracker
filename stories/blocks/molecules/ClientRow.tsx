@@ -5,7 +5,7 @@ import { getBGColor } from '@/lib/ColorMap';
 import { Dispatch, SetStateAction } from 'react';
 import AvatarCircle from '../atoms/AvatarCircle';
 import ClientNameBlock from '../atoms/ClientNameBlock';
-import StatusBadge from '../atoms/StatusBadge';
+import Badge from '../../../components/Badge';
 
 type Edit = 'client' | null;
 type ClientRowProps = {
@@ -14,7 +14,7 @@ type ClientRowProps = {
     first_name: string;
     last_name: string;
     latestInteraction: string;
-    clientStatus: string;
+    clientStatus: 'active' | 'in progress' | 'graduated' | 'inactive';
     county: string;
     navigator: string;
     group: string;
@@ -67,7 +67,7 @@ export default function ClientRow({
         </div>
       </td>
       <td>
-        <StatusBadge status={person?.clientStatus || 'Active'} isSelected={selected} />
+        <Badge use={person?.clientStatus?.toLowerCase() as 'active' | 'in progress' | 'graduated' | 'inactive'} />
       </td>
       <td>{person?.county || 'Dane'}</td>
       <th>

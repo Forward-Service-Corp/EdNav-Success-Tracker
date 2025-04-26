@@ -1,9 +1,9 @@
 import React from 'react';
 import { XSquare } from 'phosphor-react';
-import { getBadgeColor } from '../lib/ColorMap';
 import { useClient } from '/contexts/ClientContext';
 import ClientProfilePin from './ClientProfilePin';
 import { useEditing } from '../contexts/EditingContext';
+import Badge from './Badge';
 
 export default function ClientProfileHeader({ setOpenPanel }) {
   const { selectedClient, setSelectedClient } = useClient();
@@ -20,9 +20,7 @@ export default function ClientProfileHeader({ setOpenPanel }) {
         </div>
 
         <div className={`pr-4`}>
-          <div className={`${getBadgeColor(selectedClient?.clientStatus)}`}>
-            {selectedClient?.clientStatus}
-          </div>
+          <Badge use={selectedClient?.clientStatus.toLowerCase()} />
         </div>
       </div>
 

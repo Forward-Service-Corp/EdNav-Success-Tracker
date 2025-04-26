@@ -7,9 +7,9 @@ import { useNavigator } from '/contexts/NavigatorsContext';
 import { useLayout } from '/contexts/LayoutContext';
 import { useFepsLeft } from '/contexts/FepsLeftContext';
 import { getBadgeColor, getBGColor } from '/lib/ColorMap';
-import Badges from './Badges';
 import SearchField from './SearchField';
 import Avvvatars from 'avvvatars-react';
+import Badge from './Badge';
 
 export default function ClientTableNew({
   menuOpen,
@@ -386,20 +386,7 @@ export default function ClientTableNew({
                           </div>
                           {/* Show status in name cell when status column is hidden */}
                           {!visibleColumns.status && (
-                            <div className="mt-1">
-                              <Badges
-                                color={
-                                  selectedClient?._id === person._id
-                                    ? 'inline-flex items-center rounded-md px-2 py-1 text-xs w-24 font-medium bg-white text-center'
-                                    : getBadgeColor(
-                                      (
-                                        person.clientStatus || 'unknown'
-                                      ).toLowerCase()
-                                    )
-                                }
-                                label={person.clientStatus || 'Unknown'}
-                              />
-                            </div>
+                            <Badge use={person?.clientStatus.toLowerCase()} />
                           )}
                           {/* Show county in name cell when county column is hidden */}
                           {!visibleColumns.county && (
@@ -412,36 +399,10 @@ export default function ClientTableNew({
                     </td>
                     {visibleColumns.status && (
                       <td>
-                        <Badges
-                          color={
-                            selectedClient?._id === person._id
-                              ? 'inline-flex items-center rounded-md px-2 py-1 text-xs font-medium bg-white text-center'
-                              : getBadgeColor(
-                                (
-                                  person.clientStatus || 'unknown'
-                                ).toLowerCase()
-                              )
-                          }
-                          label={person.clientStatus || 'Unknown'}
-                        />
+                        <Badge use={person?.clientStatus.toLowerCase()} className="mt-1" />
                       </td>
                     )}
                     {visibleColumns.county && <td className="truncate">{person.county || 'N/A'}</td>}
-                    {visibleColumns.details && (
-                      <td className="text-right">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation(); // prevent row click
-                            setEditing('client');
-                            setSelectedClient(person);
-                            setOpenPanel('profile');
-                          }}
-                          className="btn btn-ghost btn-xs"
-                        >
-                          details
-                        </button>
-                      </td>
-                    )}
                   </tr>
                 ))}
             </tbody>
