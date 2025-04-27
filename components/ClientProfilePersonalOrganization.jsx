@@ -11,7 +11,7 @@ function ClientProfilePersonalOrganization({ isNarrow, isMedium, setOpenPanel })
   const [scrolled, setScrolled] = useState(false);
   const [feps, setFeps] = useState([]);
   const scrollRef = useRef(null);
-  const { editing, setEditing } = useEditing();
+  const { setEditing } = useEditing();
 
 
   const [successMessage, setSuccessMessage] = useState("");

@@ -1,16 +1,15 @@
 import { ObjectId } from 'mongodb';
 import { getCollection } from '../../../../lib/mongodb';
 import { NextRequest, NextResponse } from 'next/server';
-// import { NextResponse } from 'next/server';
 
-export default async function POST(request: NextRequest) {
-  if (request.method !== 'PATCH') {
-    return NextResponse.json({ message: 'Method not allowed' }, { status: 405 });
-  }
+// Change the function name to match the HTTP method you want to handle
+export async function PATCH(request: NextRequest) {
 
   const url = new URL(request.url);
   const id = url.searchParams.get('id') || '';
-  const { trackable } = await request.body;
+
+  // Next.js App Router handles the body differently
+  const trackable = await request.json();
 
   if (!trackable || !trackable.items) {
     return NextResponse.json({ message: 'Trackable items missing in body' }, { status: 400 });
@@ -18,7 +17,10 @@ export default async function POST(request: NextRequest) {
 
   try {
     const clientsCollection = await getCollection('clients');
-    const result = await clientsCollection.updateOne({ _id: ObjectId.createFromBase64(id) }, { $set: { 'trackable.items': trackable.items } });
+    const result = await clientsCollection.updateOne(
+      { _id: new ObjectId(id) }, // Use constructor, not createFromBase64
+      { $set: { 'trackable.items': trackable.items } }
+    );
 
     if (result.matchedCount === 0) {
       return NextResponse.json({ message: 'Client not found' }, { status: 404 });
@@ -29,8 +31,7 @@ export default async function POST(request: NextRequest) {
       modifiedCount: result.modifiedCount,
       matchedCount: result.matchedCount,
       upsertedCount: result.upsertedCount,
-      upsertedId: result.upsertedId,
-      result
+      upsertedId: result.upsertedId
     }, { status: 200 });
 
   } catch (error) {
