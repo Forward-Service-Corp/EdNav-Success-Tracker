@@ -7,7 +7,11 @@ import NavigatorSelector from './NavigatorSelector';
 import Button from './Button';
 import { useLayout } from '../contexts/LayoutContext';
 
-function Sidebar({ setOpenPanel }) {
+function Sidebar({
+
+                   setOpenPanel
+
+                 }) {
   const {
     currentLayout,
     // setLayoutConfig,

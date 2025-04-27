@@ -2,14 +2,17 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useClient } from '../contexts/ClientContext';
 import ClientProfileDetailsInput from '../components/ClientProfileDetailsInput';
 import Button from './Button';
+import { useEditing } from '../contexts/EditingContext';
 
-function ClientProfilePersonalOrganization({ isNarrow, isMedium }) {
-  const { selectedClient } = useClient();
+function ClientProfilePersonalOrganization({ isNarrow, isMedium, setOpenPanel }) {
+  const { selectedClient, setSelectedClient } = useClient();
   const [error, setError] = useState("");
-  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [detailsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [feps, setFeps] = useState([]);
   const scrollRef = useRef(null);
+  const { editing, setEditing } = useEditing();
+
 
   const [successMessage, setSuccessMessage] = useState("");
   const [change, setChange] = useState({
@@ -106,11 +109,12 @@ function ClientProfilePersonalOrganization({ isNarrow, isMedium }) {
         } items-center`}
       >
         <div>Personal Details {detailsOpen.toString()}</div>
-        <Button
-          label={`${detailsOpen ? 'Close' : 'View & Edit'} Details`}
-          use="secondary"
-          onClick={() => setDetailsOpen(!detailsOpen)}
-        />
+        <Button label={`Details`} use={`secondary`}
+                onClick={() => {
+                  setEditing('');
+                  setSelectedClient(null);
+                  setOpenPanel(false);
+                }} />
       </div>
 
       {/* Scrollable Content */}

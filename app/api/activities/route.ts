@@ -59,7 +59,72 @@ const flattenActivityData = (activity: any) => {
       flattenedActivity.path_string = activity.path.join(' > ');
     }
 
-    // Extract selections as a string if they exist
+    // Extract selections as a string if they exist{
+    //     "message": "Action added successfully",
+    //     "wholeUser": null,
+    //     "userActions": [
+    //         {
+    //             "_id": "680e010046a3a03ef7db9a91",
+    //             "clientId": "67d5c0221c0f769dfe401fb3",
+    //             "clientEmail": "clientemail@domain.com",
+    //             "clientName": "Client Name",
+    //             "what": "what",
+    //             "when": "2025-06-02T19:54:49.045Z",
+    //             "where": "where",
+    //             "who": "who",
+    //             "activityDetail": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce id dictum tellus, at ornare metus. Integer accumsan justo sed erat dictum, in fermentum tellus gravida.",
+    //             "createdAt": "2026-03-02T19:54:49.045Z",
+    //             "timestamp": "2025-04-27T10:03:44.799Z",
+    //             "selectedDate": "2025-04-27T10:03:44.799Z"
+    //         }
+    //     ],
+    //     "comments": [],
+    //     "_id": "680e010046a3a03ef7db9a91",
+    //     "user": {
+    //         "acknowledged": true,
+    //         "modifiedCount": 0,
+    //         "upsertedId": null,
+    //         "upsertedCount": 0,
+    //         "matchedCount": 0
+    //     },
+    //     "activity": {
+    //         "clientId": "67d5c0221c0f769dfe401fb3",
+    //         "clientEmail": "clientemail@domain.com",
+    //         "clientName": "Client Name",
+    //         "what": "what",
+    //         "when": "2025-06-02T19:54:49.045Z",
+    //         "where": "where",
+    //         "who": "who",
+    //         "activityDetail": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce id dictum tellus, at ornare metus. Integer accumsan justo sed erat dictum, in fermentum tellus gravida.",
+    //         "createdAt": "2026-03-02T19:54:49.045Z",
+    //         "_id": "680e010046a3a03ef7db9a91"
+    //     },
+    //     "data": {
+    //         "clientId": "67d5c0221c0f769dfe401fb3",
+    //         "clientEmail": "clientemail@domain.com",
+    //         "clientName": "Client Name",
+    //         "what": "what",
+    //         "when": "2025-06-02T19:54:49.045Z",
+    //         "where": "where",
+    //         "who": "who",
+    //         "activityDetail": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce id dictum tellus, at ornare metus. Integer accumsan justo sed erat dictum, in fermentum tellus gravida.",
+    //         "createdAt": "2026-03-02T19:54:49.045Z",
+    //         "_id": "680e010046a3a03ef7db9a91"
+    //     },
+    //     "flattenedActivity": {
+    //         "clientId": "67d5c0221c0f769dfe401fb3",
+    //         "clientEmail": "clientemail@domain.com",
+    //         "clientName": "Client Name",
+    //         "what": "what",
+    //         "when": "2025-06-02T19:54:49.045Z",
+    //         "where": "where",
+    //         "who": "who",
+    //         "activityDetail": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce id dictum tellus, at ornare metus. Integer accumsan justo sed erat dictum, in fermentum tellus gravida.",
+    //         "createdAt": "2026-03-02T19:54:49.045Z",
+    //         "_id": "680e010046a3a03ef7db9a91",
+    //         "created_date": "2026-03-02"
+    //     }
+    // }
     if (activity.selections && Array.isArray(activity.selections)) {
       flattenedActivity.selections_string = activity.selections.join(', ');
     }
