@@ -43,7 +43,7 @@ function SearchField() {
   }, [currentLayout, isSidebarVisible, isDetailsVisible]);
 
   return (
-    <div className="bg-base-200 sticky top-0 z-50 flex h-[80px] items-center justify-between px-3 py-4 shadow">
+    <div className=" sticky top-0 z-50 flex h-[80px] items-center justify-between px-3 py-4 shadow">
       <div className={`z-50 flex h-full items-center justify-start gap-2 ml-1`}>
         {/* Layout Dropdown */}
         <LayoutChangeButton activeLayout={activeLayout} setLayoutConfig={setLayoutConfig}

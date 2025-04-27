@@ -79,7 +79,7 @@ function FilterSelectRadios() {
             }}
           />
         </label>
-        <div className={`w-[180px] flex items-center justify-around`}>
+        <div className={`flex items-center justify-end w-full`} />
           <label
             htmlFor={`filter-radio-4`}
             className={`flex flex-col items-center justify-between`}
@@ -115,7 +115,6 @@ function FilterSelectRadios() {
               }}
             />
           </label>
-        </div>
       </div>
     </div>
   );

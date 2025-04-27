@@ -106,7 +106,7 @@ function ClientsPageContent({ openPanel, setOpenPanel, setMenuOpen, menuOpen }) 
         {/* Sidebar Panel */}
         {isSidebarVisible && (
           <div
-            className="bg-base-300 flex flex-col px-4 items-center justify-start gap-4 overflow-hidden h-full relative"
+            className="bg-base-100 flex-none flex flex-col px-4 items-center justify-start gap-4 overflow-hidden h-full relative"
             style={styles.sidebar}
           >
             <Logo />
@@ -124,7 +124,7 @@ function ClientsPageContent({ openPanel, setOpenPanel, setMenuOpen, menuOpen }) 
             </div>
 
             <div
-              className="absolute flex flex-col justify-between items-center w-[210px] h-[310px] bottom-0 left-0 mt-auto border-t border-primary/20 gap-6 py-6">
+              className=" flex flex-col mt-8 items-center border-t border-base-content/10 gap-6 py-6">
               <ThemeSwitcher />
               <NavigatorSelector />
               <Button use="primary" label="+ Add Client" onClick={() => setOpenPanel('form')}
