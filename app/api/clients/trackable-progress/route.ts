@@ -1,5 +1,5 @@
 import { ObjectId } from 'mongodb';
-import { getCollection } from '../../../../lib/mongodb';
+import { getCollection } from '@/lib/mongodb';
 import { NextRequest, NextResponse } from 'next/server';
 
 // Change the function name to match the HTTP method you want to handle
