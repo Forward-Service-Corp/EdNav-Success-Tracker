@@ -43,13 +43,13 @@ function SearchField() {
   }, [currentLayout, isSidebarVisible, isDetailsVisible]);
 
   return (
-    <div className=" sticky top-0 z-50 flex h-[80px] items-center justify-between px-3 py-4 shadow">
+    <div className=" sticky top-0 z-50 flex h-[80px] items-center justify-between py-4 ">
       <div className={`z-50 flex h-full items-center justify-start gap-2 ml-1`}>
         {/* Layout Dropdown */}
         <LayoutChangeButton activeLayout={activeLayout} setLayoutConfig={setLayoutConfig}
                             setActiveLayout={setActiveLayout} />
 
-        <label className="input rounded-full ml-2 w-full bg-base-content/5 border border-base-content/8"
+        <label className="input rounded-full ml-2 w-full bg-base-content/5"
                htmlFor="client-search" style={{ width: '100%' }}>
           <svg className="h-[2em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
             <g

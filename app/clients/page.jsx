@@ -101,17 +101,17 @@ function ClientsPageContent({ openPanel, setOpenPanel, setMenuOpen, menuOpen }) 
   }, [openPanel, isDetailsVisible, isSidebarVisible, setLayoutConfig]);
 
   return (
-    <div className="flex h-screen w-screen flex-col">
-      <div className="flex flex-1 gap-2 p-2 overflow-hidden">
+    <div className="flex h-screen w-screen bg-base-300">
+      <div className="flex flex-1 gap-5 p-5 overflow-hidden">
         {/* Sidebar Panel */}
         {isSidebarVisible && (
           <div
-            className="bg-base-100 flex-none flex flex-col px-4 items-center justify-start gap-4 overflow-hidden h-full relative"
+            className="bg-base-100 rounded-md flex-none flex flex-col p-5 pt-2 items-center justify-start gap-5 h-full relative"
             style={styles.sidebar}
           >
             <Logo />
             <div
-              className={`text-base-content/40 box-border flex w-full flex-col gap-4  `}
+              className={`text-base-content box-border flex w-full flex-col gap-4 mt-5 `}
             >
               <div className="divider mt-8 mb-3">Age Filters</div>
               <FilterSelectRadiosAge />
