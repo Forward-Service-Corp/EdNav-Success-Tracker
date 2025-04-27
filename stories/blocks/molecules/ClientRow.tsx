@@ -44,13 +44,13 @@ export default function ClientRow({
 
   return (
     <tr
-      className={`cursor-pointer bg-base-200 hover:bg-base-200/20 transition-colors duration-300 ${
+      className={`cursor-pointer bg-base-200 hover:bg-base-200/20 transition-colors duration-300 min-w-full w-full ${
         selected ? 'bg-accent/20' : ''
       }`}
       onClick={handleClick}
     >
       <td>
-        <div className="sticky top-80 z-20 flex items-center gap-3">
+        <div className="sticky top-80 z-20 flex items-center gap-3 min-w-full w-full">
           <ClientNameBlock
             firstName={person?.first_name || 'John'}
             lastName={person?.last_name || 'Doe'}

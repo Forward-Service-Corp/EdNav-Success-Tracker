@@ -6,7 +6,7 @@ import { useNotification } from '/contexts/NotificationContext';
 import { useNavigator } from '/contexts/NavigatorsContext';
 import Button from './Button';
 
-export default function CombinedFeed({ isNarrow }) {
+export default function CombinedFeed() {
   const { selectedClient } = useClient();
   const { selectedNavigator } = useNavigator();
   const [, setActivities] = useState([]);

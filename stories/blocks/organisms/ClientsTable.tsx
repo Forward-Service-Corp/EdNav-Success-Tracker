@@ -16,15 +16,13 @@ const ClientsTable = ({
                         selectedClientId,
                         setOpenPanel
                       }: ClientsTableProps) => (
-  <div className="no-scrollbar w-full overflow-y-scroll">
-    <table className="no-scrollbar sticky top-80 z-10 table w-full overflow-y-scroll">
-      <ClientTableBody
-        clients={clients}
-        selectedClientId={selectedClientId}
-        setOpenPanel={setOpenPanel}
-      />
-    </table>
-  </div>
+  <table className="no-scrollbar sticky top-80 z-10 table min-w-full w-full overflow-y-scroll">
+    <ClientTableBody
+      clients={clients}
+      selectedClientId={selectedClientId}
+      setOpenPanel={setOpenPanel}
+    />
+  </table>
 );
 
 // Set the display name explicitly (optional but good practice)

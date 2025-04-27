@@ -14,7 +14,7 @@ export default function ClientTableBody({
                                           setOpenPanel
                                         }: ClientTableBodyProps) {
   return (
-    <tbody className="block h-full min-h-[600px] w-full ">
+    <tbody className=" h-full min-h-[600px] min-w-full ">
     {clients && clients?.map((person, i) => (
       <ClientRow
         key={i}

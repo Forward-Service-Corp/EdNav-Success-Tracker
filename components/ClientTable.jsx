@@ -26,8 +26,8 @@ export default function ClientTable({
   const tableRef = useRef(null);
 
   // State for tracking container width and visible columns
-  const [containerWidth, setContainerWidth] = useState(0);
-  const [visibleColumns, setVisibleColumns] = useState({
+  const [, setContainerWidth] = useState(0);
+  const [, setVisibleColumns] = useState({
     status: true,
     county: true,
     details: true
@@ -88,14 +88,14 @@ export default function ClientTable({
     }
   };
 
-  const handleCollapseChange = (status) => {
-    setStatusCollapse((prevState) => {
-      if (prevState.includes(status)) {
-        return prevState.filter((item) => item !== status);
-      }
-      return [...prevState, status];
-    });
-  };
+  // const handleCollapseChange = (status) => {
+  //   setStatusCollapse((prevState) => {
+  //     if (prevState.includes(status)) {
+  //       return prevState.filter((item) => item !== status);
+  //     }
+  //     return [...prevState, status];
+  //   });
+  // };
 
   const filteredClients = useMemo(() => {
     // console.log(clientList);
@@ -245,61 +245,17 @@ export default function ClientTable({
     );
   }
 
-  // Render an empty state
-  if (clientList && clientList.length === 0) {
-    return (
-      <div className="h-full w-full">
-        <div className="h-full w-full flex flex-col">
-          <div
-            className="bg-base-300 sticky top-0 z-50 flex h-[80px] items-center justify-between px-3 py-4 shadow w-full">
-            <SearchField
-              menuOpen={menuOpen}
-              setMenuOpen={setMenuOpen}
-              setFilterOpen={setFilterOpen}
-              toggleSidebar={toggleSidebar}
-              filterOpen={filterOpen}
-              setViewMode={setViewMode}
-              setStatusCollapse={setStatusCollapse}
-            />
-          </div>
-          <div className="flex flex-1 items-center justify-center">
-            <div className="text-center">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="text-base-content/50 mx-auto mb-4 h-10 w-10"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-                />
-              </svg>
-              <p className="text-base-content/70">No clients found</p>
-              {selectedNavigator && selectedNavigator.name !== "All" && (
-                <p className="text-base-content/50 mt-1 text-sm">
-                  No clients assigned to {selectedNavigator.name}
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+
 
   return (
-    <div className="h-full w-full flex flex-col" ref={tableRef}>
+    <div className="h-full w-full min-w-full flex flex-col" ref={tableRef}>
       <div
-        className="bg-base-100 rounded sticky top-0 z-50 flex h-[80px] items-center justify-between px-3 py-4 shadow-lg w-full">
+        className="bg-base-100 rounded min-w-full sticky top-0 z-50 flex h-[80px] items-center justify-between px-3 py-4 shadow-lg w-full">
         <SearchField />
       </div>
 
-      <div className="flex-1 overflow-y-auto w-full no-scrollbar">
-        <div className="w-full">
+      <div className="flex-1 overflow-y-auto min-w-full w-full no-scrollbar">
+        <div className="w-full ">
           <ClientsTable clients={clientsToShow} selectedClientId={selectedClient?._id} setOpenPanel={setOpenPanel} />
         </div>
       </div>
