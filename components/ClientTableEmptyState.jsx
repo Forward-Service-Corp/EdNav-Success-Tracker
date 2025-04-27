@@ -3,13 +3,8 @@ import SearchField from './SearchField';
 
 
 function ClientTableEmptyState() {
-  // const { clientList, loading, error } = useClientList();
-}
 
 // Render an empty state
-let clientList = [];
-// Render an empty state
-if (clientList && clientList.length === 0) {
   return (
     <div className="h-full w-full">
       <div className="h-full w-full flex flex-col">
