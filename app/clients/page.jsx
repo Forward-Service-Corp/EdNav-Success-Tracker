@@ -12,6 +12,7 @@ import NavigatorSelector from '../../components/NavigatorSelector';
 import ThemeSwitcher from '../../components/ThemeSwitcher';
 import Logo from '../../components/Logo';
 import Button from '../../components/Button';
+import DashboardContainer from '../../components/DashboardContainer';
 
 function ClientsPage() {
   const { setLoading } = useLoading(false);
@@ -106,7 +107,7 @@ function ClientsPageContent({ openPanel, setOpenPanel, setMenuOpen, menuOpen }) 
         {/* Sidebar Panel */}
         {isSidebarVisible && (
           <div
-            className="bg-base-100 rounded-md flex-none flex flex-col p-5 pt-2 items-center justify-start gap-5 h-full relative"
+            className="bg-base-100 rounded flex-none flex flex-col p-5 pt-2 items-center justify-start gap-5 h-full relative"
             style={styles.sidebar}
           >
             <Logo />
@@ -136,8 +137,8 @@ function ClientsPageContent({ openPanel, setOpenPanel, setMenuOpen, menuOpen }) 
 
         {/* Table Panel */}
         <div
-          className="overflow-hidden h-full"
-          style={styles.table}
+          className="overflow-hidden h-full rounded-b"
+          // style={styles.table}
         >
           <ClientTable
             setOpenPanel={setOpenPanel}
@@ -150,7 +151,7 @@ function ClientsPageContent({ openPanel, setOpenPanel, setMenuOpen, menuOpen }) 
         {/* Details Panel */}
         {isDetailsVisible && (
           <div
-            className="overflow-hidden h-full"
+            className=" h-full"
             style={styles.details}
           >
             {openPanel === 'profile' ? (
@@ -160,11 +161,9 @@ function ClientsPageContent({ openPanel, setOpenPanel, setMenuOpen, menuOpen }) 
                 <AddClientForm setOpenPanel={setOpenPanel} />
               </div>
             ) : (
+
               <div className="flex h-full items-center justify-center">
-                <div className="text-base-content/50 text-center">
-                  <p className="text-lg font-medium">Select a client</p>
-                  <p>Choose a client from the table to view details</p>
-                </div>
+                <DashboardContainer />
               </div>
             )}
           </div>

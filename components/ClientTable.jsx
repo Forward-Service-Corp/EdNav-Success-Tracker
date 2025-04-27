@@ -294,7 +294,7 @@ export default function ClientTable({
   return (
     <div className="h-full w-full flex flex-col" ref={tableRef}>
       <div
-        className="bg-base-100 rounded sticky top-0 z-50 flex h-[80px] items-center justify-between px-3 py-4 shadow w-full">
+        className="bg-base-100 rounded sticky top-0 z-50 flex h-[80px] items-center justify-between px-3 py-4 shadow-lg w-full">
         <SearchField />
       </div>
 

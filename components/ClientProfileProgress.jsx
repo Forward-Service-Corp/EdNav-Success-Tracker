@@ -561,7 +561,7 @@ function ClientProfileProgress({
         </div>
       </div>
       <div
-        className={`card bg-base-200 border-base-content/10 relative mx-3 md:mx-6 rounded border-1 shadow-sm ${isProgressVisible ? '' : 'opacity-50 blur-[2px]'}`}
+        className={`bg-base-200 relative rounded shadow ${isProgressVisible ? '' : 'opacity-50 blur-[2px]'}`}
         data-testid="progress-area"
       >
         <div className="card-body">

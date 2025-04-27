@@ -23,14 +23,14 @@ type LayoutContextType = {
 // Define the possible layout configurations
 // Sidebar is now fixed at 230 px width, but we use these values for sidebar visibility
 export const LAYOUT_CONFIGS: { [key: string]: LayoutConfig } = {
-  DEFAULT: { sidebar: 20, table: 40, details: 55 },
+  DEFAULT: { sidebar: 230, table: 40, details: 55 },
   NO_SIDEBAR: { sidebar: 0, table: 50, details: 50 },
   TABLE_FOCUS: { sidebar: 0, table: 70, details: 30 },
   DETAILS_FOCUS: { sidebar: 0, table: 30, details: 70 },
   NARROW: { sidebar: 0, table: 40, details: 60 },
-  MEDIUM_WITH_SIDEBAR: { sidebar: 15, table: 45, details: 55 },
+  MEDIUM_WITH_SIDEBAR: { sidebar: 230, table: 45, details: 55 },
   MEDIUM_NO_SIDEBAR: { sidebar: 0, table: 45, details: 55 },
-  COMPACT: { sidebar: 15, table: 30, details: 70 },
+  COMPACT: { sidebar: 230, table: 30, details: 70 },
   SIDEBAR_TABLE_ONLY: { sidebar: 15, table: 85, details: 0 }
 };
 

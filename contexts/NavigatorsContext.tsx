@@ -8,6 +8,7 @@ import React, {
   useMemo,
   useState
 } from 'react';
+import { useSession } from 'next-auth/react';
 
 // Properly typed model with required/optional fields
 interface Navigator {
@@ -55,6 +56,7 @@ export let NavigatorProvider: ({ children }: { children: React.ReactNode }) => J
   const [navigatorList, setNavigatorList] = useState<Navigator[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { data: session } = useSession();
 
   // Memoized fetch function to avoid recreating on every render
   const fetchNavigatorList = useCallback(async () => {
@@ -74,6 +76,13 @@ export let NavigatorProvider: ({ children }: { children: React.ReactNode }) => J
   // Effect runs only once on a component mount
   useEffect(() => {
     fetchNavigatorList().then();
+    if (session?.user?.name) {
+      const navigator = session?.user?.name;
+      setSelectedNavigator(prevState => {
+        if (!prevState) return null;
+        return { ...prevState, name: navigator };
+      });
+    }
   }, [fetchNavigatorList]);
 
   // Memoized context value to prevent unnecessary re-renders

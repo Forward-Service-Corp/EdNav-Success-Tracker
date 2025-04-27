@@ -7,7 +7,8 @@ import { useClient } from '../contexts/ClientContext';
 import InputVariants from '../components/InputVariants';
 import { useEditing } from '../contexts/EditingContext';
 import { validation } from '../lib/validation';
-import { XCircle } from 'phosphor-react';
+import { XSquare } from 'phosphor-react';
+import Button from './Button';
 
 function AddClientForm({ setOpenPanel }) {
   const [feps] = useState([]);
@@ -101,28 +102,6 @@ function AddClientForm({ setOpenPanel }) {
     transcripts: false,
     ttsDream: "",
   };
-  // const fetchFeps = async () => {
-  //   let feps = [];
-  //   const response = await fetch(`/api/feps`);
-  //   const data = await response.json();
-  //   await data.forEach((fep) => {
-  //     feps.push(fep.name);
-  //   });
-  //   setFeps(feps);
-  // };
-  //
-  // const fetchNavigators = async () => {
-  //   const response = await fetch(`/api/education-navigators`);
-  //   const data = await response.json();
-  //   if (data) {
-  //     setNavigators(data);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   fetchFeps().then();
-  //   fetchNavigators().then();
-  // }, []);
 
   async function postData() {
     const response = await fetch(`/api/clients`, {
@@ -417,12 +396,18 @@ function AddClientForm({ setOpenPanel }) {
 
   // The rest of your component remains the same, but pass errors to InputVariants
   return (
-    <div className={`profile-section`}>
-      <div className="flex flex-row justify-between">
-        <XCircle size={22} color={`white`} />
+    <div className={`bg-base-200 p-6 h-full w-full flex flex-col justify-start rounded shadow-lg`}>
+      <div className={`flex justify-between items-center mb-8 h-[80px]`}>
+        <div className={`text-lg md:text-2xl`}>Personal Details</div>
+        <Button label={`Details`} use={`secondary`}
+                onClick={() => {
+                  setEditing('');
+                  setSelectedClient(null);
+                  setOpenPanel(false);
+                }} />
       </div>
       <form onSubmit={handleSubmit}>
-        <div className="m-10 grid grid-cols-3 gap-6">
+        <div className="relative grid grid-cols-3 mt-[70px] gap-6">
           {formFields.map((field) => {
             return (
               <InputVariants
@@ -456,6 +441,16 @@ function AddClientForm({ setOpenPanel }) {
           </button>
         </div>
       </form>
+      <div
+        onClick={() => {
+          setEditing('');
+          setSelectedClient(null);
+          setOpenPanel(false);
+        }}
+        className={` mt-5 mr-5 cursor-pointer text-base-content text-2xl`}
+      >
+        <XSquare size={33} className={`text-base-content`} />
+      </div>
     </div>
   );
 }

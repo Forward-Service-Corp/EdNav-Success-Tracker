@@ -7,8 +7,6 @@ import { useNavigator } from '../contexts/NavigatorsContext';
 export default function NoteModal({ open, setOpen }) {
   const { selectedClient } = useClient();
   const { selectedNavigator } = useNavigator();
-  // const [notes, setNotes] = useState([]);
-  // const [openNote, setOpenNote] = useState('');
   const [note, setNote] = useState({
     noteContent: "",
     noteAuthor: selectedNavigator?.name,
@@ -17,14 +15,13 @@ export default function NoteModal({ open, setOpen }) {
   });
 
   const handleSave = async () => {
-    // console.log(note);
+    console.log(note);
     note.clientId = selectedClient?._id;
     const response = await fetch("/api/notes", {
       method: "POST",
       body: JSON.stringify({ note: note }),
     });
     await response.json();
-// console.log(data);
     setOpen("");
     setNote((prev) => ({ ...prev, noteContent: "" }));
   };

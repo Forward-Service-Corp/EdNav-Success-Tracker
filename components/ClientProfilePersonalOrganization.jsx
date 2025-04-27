@@ -1,13 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import { useClient } from '@/contexts/ClientContext';
-import ClientProfileDetailsInput from '@/components/ClientProfileDetailsInput';
+import React, { useEffect, useRef, useState } from 'react';
+import { useClient } from '../contexts/ClientContext';
+import ClientProfileDetailsInput from '../components/ClientProfileDetailsInput';
 import Button from './Button';
 
 function ClientProfilePersonalOrganization({ isNarrow, isMedium }) {
   const { selectedClient } = useClient();
   const [error, setError] = useState("");
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const [feps, setFeps] = useState([]);
+  const scrollRef = useRef(null);
+
   const [successMessage, setSuccessMessage] = useState("");
   const [change, setChange] = useState({
     first_name: selectedClient?.first_name || "",
@@ -68,6 +71,21 @@ function ClientProfilePersonalOrganization({ isNarrow, isMedium }) {
     fetchFeps().then();
   }, []);
 
+  // 🧠 New: Scroll detection
+  useEffect(() => {
+    const scrollContainer = scrollRef.current;
+    if (!scrollContainer) return;
+
+    const handleScroll = () => {
+      setScrolled(scrollContainer.scrollTop > 5);
+    };
+
+    scrollContainer.addEventListener('scroll', handleScroll);
+    return () => {
+      scrollContainer.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
   // Get grid classes based on container width
   const getGridClasses = () => {
     if (isNarrow) {
@@ -80,41 +98,51 @@ function ClientProfilePersonalOrganization({ isNarrow, isMedium }) {
   };
 
   return (
-    <div
-      className={`bg-base-100 p-6 rounded shadow transition-all duration-700 ${detailsOpen ? '' : 'h-[80px] overflow-hidden '} `}
-    >
-      <div className={`flex justify-between mb-8 h-[80px] ${!detailsOpen ? 'items-start' : 'items-center'}`}>
-        <div className={`text-lg md:text-2xl`}>Personal Details</div>
-        <Button label={`${detailsOpen ? 'Close' : 'View & Edit'} Details`} use={`secondary`}
-                onClick={() => setDetailsOpen(!detailsOpen)} />
+    <div className="min-h-full rounded shadow transition-all duration-700 flex flex-col h-full">
+      {/* Sticky Header */}
+      <div
+        className={`sticky top-0 z-10 bg-base-100 p-6 rounded shadow-lg flex justify-between transition-all duration-300 ${
+          scrolled ? 'h-[60px] text-base' : 'h-[80px] text-lg md:text-2xl'
+        } items-center`}
+      >
+        <div>Personal Details {detailsOpen.toString()}</div>
+        <Button
+          label={`${detailsOpen ? 'Close' : 'View & Edit'} Details`}
+          use="secondary"
+          onClick={() => setDetailsOpen(!detailsOpen)}
+        />
       </div>
 
-      <div className={`grid ${getGridClasses()}`}>
-        {error && (
-          <div className="bg-error/20 text-error col-span-full mb-4 rounded px-4 py-2">
-            {error}
-          </div>
-        )}
+      {/* Scrollable Content */}
+      <div
+        className={`bg-base-200 flex-1 p-6 transition-all duration-700 ${detailsOpen ? '' : 'h-[80px] overflow-hidden'}`}>
+        <div className={`grid ${getGridClasses()}`}>
+          {error && (
+            <div className="bg-error/20 text-error col-span-full mb-4 rounded px-4 py-2">
+              {error}
+            </div>
+          )}
 
-        {successMessage && (
-          <div className="bg-success/20 text-success col-span-full mb-4 rounded px-4 py-2">
-            {successMessage}
-          </div>
-        )}
+          {successMessage && (
+            <div className="bg-success/20 text-success col-span-full mb-4 rounded px-4 py-2">
+              {successMessage}
+            </div>
+          )}
 
-        {selectedClient &&
-          selectedClient._id &&
-          Object.keys(change).map((field, index) => (
-            <ClientProfileDetailsInput
-              field={field}
-              change={change}
-              setChange={setChange}
-              onChange={handleChange}
-              feps={feps}
-              key={index}
-              isNarrow={isNarrow}
-            />
-          ))}
+          {selectedClient &&
+            selectedClient._id &&
+            Object.keys(change).map((field, index) => (
+              <ClientProfileDetailsInput
+                field={field}
+                change={change}
+                setChange={setChange}
+                onChange={handleChange}
+                feps={feps}
+                key={index}
+                isNarrow={isNarrow}
+              />
+            ))}
+        </div>
       </div>
     </div>
   );

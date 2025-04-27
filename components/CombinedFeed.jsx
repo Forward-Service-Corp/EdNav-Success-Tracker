@@ -4,6 +4,7 @@ import { useClient } from '/contexts/ClientContext';
 import { format } from 'date-fns';
 import { useNotification } from '/contexts/NotificationContext';
 import { useNavigator } from '/contexts/NavigatorsContext';
+import Button from './Button';
 
 export default function CombinedFeed({ isNarrow }) {
   const { selectedClient } = useClient();
@@ -45,7 +46,7 @@ export default function CombinedFeed({ isNarrow }) {
 
           if (!tempActivity) {
             // console.log(`Temporary activity with ID ${activity.replace} not found, adding as new`);
-            // Mark as permanent so it doesn't get removed
+            // Mark as permanent, so it doesn't get removed
             return [{
               ...activity,
               replace: undefined,
@@ -86,7 +87,7 @@ export default function CombinedFeed({ isNarrow }) {
         formattedActivity._id = `perm-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
       }
 
-      // console.log('Formatted activity with permanent flag:', formattedActivity);
+      // console.log('Formatted activity with a permanent flag:', formattedActivity);
 
       // Add to activities state
       setActivities((prevActivities) => {
@@ -311,7 +312,7 @@ export default function CombinedFeed({ isNarrow }) {
 
         // Add directly to state with a forced re-render
         setActivities(prev => {
-          // console.log('Current activities before adding:', prev.length);
+          // console.log('Current activities before adding: ', prev.length);
           // console.log('New activities after adding:', newActivities.length);
           return [activity, ...prev];
         });
@@ -402,7 +403,7 @@ export default function CombinedFeed({ isNarrow }) {
 
     setLoading(true);
     try {
-      // console.log('LOAD DEBUG: Loading data for client:', selectedClient._id);
+      // console.log('LOAD DEBUG: Loading data for a client:', selectedClient._id);
 
       // Load all data - simplifying to just sequential calls for now
       // console.log('LOAD DEBUG: Fetching activities');
@@ -504,7 +505,7 @@ export default function CombinedFeed({ isNarrow }) {
 
     // Only reset if the client has actually changed
     if (selectedClient && selectedClient._id) {
-      // console.log('Resetting state for client:', selectedClient._id);
+      // console.log('Resetting state for a client:', selectedClient._id);
 
       // Clear states when a client changes - we don't want to preserve
       // optimistic updates from a different client
@@ -520,7 +521,7 @@ export default function CombinedFeed({ isNarrow }) {
 
       // Load data for the new client - no need to preserve optimistic updates
       // as we just cleared them
-      // console.log('Loading initial data for client:', selectedClient._id);
+      // console.log('Loading initial data for a client:', selectedClient._id);
       loadData(false).then();
     }
   }, [selectedClient?._id]); // Only depend on client ID, not the entire selectedClient object
@@ -808,7 +809,7 @@ export default function CombinedFeed({ isNarrow }) {
               activity.clientId === selectedClient._id
             );
 
-            // console.log(`Filtered activities for current client: ${clientActivities.length}`);
+            // console.log(`Filtered activities for the current client: ${clientActivities.length}`);
 
             if (clientActivities.length > 0) {
               // DIRECT APPROACH: Add these activities directly to the combined feed
@@ -855,7 +856,7 @@ export default function CombinedFeed({ isNarrow }) {
 
       // Only handle activities for the current client
       if (event.detail && event.detail.clientId === selectedClient?._id) {
-        // console.log('Activity is for current client, will be displayed');
+        // console.log('Activity is for the current client, will be displayed');
       } else {
         // console.log('Activity is for a different client, ignoring');
       }
@@ -881,9 +882,9 @@ export default function CombinedFeed({ isNarrow }) {
   // If no client is selected, show an empty placeholder
   if (!selectedClient) {
     return (
-      <div className="card bg-base-100 overflow-auto w-full shadow-xl">
-        <div className="card-body">
-          <h2 className="card-title">Client Activity Feed</h2>
+      <div className="bg-base-100 w-full rounded shadow">
+        <div className="">
+          <h2 className="">Client Activity Feed</h2>
           <div className="text-base-content/50 flex  items-center justify-center">
             <div className="text-center">
               <svg
@@ -913,9 +914,9 @@ export default function CombinedFeed({ isNarrow }) {
 
   if (loading) {
     return (
-      <div className="card bg-base-100 h-full w-full shadow-xl">
-        <div className="card-body">
-          <h2 className="card-title">Client Activity Feed</h2>
+      <div className=" bg-base-100 h-full w-full shadow">
+        <div className="">
+          <h2 className="">Activity Feed</h2>
           <div className="flex h-96 items-center justify-center">
             <div className="loading loading-spinner loading-lg"></div>
           </div>
@@ -925,20 +926,15 @@ export default function CombinedFeed({ isNarrow }) {
   }
 
   return (
-    <div className="card bg-base-100 h-full w-full shadow-xl">
-      <div className="card-body p-3 md:p-6">
+    <div className="bg-base-200 h-full w-full rounded shadow">
+      <div className="p-6">
         <div className="flex items-center justify-between flex-wrap gap-2">
-          <h2 className={`card-title ${isNarrow ? 'text-lg' : 'text-xl'}`}>Client Activity Feed</h2>
+          <span className={`text-xl`}>Activity Feed</span>
           <div className="flex gap-1 md:gap-2">
-            <button
-              onClick={() => setIsAddingNote(!isAddingNote)}
-              className="btn btn-sm btn-outline btn-primary"
-            >
-              {isAddingNote ? "Cancel" : "Post Note"}
-            </button>
-            <button
+            <Button use={`primary`} onClick={() => setIsAddingNote(!isAddingNote)}
+                    label={isAddingNote ? 'Cancel' : 'Post Note'} />
+            <Button use={`primary`}
               onClick={() => {
-                // Show visual feedback when a button is clicked
                 const btn = document.getElementById('postActivityButton');
                 if (btn) {
                   btn.innerText = 'Opening...';
@@ -960,17 +956,16 @@ export default function CombinedFeed({ isNarrow }) {
                   }, 200);
                 }
               }}
-              className="btn btn-sm btn-outline btn-secondary"
+                    label={`Post Activity`}
               id="postActivityButton"
-            >
-              Post Activity
-            </button>
+            />
+
           </div>
         </div>
 
         {/* Note Entry Form */}
         {isAddingNote && (
-          <div className="border-base-300 my-3 rounded-lg border p-3">
+          <div className=" mt-6">
             <h3 className="mb-2 font-medium">Add Note</h3>
             <textarea
               className="textarea textarea-bordered h-24 w-full"
@@ -992,7 +987,7 @@ export default function CombinedFeed({ isNarrow }) {
 
         {/* Comment Entry Form */}
         {commentingOn && (
-          <div className="border-base-300 my-3 rounded-lg border p-3">
+          <div className=" my-3 rounded p-3">
             <h3 className="mb-2 font-medium">
               Add Comment to{" "}
               {commentingOn.type === "activity" ? "Activity" : "Note"}
@@ -1021,13 +1016,13 @@ export default function CombinedFeed({ isNarrow }) {
           </div>
         )}
 
-        <div className="mt-2 max-h-96 overflow-y-auto">
+        <div className="p-4">
           {combinedFeed.length === 0 ? (
             <p className="text-base-content/60 py-4 text-center">
               No activities or notes found for this client.
             </p>
           ) : (
-            <ul className="timeline timeline-vertical">
+            <ul className="">
               {combinedFeed.map((item, index) => {
                 const itemComments = getCommentsForItem(item._id, item.type);
                 const hasComments = itemComments.length > 0;
@@ -1039,28 +1034,14 @@ export default function CombinedFeed({ isNarrow }) {
                 return (
                   <li key={uniqueKey} className="mb-4">
                     <div
-                      className={`timeline-start ${item.type === "activity" ? "text-primary" : "text-secondary"}`}
+                      className={`${item.type === 'activity' ? 'text-primary' : 'text-secondary'}`}
                     >
                       {format(item.date, "MMM d, yyyy")}
                     </div>
-                    <div className="timeline-middle">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                        className={`h-5 w-5 ${item.type === "activity" ? "text-primary" : "text-secondary"}`}
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </div>
-                    <div className="timeline-end timeline-box w-full max-w-md">
+                    <div className="w-full">
                       {item.type === "activity" ? (
                         <div>
-                          <p className="font-medium">
+                          <p className="">
                             {item.statement || "Activity recorded"}
                           </p>
                           <p className="text-xs opacity-70">
@@ -1069,14 +1050,14 @@ export default function CombinedFeed({ isNarrow }) {
                         </div>
                       ) : (
                         <div>
-                          <p className="font-medium">{item.noteContent}</p>
+                          <p className="">{item.noteContent}</p>
                           <p className="text-xs opacity-70">
                             by {item.noteAuthor || "unknown"}
                           </p>
                         </div>
                       )}
 
-                      <div className="border-base-300 mt-2 flex items-center justify-between border-t pt-2">
+                      <div className="mt-2 flex items-center justify-between pt-2">
                         <button
                           onClick={() =>
                             setCommentingOn({ id: item._id, type: item.type })
@@ -1099,12 +1080,12 @@ export default function CombinedFeed({ isNarrow }) {
 
                       {/* Comments section */}
                       {hasComments && isExpanded && (
-                        <div className="border-base-300 mt-2 border-t pt-2">
+                        <div className=" mt-2 pt-2">
                           <ul className="space-y-2">
                             {itemComments.map((comment) => (
                               <li
                                 key={comment._id}
-                                className="bg-base-200/50 rounded-md p-2"
+                                className="bg-base-200 rounded p-2"
                               >
                                 <p className="text-sm">
                                   {comment.commentContent}

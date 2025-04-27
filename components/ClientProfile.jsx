@@ -8,7 +8,7 @@ import { useClient } from '/contexts/ClientContext';
 import ActivityModal from '../components/ActivityModal';
 import { useLayout } from '/contexts/LayoutContext';
 
-export default function ClientProfile({ setOpenPanel }) {
+export default function ClientProfile() {
   const [isMounted, setIsMounted] = useState(false);
   const [, setSelectedNavigator] = useState("");
   const { selectedClient, setSelectedClient } = useClient();

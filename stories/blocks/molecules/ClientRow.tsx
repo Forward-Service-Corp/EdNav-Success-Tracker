@@ -2,7 +2,6 @@
 import { useClient } from '@/contexts/ClientContext';
 import { useEditing } from '@/contexts/EditingContext';
 import { Dispatch, SetStateAction } from 'react';
-import AvatarCircle from '../atoms/AvatarCircle';
 import ClientNameBlock from '../atoms/ClientNameBlock';
 import Badge from '../../../components/Badge';
 
@@ -45,17 +44,13 @@ export default function ClientRow({
 
   return (
     <tr
-      className={`cursor-pointer bg-base-200/30 hover:bg-base-200/45 transition-colors duration-300 ${
-        selected ? 'bg-base-200' : ''
+      className={`cursor-pointer bg-base-200 hover:bg-base-200/20 transition-colors duration-300 ${
+        selected ? 'bg-accent/20' : ''
       }`}
       onClick={handleClick}
     >
       <td>
         <div className="sticky top-80 z-20 flex items-center gap-3">
-          <AvatarCircle
-            firstName={person?.first_name || 'John'}
-            lastName={person?.last_name || 'Doe'}
-          />
           <ClientNameBlock
             firstName={person?.first_name || 'John'}
             lastName={person?.last_name || 'Doe'}
@@ -67,19 +62,6 @@ export default function ClientRow({
         <Badge use={person?.clientStatus?.toLowerCase() as 'active' | 'in progress' | 'graduated' | 'inactive'} />
       </td>
       <td>{person?.county || 'Dane'}</td>
-      <th>
-        <button
-          onClick={(e) => {
-            e.stopPropagation(); // prevent row click
-            setEditing('client');
-            setSelectedClient(person);
-            setOpenPanel('profile');
-          }}
-          className="btn btn-ghost btn-xs"
-        >
-          details
-        </button>
-      </th>
     </tr>
   );
 }
