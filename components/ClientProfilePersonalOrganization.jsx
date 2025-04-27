@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useClient } from '@/contexts/ClientContext';
 import ClientProfileDetailsInput from '@/components/ClientProfileDetailsInput';
+import Button from './Button';
 
 function ClientProfilePersonalOrganization({ isNarrow, isMedium }) {
   const { selectedClient } = useClient();
@@ -80,26 +81,23 @@ function ClientProfilePersonalOrganization({ isNarrow, isMedium }) {
 
   return (
     <div
-      className={`bg-base-200 border-base-content/10 mx-3 md:mx-6 rounded-lg border-1 shadow-sm transition-all duration-700 ${detailsOpen ? 'p-3 md:p-6' : 'h-20 overflow-hidden px-3 md:px-6 py-4'} `}
+      className={`bg-base-100 p-6 rounded shadow transition-all duration-700 ${detailsOpen ? '' : 'h-[80px] overflow-hidden '} `}
     >
-      <div className={`mb-4 md:mb-6 flex items-center justify-between`}>
+      <div className={`flex justify-between mb-8 h-[80px] ${!detailsOpen ? 'items-start' : 'items-center'}`}>
         <div className={`text-lg md:text-2xl`}>Personal Details</div>
-        <div onClick={() => setDetailsOpen(!detailsOpen)}>
-          <button className={`btn btn-soft btn-info btn-sm md:btn-md`}>
-            {detailsOpen ? 'Close' : 'View & Edit'}
-          </button>
-        </div>
+        <Button label={`${detailsOpen ? 'Close' : 'View & Edit'} Details`} use={`secondary`}
+                onClick={() => setDetailsOpen(!detailsOpen)} />
       </div>
 
       <div className={`grid ${getGridClasses()}`}>
         {error && (
-          <div className="bg-error/20 text-error col-span-full mb-4 rounded-md px-4 py-2">
+          <div className="bg-error/20 text-error col-span-full mb-4 rounded px-4 py-2">
             {error}
           </div>
         )}
 
         {successMessage && (
-          <div className="bg-success/20 text-success col-span-full mb-4 rounded-md px-4 py-2">
+          <div className="bg-success/20 text-success col-span-full mb-4 rounded px-4 py-2">
             {successMessage}
           </div>
         )}

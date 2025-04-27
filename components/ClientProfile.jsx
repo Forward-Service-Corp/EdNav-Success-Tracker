@@ -1,7 +1,6 @@
 "use client";
 import React, { useEffect, useRef, useState } from 'react';
 import CombinedFeed from './CombinedFeed';
-import ClientProfileHeader from '../components/ClientProfileHeader';
 import ClientProfileProgress from '../components/ClientProfileProgress';
 import ClientProfilePersonalOrganization from '../components/ClientProfilePersonalOrganization';
 import ClientProfileTABEOrientation from '../components/ClientProfileTABEOrientation';
@@ -410,19 +409,11 @@ export default function ClientProfile({ setOpenPanel }) {
         </div>
       )}
 
-      {/* Width debug indicator */}
-      {/*{process.env.NODE_ENV === 'development' && (*/}
-      {/*  <div className="absolute top-2 right-2 z-50 bg-base-300 text-xs px-2 py-1 rounded-md opacity-50">*/}
-      {/*    Width: {containerWidth}px |*/}
-      {/*    {layoutConfig.isNarrow? 'Narrow': layoutConfig.isMedium? 'Medium': 'Wide'}*/}
-      {/*  </div>*/}
-      {/*)}*/}
-
       <div
         className={`no-scrollbar absolute top-0 right-0 bottom-0 left-0 overflow-y-scroll`}
       >
-        <ClientProfileHeader setOpenPanel={setOpenPanel} />
-        <div className={`mt-[30px] grid ${getGridClasses()}`}>
+        {/*<ClientProfileHeader setOpenPanel={setOpenPanel} />*/}
+        <div className={`grid ${getGridClasses()}`}>
           <div className={`${layoutConfig.isNarrow ? 'col-span-1' : 'col-span-2'}`}>
             <ClientProfilePersonalOrganization
               isNarrow={layoutConfig.isNarrow}
