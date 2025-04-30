@@ -1,9 +1,10 @@
 // app/login/page.tsx
 "use client";
 
-import React, { useState } from "react";
-import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import React, { useState } from 'react';
+import { signIn } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import LogoCircle from '@/components/LogoCircle';
 
 export default function Login() {
   const router = useRouter();
@@ -42,10 +43,11 @@ export default function Login() {
 
   return (
     <div className="bg-base-100 flex min-h-screen items-center justify-center">
-      <div className="bg-base-200 max-w-md space-y-8 rounded-lg p-8 shadow-md">
+      <div
+        className="bg-base-200 max-w-md space-y-8 rounded-lg p-8 shadow-md flex flex-col items-center justify-center">
+        <LogoCircle />
         <div className="text-center">
-          <h1 className="text-2xl font-bold">Log in to EdNav</h1>
-          <p className="mt-2 text-gray-600">
+          <p className=" text-gray-600">
             Enter your credentials to continue
           </p>
         </div>

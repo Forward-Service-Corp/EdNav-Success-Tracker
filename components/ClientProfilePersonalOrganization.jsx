@@ -105,7 +105,7 @@ function ClientProfilePersonalOrganization({ isNarrow, isMedium }) {
           scrolled ? 'h-[60px] text-base' : 'h-[80px] text-lg md:text-2xl'
         } items-center`}
       >
-        <div>Personal Details {detailsOpen.toString()}</div>
+        <div>{selectedClient?.first_name + ' ' + selectedClient?.last_name}</div>
         <Button
           label={`${detailsOpen ? 'Close' : 'View & Edit'} Details`}
           use="secondary"

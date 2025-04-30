@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { CheckCircleIcon } from '@heroicons/react/20/solid';
-import { useClient } from '@/contexts/ClientContext';
+import { useClient } from '../contexts/ClientContext';
 
 function ClientProfileProgress({
   hasTrackable,
@@ -15,7 +15,7 @@ function ClientProfileProgress({
   const [isUpdating, setIsUpdating] = useState(false);
 
   // New state variables for better control
-  const [savedItems, setSavedItems] = useState([]); // Items saved in the database
+  const [savedItem, setSavedItem] = useState([]); // Items saved in the database
   const [newSelections, setNewSelections] = useState([]); // Items selected but not yet saved
   const [displayItems, setDisplayItems] = useState([]); // Combined items for display
   const [recentlySelectedProgram, setRecentlySelectedProgram] = useState(false);
@@ -31,7 +31,7 @@ function ClientProfileProgress({
       setCompletionPercentage(percentage);
       // console.log('Updated completion percentage:', percentage);
     } else {
-      setSavedItems([]);
+      setSavedItem([]);
       setNewSelections([]);
       setDisplayItems([]);
       setCompletionPercentage(0);
@@ -79,7 +79,7 @@ function ClientProfileProgress({
     });
 
     // Update state
-    setSavedItems(saved);
+    setSavedItem(saved);
     setNewSelections(newSelect);
     setDisplayItems(display);
 
@@ -119,10 +119,10 @@ function ClientProfileProgress({
         }
       }
 
-      // If we still don't have saved items, check timestamp
+      // If we still don't have saved items, check the timestamp
       if (!hasSavedItemsInStorage) {
         // Check timestamp if available
-        // First try client state
+        // First try the client state
         let trackableTimestamp = selectedClient.trackable?.createdAt
           ? new Date(selectedClient.trackable.createdAt)
           : null;
@@ -172,8 +172,8 @@ function ClientProfileProgress({
 
     // Mark items as completed based on saved status and new selections
     combined.forEach((item, index) => {
-      // Check if this item is saved in database
-      const isSavedInDB = savedItems.some(saved =>
+      // Check if this item is saved in a database
+      const isSavedInDB = savedItem.some(saved =>
         saved.index === index && saved.completed === true
       );
 
@@ -199,7 +199,7 @@ function ClientProfileProgress({
 
     // Mark as updated if there are new selections
     setUpdated(newSelections.length > 0);
-  }, [savedItems, newSelections, hasTrackable]);
+  }, [savedItem, newSelections, hasTrackable]);
 
   const handleTrackableUpdate = async () => {
     // Prevent multiple clicks
@@ -236,7 +236,7 @@ function ClientProfileProgress({
       // Preserve the program value (GED or HSED)
       const program = selectedClient.trackable?.program || 'GED'; // Default to GED if not set
 
-      // Create new client object with updated trackable items
+      // Create a new client object with updated trackable items
       const updatedClient = {
         ...selectedClient,
         trackable: {
@@ -287,14 +287,14 @@ function ClientProfileProgress({
 
         // Update state to reflect that everything is now saved
         if (data.trackable && data.trackable.items) {
-          // Add savedInDatabase flag to all completed items
+          // Add a savedInDatabase flag to all completed items
           const itemsWithSavedFlag = data.trackable.items.map(item => ({
             ...item,
             savedInDatabase: item.completed // Only completed items are saved
           }));
 
           // Update all our state arrays
-          setSavedItems(itemsWithSavedFlag.filter(item => item.completed));
+          setSavedItem(itemsWithSavedFlag.filter(item => item.completed));
           setNewSelections([]); // Clear the new selections since they're now saved
           setDisplayItems(itemsWithSavedFlag);
 
@@ -416,9 +416,9 @@ function ClientProfileProgress({
     // Get the current item
     const currentItem = displayItems[index];
 
-    // If item is already saved in database, don't allow changes
+    // If an item is already saved in a database, don't allow changes
     if (currentItem.savedInDatabase) {
-      // console.log('Item is saved in database, cannot change:', currentItem);
+      // console.log('Item is saved in a database, cannot change:', currentItem);
       return;
     }
 
@@ -459,6 +459,13 @@ function ClientProfileProgress({
     } catch (error) {
       console.error('Error in handleItemClick:', error);
     }
+  };
+
+  const handleIndividualItemSave = async () => {
+    const saved = savedItem;
+    const delivery = await fetch(`/api/clients?clientId=${'67ea8573d83b9cefebba35f5'}&`
+    );
+
   };
 
   // Function to safely render trackable items
@@ -539,11 +546,10 @@ function ClientProfileProgress({
       }
 
       // Reset states
-      setSavedItems([]);
+      setSavedItem([]);
       setNewSelections([]);
       setDisplayItems([]);
       setHasTrackable([]);
-      setHasTrackableCopy([]);
       setRecentlySelectedProgram(false);
       setCompletionPercentage(0);
     }
@@ -572,15 +578,15 @@ function ClientProfileProgress({
                 {completionPercentage}%
 
                 {/* Show the undo button if the program was recently selected */}
-                {recentlySelectedProgram && (
-                  <button
-                    onClick={handleProgramReset}
-                    className="btn btn-xs btn-error btn-outline"
-                    title="Undo program selection"
-                  >
-                    Undo
-                  </button>
-                )}
+                {/*{recentlySelectedProgram && (*/}
+                {/*  <button*/}
+                {/*    onClick={handleProgramReset}*/}
+                {/*    className="btn btn-xs btn-error btn-outline"*/}
+                {/*    title="Undo program selection"*/}
+                {/*  >*/}
+                {/*    Undo*/}
+                {/*  </button>*/}
+                {/*)}*/}
               </div>
               <p className={`text-info text-sm`}>
                 Click items to mark them as completed, then click Save Progress.
