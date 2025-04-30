@@ -300,7 +300,7 @@ function ClientProfileProgress({
 
           // Update the parent state too
           setHasTrackable(itemsWithSavedFlag);
-          setHasTrackableCopy(JSON.parse(JSON.stringify(itemsWithSavedFlag)));
+          // setHasTrackableCopy(JSON.parse(JSON.stringify(itemsWithSavedFlag)));
 
           // This is no longer a recently selected program
           setRecentlySelectedProgram(false);
@@ -463,8 +463,14 @@ function ClientProfileProgress({
 
   const handleIndividualItemSave = async () => {
     const saved = savedItem;
-    const delivery = await fetch(`/api/clients?clientId=${'67ea8573d83b9cefebba35f5'}&`
-    );
+    const delivery = await fetch(`/api/clients?clientId=${selectedClient._id}`, {
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        items: saved
+      })
+    });
 
   };
 

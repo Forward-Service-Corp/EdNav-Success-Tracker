@@ -6,7 +6,7 @@ import Button from './Button';
 function ClientProfilePersonalOrganization({ isNarrow, isMedium }) {
   const { selectedClient } = useClient();
   const [error, setError] = useState("");
-  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [detailsOpen, setDetailsOpen] = useState(true);
   const [scrolled, setScrolled] = useState(false);
   const [feps, setFeps] = useState([]);
   const scrollRef = useRef(null);
@@ -98,7 +98,8 @@ function ClientProfilePersonalOrganization({ isNarrow, isMedium }) {
   };
 
   return (
-    <div className="min-h-full rounded shadow transition-all duration-700 flex flex-col h-full">
+    <div
+      className={` rounded shadow transition-all duration-700 flex flex-col ${detailsOpen ? 'min-h-full h-full' : 'h-[80px] overflow-hidden'}`}>
       {/* Sticky Header */}
       <div
         className={`sticky top-0 z-10 bg-base-100 p-6 rounded shadow-lg flex justify-between transition-all duration-300 ${
@@ -115,7 +116,7 @@ function ClientProfilePersonalOrganization({ isNarrow, isMedium }) {
 
       {/* Scrollable Content */}
       <div
-        className={`bg-base-200 flex-1 p-6 transition-all duration-700 ${detailsOpen ? '' : 'h-[80px] overflow-hidden'}`}>
+        className={`bg-base-200 flex-1 p-6 transition-all duration-700 ${detailsOpen ? 'h-[80px] overflow-hidden' : 'h-[80px] overflow-hidden'}`}>
         <div className={`grid ${getGridClasses()}`}>
           {error && (
             <div className="bg-error/20 text-error col-span-full mb-4 rounded px-4 py-2">
