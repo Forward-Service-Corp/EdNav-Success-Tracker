@@ -529,32 +529,6 @@ function ClientProfileProgress({
   };
 
   // Helper function to handle program reset
-  const handleProgramReset = () => {
-    if (window.confirm(`Are you sure you want to undo your ${selectedClient?.trackable?.program} program selection?`)) {
-      // Create an updated client without the trackable program
-      const updatedClient = {
-        ...selectedClient,
-        trackable: undefined
-      };
-
-      // Update client state - keep the client selected, just remove trackable
-      setSelectedClient(updatedClient);
-
-      // Also clear localStorage
-      if (typeof window !== 'undefined' && selectedClient?._id) {
-        localStorage.removeItem(`trackable-${selectedClient._id}`);
-      }
-
-      // Reset states
-      setSavedItem([]);
-      setNewSelections([]);
-      setDisplayItems([]);
-      setHasTrackable([]);
-      setRecentlySelectedProgram(false);
-      setCompletionPercentage(0);
-    }
-  };
-  
   return (
     <div className={`relative`}>
       <div
