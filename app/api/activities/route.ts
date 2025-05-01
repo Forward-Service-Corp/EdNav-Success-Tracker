@@ -591,7 +591,7 @@ export async function POST(request: NextRequest) {
             },
             {
               $set: {
-                clientStatus: newStatus,
+                clientStatus: newStatus.toLowerCase(),
                 lastActivity: new Date().toISOString(),
               },
             },

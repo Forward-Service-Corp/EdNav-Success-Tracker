@@ -109,7 +109,7 @@ export default function ClientTable({
 
         const matchesStatus =
           selectedFepLeft.status === 'All' ||
-          client?.clientStatus === selectedFepLeft.status;
+          client?.clientStatus.toLowerCase() === selectedFepLeft.status.toLowerCase();
 
         const matchesGroup =
           selectedFepLeft.age === 'All' ||
@@ -121,7 +121,7 @@ export default function ClientTable({
 
   function groupByClientStatus(clients) {
     return clients.reduce((groups, client) => {
-      const status = client.clientStatus || 'Unknown';
+      const status = client.clientStatus.toLowerCase() || 'Unknown';
       if (!groups[status]) groups[status] = [];
       groups[status].push(client);
       return groups;
@@ -133,7 +133,7 @@ export default function ClientTable({
   const clientsToShow = useMemo(() => {
     if (!filteredClients) return [];
 
-    if (viewMode === 'pinned') {
+    if (selectedFepLeft.pinned) {
       return [...filteredClients].sort((a, b) => {
         const aPinned = pinnedIds.includes(a._id.toString());
         const bPinned = pinnedIds.includes(b._id.toString());

@@ -26,7 +26,7 @@ function ClientProfilePersonalOrganization({ isNarrow, isMedium }) {
     lastGrade: selectedClient?.lastGrade || "",
     pin: selectedClient?.pin || "",
     region: selectedClient?.region || "",
-    clientStatus: selectedClient?.clientStatus || "",
+    clientStatus: selectedClient?.clientStatus.toLowerCase() || '',
     county: selectedClient?.county || "",
     group: selectedClient?.group || "",
   });
@@ -45,7 +45,7 @@ function ClientProfilePersonalOrganization({ isNarrow, isMedium }) {
       lastGrade: selectedClient?.lastGrade || "",
       pin: selectedClient?.pin || "",
       region: selectedClient?.region || "",
-      clientStatus: selectedClient?.clientStatus || "",
+      clientStatus: selectedClient?.clientStatus.toLowerCase() || '',
       county: selectedClient?.county || "",
       ttsDream: selectedClient?.ttsDream || "",
     });

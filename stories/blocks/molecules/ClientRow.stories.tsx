@@ -23,7 +23,7 @@ const meta: Meta<typeof ClientRow> = {
       first_name: 'string',
       last_name: 'string',
       latestInteraction: 'string',
-      clientStatus: 'active',
+      clientStatus: 'in progress',
       county: 'string',
       navigator: 'string',
       group: 'string'

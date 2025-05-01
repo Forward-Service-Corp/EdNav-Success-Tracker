@@ -59,7 +59,7 @@ export default function ClientTableContainer({ setOpenPanel }: {
 
           const matchesStatus =
             selectedFepLeft.status === 'All' ||
-            client?.clientStatus === selectedFepLeft.status;
+            client?.clientStatus.toLowerCase() === selectedFepLeft.status.toLowerCase();
 
           const matchesGroup =
             selectedFepLeft.age === 'All' ||

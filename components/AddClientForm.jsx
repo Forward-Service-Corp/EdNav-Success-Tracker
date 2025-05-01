@@ -17,7 +17,7 @@ function AddClientForm({ setOpenPanel }) {
   const { setSelectedClient } = useClient(null);
   const [formData, setFormData] = useState({
     caseNumber: "",
-    clientStatus: "In Progress",
+    clientStatus: 'in progress',
     contactNumber: "",
     county: "",
     dateReferred: "",
@@ -84,7 +84,7 @@ function AddClientForm({ setOpenPanel }) {
   ];
   const formBackup = {
     caseNumber: "",
-    clientStatus: "In Progress",
+    clientStatus: 'in progress',
     contactNumber: "",
     dateReferred: "",
     dob: "",

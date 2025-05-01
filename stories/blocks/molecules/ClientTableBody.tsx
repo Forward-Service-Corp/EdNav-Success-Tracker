@@ -20,7 +20,7 @@ export default function ClientTableBody({
 
   function groupByClientStatus(clients: any[]) {
     return clients.reduce((groups, client) => {
-      const status = client.clientStatus || 'Unknown';
+      const status = client.clientStatus.toLowerCase() || 'Unknown';
       if (!groups[status]) groups[status] = [];
       groups[status].push(client);
       return groups;

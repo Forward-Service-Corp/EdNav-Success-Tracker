@@ -583,7 +583,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
             // Create a new client object with an updated status
             const updatedClient = {
               ...selectedClient,
-              clientStatus: newStatus
+              clientStatus: newStatus.toLowerCase()
             };
 
             // Schedule client update
