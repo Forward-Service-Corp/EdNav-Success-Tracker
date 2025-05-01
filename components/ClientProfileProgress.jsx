@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { CheckCircleIcon } from '@heroicons/react/20/solid';
 import { useClient } from '../contexts/ClientContext';
+import ProgressButton from './ProgressButton';
 
 function ClientProfileProgress({
   hasTrackable,
@@ -47,7 +47,7 @@ function ClientProfileProgress({
 
     // Process each item
     items.forEach((item, index) => {
-      // First check if item has explicit savedInDatabase flag (from ActivityDynamicSelect)
+      // First check if item has an explicit savedInDatabase flag (from ActivityDynamicSelect)
       const isSavedInDB = item.savedInDatabase === true;
 
       // Fallback to check hasTrackableCopy if no explicit flag (backward compatibility)
@@ -58,7 +58,7 @@ function ClientProfileProgress({
       // Use either the explicit flag or the fallback
       const isItemSaved = isSavedInDB || isSavedInDBFallback;
 
-      // Create item with appropriate flags
+      // Create an item with appropriate flags
       const processedItem = {
         ...item,
         savedInDatabase: isItemSaved,
@@ -74,7 +74,7 @@ function ClientProfileProgress({
         newSelect.push(processedItem);
       }
 
-      // Always add to display array
+      // Always add to a display array
       display.push(processedItem);
     });
 
@@ -332,7 +332,7 @@ function ClientProfileProgress({
     (typeof window !== 'undefined' && selectedClient?._id && localStorage.getItem(`trackable-${selectedClient._id}`));
 
   useEffect(() => {
-    // Check localStorage for trackable data when component mounts or client changes
+    // Check localStorage for trackable data when a component mounts or client changes
     if (typeof window !== 'undefined' && selectedClient?._id) {
       try {
         const savedTrackable = localStorage.getItem(`trackable-${selectedClient._id}`);
@@ -462,7 +462,6 @@ function ClientProfileProgress({
   };
 
   const handleIndividualItemSave = async () => {
-    const saved = savedItem;
     const delivery = await fetch(`/api/clients?clientId=${selectedClient._id}`, {
       headers: {
         'Content-Type': 'application/json'
@@ -494,42 +493,18 @@ function ClientProfileProgress({
       // Item is disabled only if it's already saved to the database
       const isDisabled = isDatabaseCompleted;
 
-      // Determine status for visual styling
+      // Determine the status for visual styling
       const isUnsavedSelection = item.completed && !isDatabaseCompleted;
 
       return (
-        <button
-          key={index}
-          data-testid={`trackable-item-${index}`}
-          disabled={isDisabled}
-          className={`cursor-pointer text-nowrap ${isDisabled ? 'opacity-70 cursor-not-allowed' : ''}`}
-          onClick={() => handleItemClick(index)}
-          title={isDatabaseCompleted
-            ? 'This item is already saved in the database and cannot be changed'
-            : isUnsavedSelection
-              ? 'Selected but not yet saved to database'
-              : ''}
-        >
-          {item.completed === true ? (
-            <span
-              className={`${isDatabaseCompleted ? 'border-success' : 'border-warning'} flex items-center justify-center rounded-full border pr-2`}>
-              <span className={`mr-1`}>
-                <CheckCircleIcon className={`${isDatabaseCompleted ? 'text-success' : 'text-warning'} h-6 w-6`} />
-              </span>
-              {item.name}
-              {!isDatabaseCompleted && (
-                <span className="ml-1 text-[10px] text-warning">(not saved)</span>
-              )}
-            </span>
-          ) : (
-            <span className={`border-base-content/40 flex items-center justify-center rounded-full border pr-2`}>
-              <span className={`mr-1`}>
-                <span className={`text-base-content/40 m-[2px] block h-5 w-5 rounded-full border`} />
-              </span>
-              {item.name}
-            </span>
-          )}
-        </button>
+        <ProgressButton
+          handleItemClick={handleItemClick}
+          item={item}
+          index={index}
+          isDatabaseCompleted={isDatabaseCompleted}
+          isDisabled={isDisabled}
+          isUnsavedSelection={isUnsavedSelection}
+          key={`item-${index}`} />
       );
     });
   };
@@ -556,17 +531,6 @@ function ClientProfileProgress({
               <div className={`${isNarrow ? 'text-lg' : 'text-2xl'} flex items-center gap-2`}>
                 {selectedClient?.trackable?.program || 'Program'} Progress -{' '}
                 {completionPercentage}%
-
-                {/* Show the undo button if the program was recently selected */}
-                {/*{recentlySelectedProgram && (*/}
-                {/*  <button*/}
-                {/*    onClick={handleProgramReset}*/}
-                {/*    className="btn btn-xs btn-error btn-outline"*/}
-                {/*    title="Undo program selection"*/}
-                {/*  >*/}
-                {/*    Undo*/}
-                {/*  </button>*/}
-                {/*)}*/}
               </div>
               <p className={`text-info text-sm`}>
                 Click items to mark them as completed, then click Save Progress.

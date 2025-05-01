@@ -132,15 +132,12 @@ function ClientProfileDetailsInput({ field, index, feps }) {
   };
 
   const handleSave = async () => {
-    const response = await fetch(`/api/clients/update`, {
+    const response = await fetch(`/api/clients/update?clientId=${selectedClient._id}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        _id: clientCopy._id,
-        data: { [field]: clientCopy[field] },
-      }),
+      body: JSON.stringify(clientCopy)
     });
 
     const data = await response.json();
@@ -148,13 +145,13 @@ function ClientProfileDetailsInput({ field, index, feps }) {
       setUpdating(false);
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);
-      setSelectedClient((prev) => {
-        return {
-          ...prev,
-          [field]: data.user[field],
-          changed: true
-        };
-      });
+      // setSelectedClient((prev) => {
+      //   return {
+      //     ...prev,
+      //     [field]: data.user[field],
+      //     changed: true
+      //   };
+      // });
     } else {
       console.error(`There was an error updating the client.`);
     }
