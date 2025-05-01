@@ -66,7 +66,7 @@ export default function ActivityLogs() {
       }
     };
 
-    fetchLogs();
+    fetchLogs().then();
   }, [logLevel, dateFrom, dateTo]);
 
   // Filter logs based on search term
@@ -94,7 +94,7 @@ export default function ActivityLogs() {
       )
     ].join('\n');
 
-    // Create blob and download
+    // Create a blob and download
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
