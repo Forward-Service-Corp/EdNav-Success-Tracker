@@ -7,8 +7,9 @@ import ClientProfileTABEOrientation from '../components/ClientProfileTABEOrienta
 import { useClient } from '/contexts/ClientContext';
 import ActivityModal from '../components/ActivityModal';
 import { useLayout } from '/contexts/LayoutContext';
+import { XSquare } from 'phosphor-react';
 
-export default function ClientProfile() {
+export default function ClientProfile({ setOpenPanel }) {
   const [isMounted, setIsMounted] = useState(false);
   const { selectedClient, setSelectedClient } = useClient();
   const [, setActions] = useState([]); // actions are the activities
@@ -408,10 +409,12 @@ export default function ClientProfile() {
       <div
         className={`no-scrollbar absolute top-0 right-0 bottom-0 left-0 overflow-y-scroll`}
       >
-        {/*<ClientProfileHeader setOpenPanel={setOpenPanel} />*/}
+        <div onClick={() => setOpenPanel('')}><XSquare className={`absolute top-4 right-4 cursor-pointer z-50`}
+                                                       size={24} color="base-content" /></div>
         <div className={`grid ${getGridClasses()}`}>
           <div className={`${layoutConfig.isNarrow ? 'col-span-1' : 'col-span-2'}`}>
             <ClientProfilePersonalOrganization
+              setOpenPanel={setOpenPanel}
               isNarrow={layoutConfig.isNarrow}
               isMedium={layoutConfig.isMedium}
             />

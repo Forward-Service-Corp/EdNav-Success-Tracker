@@ -8,7 +8,11 @@ import Button from './Button';
 import { useLayout } from '../contexts/LayoutContext';
 import { ClientViewToggles } from './ClientViewToggles';
 
-function Sidebar({ setOpenPanel }) {
+function Sidebar({
+
+                   setOpenPanel
+
+                 }) {
   const {
     currentLayout,
     // setLayoutConfig,

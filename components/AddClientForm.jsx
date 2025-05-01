@@ -445,7 +445,7 @@ function AddClientForm({ setOpenPanel }) {
         onClick={() => {
           setEditing('');
           setSelectedClient(null);
-          setOpenPanel(false);
+          setOpenPanel('');
         }}
         className={` mt-5 mr-5 cursor-pointer text-base-content text-2xl`}
       >

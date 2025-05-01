@@ -58,10 +58,15 @@ export default function ClientRow({
           />
         </div>
       </td>
+      <td>Email</td>
+      <td>Email</td>
+      <td>Phone</td>
       <td>
         <Badge use={person?.clientStatus?.toLowerCase() as 'active' | 'in progress' | 'graduated' | 'inactive'} />
       </td>
+      <td>FEP</td>
       <td>{person?.county || 'Dane'}</td>
+      <td>Progress</td>
     </tr>
   );
 }
