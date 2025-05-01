@@ -4,21 +4,16 @@ import { useNavigator } from '/contexts/NavigatorsContext';
 function NavigatorSelector() {
   const { selectedNavigator, setSelectedNavigator, navigatorList } = useNavigator();
 
-  // useEffect(() => {
-  //   if (selectedNavigator) {
-  //     const selected = selectedNavigator?.name
-  //     setSelectedNavigator(selected);
-  //   }
-  // }, [])
-
   return (
     <div className="w-[180px]" style={{ zIndex: 10 }}>
       <label htmlFor="theme-select" className="text-sm">Navigator:
       <select
         id="navigator-select"
-        value={selectedNavigator || ''}
+        value={selectedNavigator?.name || ''}
         onChange={(e) => {
-          setSelectedNavigator(e.target.value);
+          setSelectedNavigator(() => {
+            return navigatorList.find((nav) => nav?.name === e.target.value) || 'All';
+          });
         }}
         className="select capitalize mt-1">
         <option value="" disabled>

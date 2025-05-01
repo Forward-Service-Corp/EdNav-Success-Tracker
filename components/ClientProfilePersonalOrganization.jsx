@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useClient } from '../contexts/ClientContext';
 import ClientProfileDetailsInput from '../components/ClientProfileDetailsInput';
 import Button from './Button';
+import ClientProfilePin from './ClientProfilePin';
 
 function ClientProfilePersonalOrganization({ isNarrow, isMedium }) {
   const { selectedClient } = useClient();
@@ -106,7 +107,10 @@ function ClientProfilePersonalOrganization({ isNarrow, isMedium }) {
           scrolled ? 'h-[60px] text-base' : 'h-[80px] text-lg md:text-2xl'
         } items-center`}
       >
-        <div>{selectedClient?.first_name + ' ' + selectedClient?.last_name}</div>
+        <div className="flex items-center gap-4">
+          <div><ClientProfilePin /></div>
+          <div>{selectedClient?.first_name + ' ' + selectedClient?.last_name}</div>
+        </div>
         <Button
           label={`${detailsOpen ? 'Close' : 'View & Edit'} Details`}
           use="secondary"

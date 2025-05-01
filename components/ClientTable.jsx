@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useClientList } from '/contexts/ClientListContext';
 import { useClient } from '/contexts/ClientContext';
@@ -9,11 +9,11 @@ import SearchField from './SearchField';
 import ClientsTable from '../stories/blocks/organisms/ClientsTable';
 
 export default function ClientTable({
-  menuOpen,
-  setMenuOpen,
-  toggleSidebar,
-  setOpenPanel,
-}) {
+                                      menuOpen,
+                                      setMenuOpen,
+                                      toggleSidebar,
+                                      setOpenPanel
+                                    }) {
   const { clientList, loading, error } = useClientList();
   const { selectedNavigator } = useNavigator();
   const { selectedFepLeft } = useFepsLeft();
@@ -88,7 +88,6 @@ export default function ClientTable({
     }
   };
 
-
   const filteredClients = useMemo(() => {
     // console.log(clientList);
     if (!clientList) return [];
@@ -96,8 +95,8 @@ export default function ClientTable({
     return clientList
       .filter((client) =>
         selectedNavigator !== 'All'
-          ? client?.navigator === selectedNavigator
-          : true,
+          ? client?.navigator === selectedNavigator?.name
+          : true
       )
       .filter((client) => {
         const matchesSearch =
@@ -109,11 +108,11 @@ export default function ClientTable({
             .includes(selectedFepLeft.searchTerm.toLowerCase());
 
         const matchesStatus =
-          selectedFepLeft.status === "All" ||
+          selectedFepLeft.status === 'All' ||
           client?.clientStatus === selectedFepLeft.status;
 
         const matchesGroup =
-          selectedFepLeft.age === "All" ||
+          selectedFepLeft.age === 'All' ||
           client?.group === selectedFepLeft.age;
 
         return matchesSearch && matchesStatus && matchesGroup;
@@ -129,24 +128,12 @@ export default function ClientTable({
     }, {});
   }
 
-  function sortPinnedFirst(clients) {
-    return [...clients].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
-  }
-
-  function groupAndSortClients(clients) {
-    const grouped = groupByClientStatus(clients);
-    for (const status in grouped) {
-      grouped[status] = sortPinnedFirst(grouped[status]);
-    }
-    return grouped;
-  }
-
   const pinnedIds = selectedNavigator?.pinned || [];
 
   const clientsToShow = useMemo(() => {
     if (!filteredClients) return [];
 
-    if (viewMode === "pinned") {
+    if (viewMode === 'pinned') {
       return [...filteredClients].sort((a, b) => {
         const aPinned = pinnedIds.includes(a._id.toString());
         const bPinned = pinnedIds.includes(b._id.toString());
@@ -154,7 +141,7 @@ export default function ClientTable({
       });
     }
 
-    if (viewMode === "grouped") {
+    if (viewMode === 'grouped') {
       return groupByClientStatus(filteredClients); // returns object
     }
 
@@ -167,7 +154,8 @@ export default function ClientTable({
 
   // Prevent hydration mismatch by rendering only after mount
   if (!isMounted) return null;
-// Render loading state
+
+  // Render loading state
   if (loading) {
     return (
       <div className="h-full w-full">
@@ -241,8 +229,6 @@ export default function ClientTable({
       </div>
     );
   }
-
-
 
   return (
     <div className="h-full w-full min-w-full flex flex-col" ref={tableRef}>

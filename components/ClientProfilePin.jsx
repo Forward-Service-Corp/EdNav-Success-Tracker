@@ -17,18 +17,12 @@ function ClientProfilePin() {
 
   let savePinned;
   savePinned = async () => {
-    const data = await fetch(`/api/education-navigators`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        navigator: selectedNavigator?._id,
-        clientId: selectedClient?._id,
-      }),
+    const data = await fetch(`/api/navigators/update?clientId=${selectedClient._id}&navigatorId=${selectedNavigator.name}`, {
+      method: 'POST'
     });
     const json = await data.json();
-    setSelectedNavigator(json['updatedNavigator']);
+    console.log(json);
+    await setSelectedNavigator(json.navigator);
   };
 
   async function handlePinClick(event) {

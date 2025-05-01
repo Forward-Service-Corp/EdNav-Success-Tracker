@@ -86,7 +86,7 @@ export let NavigatorProvider: ({ children }: { children: React.ReactNode }) => R
       );
       if (matchingNavigator) {
         // @ts-ignore
-        setSelectedNavigator(matchingNavigator.name);
+        setSelectedNavigator(matchingNavigator);
       }
     }
   }, [navigatorList, session]);

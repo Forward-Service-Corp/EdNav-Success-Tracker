@@ -27,8 +27,12 @@ export default function ClientTableBody({
     }, {});
   }
 
-  function sortPinnedFirst(clients: any) {
-    return [...clients].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
+  function sortPinnedFirst(clients: any[]) {
+    return [...clients].sort((a, b) => {
+      if (a.pinned && !b.pinned) return -1;
+      if (!a.pinned && b.pinned) return 1;
+      return 0;
+    });
   }
 
   function groupAndSortClients(clients: any[]) {

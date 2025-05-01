@@ -19,7 +19,7 @@ const FilteredClients = () => {
         const fetchClients = async () => {
             setLoading(true);
             try {
-                const url = selectedNavigator ? `/api/clients?navigator=${selectedNavigator}` : '/api/clients';
+                const url = selectedNavigator ? `/api/clients?navigator=${selectedNavigator.name}` : '/api/clients';
                 const response = await fetch(url);
                 const data = await response.json();
 
@@ -51,7 +51,7 @@ const FilteredClients = () => {
 
     return (
         <div className="p-4 space-y-4">
-            <NavigatorSelector value={selectedNavigator} />
+            <NavigatorSelector />
 
             <div className="flex space-x-4">
                 <Input
