@@ -63,7 +63,8 @@ function SearchField() {
               <path d="m21 21-4.3-4.3"></path>
             </g>
           </svg>
-          <input type="search" className="grow rounded-full w-full" placeholder="Search" onChange={(e) => {
+          <input id={`client-search`} type="search" className="grow rounded-full w-full" placeholder="Search"
+                 onChange={(e) => {
             setSelectedFepLeft((prev) => ({
               ...prev,
               searchTerm: e.target.value

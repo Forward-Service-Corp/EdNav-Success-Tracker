@@ -53,7 +53,7 @@ const navigators = [
 ];
 
 function ClientProfileDetailsInput({ field, index, feps }) {
-  const { selectedClient, setSelectedClient } = useClient();
+  const { selectedClient } = useClient();
   const [updating, setUpdating] = useState(false);
   const [clientCopy, setClientCopy] = useState({});
   const [showSuccess, setShowSuccess] = useState(false);
@@ -170,7 +170,7 @@ function ClientProfileDetailsInput({ field, index, feps }) {
           </div>
         )}
         <div className={`flex flex-col`} key={index}>
-          <label className={`mb-1`}>{fieldLabelMap[field]}</label>
+          <label htmlFor={field} className={`mb-1`}>{fieldLabelMap[field]}</label>
           <div className={`flex flex-row gap-2`}>
             <input
               disabled={!updating}
@@ -227,9 +227,10 @@ function ClientProfileDetailsInput({ field, index, feps }) {
 
     return (
       <div className={`flex flex-col`} key={index}>
-        <label className={`mb-1`}>{fieldLabelMap[field]}</label>
+        <label htmlFor={field} className={`mb-1`}>{fieldLabelMap[field]}</label>
         <div className={`flex flex-row gap-2`}>
           <select
+            autoComplete={`true`}
             disabled={!updating}
             name={field}
             id={field}
@@ -268,7 +269,7 @@ function ClientProfileDetailsInput({ field, index, feps }) {
   } else if (fieldType === "textarea") {
     return (
       <div className={`flex flex-col`} key={index}>
-        <label className={`mb-1`}>{fieldLabelMap[field]}</label>
+        <label htmlFor={field} className={`mb-1`}>{fieldLabelMap[field]}</label>
         <div className={`flex flex-row gap-2`}>
           <textarea
             disabled={!updating}
@@ -304,9 +305,10 @@ function ClientProfileDetailsInput({ field, index, feps }) {
   } else {
     return (
       <div className={`flex flex-col`} key={index}>
-        <label className={`mb-1`}>{fieldLabelMap[field]}</label>
+        <label htmlFor={field} className={`mb-1`}>{fieldLabelMap[field]}</label>
         <div className={`flex flex-row gap-2`}>
           <input
+            autoComplete={`true`}
             disabled={!updating}
             type={fieldTypes[field]}
             name={field}
