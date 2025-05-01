@@ -134,12 +134,12 @@ export default function CombinedFeed() {
             const storedActivities = JSON.parse(localStorage.getItem(key) || '[]');
 
             // Check if activity already exists in storage
-            const existsInStorage = storedActivities.some(a =>
-              (a._id && a._id === formattedActivity._id) ||
-              (a.fingerprint && a.fingerprint === formattedActivity.fingerprint) ||
-              (a.statement === formattedActivity.statement &&
-                Math.abs(new Date(a.date).getTime() - formattedActivity.date.getTime()) < 60000)
-            );
+            // const existsInStorage = storedActivities.some(a =>
+            //   (a._id && a._id === formattedActivity._id) ||
+            //   (a.fingerprint && a.fingerprint === formattedActivity.fingerprint) ||
+            //   (a.statement === formattedActivity.statement &&
+            //     Math.abs(new Date(a.date).getTime() - formattedActivity.date.getTime()) < 60000)
+            // );
 
             // if (!existsInStorage) {
             //   storedActivities.push(formattedActivity);
