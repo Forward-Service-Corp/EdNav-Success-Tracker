@@ -7,7 +7,7 @@ import ClientProfilePin from './ClientProfilePin';
 function ClientProfilePersonalOrganization({ isNarrow, isMedium }) {
   const { selectedClient } = useClient();
   const [error, setError] = useState("");
-  const [detailsOpen, setDetailsOpen] = useState(true);
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [feps, setFeps] = useState([]);
   const scrollRef = useRef(null);

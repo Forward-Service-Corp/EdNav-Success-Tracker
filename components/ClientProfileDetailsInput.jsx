@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { EditIcon, SaveIcon, XSquareIcon } from 'lucide-react';
 import { useClient } from '../contexts/ClientContext';
 import { adultSchools, youthSchools } from '../lib/schools';
+import { useClientList } from '../contexts/ClientListContext';
 
 const counties = [
   "Brown",
@@ -54,6 +55,7 @@ const navigators = [
 
 function ClientProfileDetailsInput({ field, index, feps }) {
   const { selectedClient, setSelectedClient } = useClient();
+  const { setClientList } = useClientList();
   const [updating, setUpdating] = useState(false);
   const [clientCopy, setClientCopy] = useState({});
   const [showSuccess, setShowSuccess] = useState(false);
@@ -146,7 +148,8 @@ function ClientProfileDetailsInput({ field, index, feps }) {
       setUpdating(false);
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);
-      setSelectedClient(data.client);
+      await setSelectedClient(data.client);
+      await setClientList(prev => [...prev.filter(client => client._id !== selectedClient._id), data.client]);
     } else {
       console.error(`There was an error updating the client.`);
     }

@@ -106,7 +106,7 @@ function ClientsPageContent({ setMenuOpen, menuOpen }) {
         )}
 
         {/* Table Panel */}
-        <div className="w-full h-full rounded-b">
+        <div className=" h-full " style={styles.table}>
           <ClientTable
             setOpenPanel={setOpenPanel}
             setMenuOpen={setMenuOpen}

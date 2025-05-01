@@ -67,15 +67,13 @@ export default function ClientTableBody({
     );
   }
 
-
-
   return (
     <tbody className="h-full min-h-[600px] min-w-full">
     {grouped
       ? Object.entries(groupedClients).map(([status, clients]) => (
         <React.Fragment key={status}>
           <tr className="bg-base-200 cursor-pointer" onClick={() => toggleGroup(status)}>
-            <td colSpan={3} className="font-bold py-2">
+            <td colSpan={8} className="font-bold py-2 col-span-full">
               {status}
               <button
                 type="button"

@@ -17,7 +17,7 @@ export default function ClientTable({
   const { clientList, loading, error } = useClientList();
   const { selectedNavigator } = useNavigator();
   const { selectedFepLeft } = useFepsLeft();
-  const { selectedClient } = useClient({});
+  const { selectedClient } = useClient();
   const { currentLayout } = useLayout();
   const [isMounted, setIsMounted] = useState(false);
   const [viewMode, setViewMode] = useState(null);
@@ -93,6 +93,11 @@ export default function ClientTable({
     if (!clientList) return [];
 
     return clientList
+      .sort((a, b) => {
+        const aName = a?.first_name?.toLowerCase() || 'z';
+        const bName = b?.first_name?.toLowerCase() || 'z';
+        return aName.localeCompare(bName);
+      })
       .filter((client) =>
         selectedNavigator !== 'All'
           ? client?.navigator === selectedNavigator?.name
@@ -117,7 +122,7 @@ export default function ClientTable({
 
         return matchesSearch && matchesStatus && matchesGroup;
       });
-  }, [clientList, selectedNavigator, selectedFepLeft]);
+  }, [clientList, selectedNavigator, selectedFepLeft, selectedClient]);
 
   function groupByClientStatus(clients) {
     return clients.reduce((groups, client) => {
@@ -146,7 +151,7 @@ export default function ClientTable({
     }
 
     return filteredClients;
-  }, [filteredClients, viewMode, pinnedIds]);
+  }, [filteredClients, selectedClient, viewMode, pinnedIds]);
 
   useEffect(() => {
     setIsMounted(true);
@@ -186,7 +191,7 @@ export default function ClientTable({
   if (error) {
     return (
       <div className="h-full w-full">
-        <div className="h-full w-full flex flex-col">
+        <div className="h-full flex flex-col">
           <div
             className="bg-base-300 sticky top-0 z-50 flex h-[80px] items-center justify-between px-3 py-4 shadow w-full">
             <SearchField
@@ -231,7 +236,7 @@ export default function ClientTable({
   }
 
   return (
-    <div className="h-full w-full min-w-full flex flex-col" ref={tableRef}>
+    <div className="h-full flex flex-col" ref={tableRef}>
       <div
         className="bg-base-100 rounded min-w-full sticky top-0 z-50 flex h-[80px] items-center justify-between px-3 py-4 shadow-lg w-full">
         <SearchField />
