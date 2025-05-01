@@ -45,7 +45,8 @@ interface NavigatorContextType {
 // Context with default values
 export const NavigatorContext = createContext<NavigatorContextType>({
   selectedNavigator: null,
-  setSelectedNavigator: () => {},
+  setSelectedNavigator: () => {
+  },
   navigatorList: [],
   loading: false,
   error: null
@@ -69,21 +70,27 @@ export let NavigatorProvider: ({ children }: { children: React.ReactNode }) => J
     // }
     const res = await navigatorsRes.json();
     setNavigatorList(res);
-    setSelectedNavigator(res[0]);
+    setSelectedNavigator(null);
     setLoading(false);
   }, []);
 
-  // Effect runs only once on a component mount
   useEffect(() => {
     fetchNavigatorList().then();
-    if (session?.user?.name) {
-      const navigator = session?.user?.name;
-      setSelectedNavigator(prevState => {
-        if (!prevState) return null;
-        return { ...prevState, name: navigator };
-      });
-    }
   }, [fetchNavigatorList]);
+
+  useEffect(() => {
+    if (navigatorList.length && session?.user?.name) {
+      const userName = session.user.name;  // Capture the non-null value
+      const matchingNavigator = navigatorList.find(
+        nav => nav.name.toLowerCase().trim() === userName.toLowerCase().trim()
+      );
+      console.log(matchingNavigator);
+      if (matchingNavigator) {
+        // @ts-ignore
+        setSelectedNavigator(matchingNavigator.name);
+      }
+    }
+  }, [navigatorList, session]);
 
   // Memoized context value to prevent unnecessary re-renders
   const contextValue = useMemo(() => ({

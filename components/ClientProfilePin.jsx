@@ -1,8 +1,8 @@
 "use client";
 import React, { useEffect, useState } from 'react';
-import { useClient } from '@/contexts/ClientContext';
+import { useClient } from '../contexts/ClientContext';
 import { PinIcon } from 'lucide-react';
-import { useNavigator } from '@/contexts/NavigatorsContext';
+import { useNavigator } from '../contexts/NavigatorsContext';
 
 function ClientProfilePin() {
   const { selectedClient } = useClient();
@@ -28,7 +28,7 @@ function ClientProfilePin() {
       }),
     });
     const json = await data.json();
-    setSelectedNavigator(json.updatedNavigator);
+    setSelectedNavigator(json['updatedNavigator']);
   };
 
   async function handlePinClick(event) {

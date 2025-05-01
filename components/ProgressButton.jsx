@@ -1,43 +1,55 @@
 import React, { useState } from 'react';
 import { CheckCircleIcon } from '@heroicons/react/20/solid';
+import { useClient } from '../contexts/ClientContext';
 
-function ProgressButton({ item, index, handleItemClick, isDisabled, isDatabaseCompleted, isUnsavedSelection }) {
+function ProgressButton({ item, index, isDisabled }) {
   const [saving, setSaving] = useState(false);
+  const { selectedClient, setSelectedClient } = useClient();
+
   const saveItem = async () => {
     setSaving(true);
     try {
-      await fetch(`/api/trackables/${item._id}`, {
-        method: 'PUT',
+      const res = await fetch(`/api/clients/update?clientId=${selectedClient?._id}&trackable=${index}`, {
+        method: 'POST',
         body: JSON.stringify({
-          completed: true
-        })
-      });
-    } finally {
+          completed: true,
+          name: item.name
+        }),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      if (!res.ok) {
+        const text = await res.text(); // handle non-JSON error responses
+        throw new Error(`Server error ${res.status}: ${text}`);
+      }
+      const data = await res.json();
+      console.log(data);
+      await setSelectedClient(data.client);
+    } catch (error) {
+      console.error('Error saving item:', error);
       setSaving(false);
+      return {
+        error: true,
+        message: 'Error saving item'
+      };
     }
   };
+
   return (
     <button
       key={index}
       disabled={isDisabled || saving}
       className={`cursor-pointer text-nowrap ${isDisabled || saving ? 'opacity-70 cursor-not-allowed' : ''}`}
-      onClick={() => handleItemClick(index)}
-      title={isDatabaseCompleted
-        ? 'This item is already saved in the database and cannot be changed'
-        : isUnsavedSelection
-          ? 'Selected but not yet saved to database'
-          : ''}
+      onClick={saveItem}
     >
       {item.completed === true ? (
         <span
-          className={`${isDatabaseCompleted ? 'border-success' : 'border-warning'} flex items-center justify-center rounded-full border pr-2`}>
+          className={`border-success flex items-center justify-center rounded-full border pr-2`}>
               <span className={`mr-1`}>
-                <CheckCircleIcon className={`${isDatabaseCompleted ? 'text-success' : 'text-warning'} h-6 w-6`} />
+                <CheckCircleIcon className={`text-success h-6 w-6`} />
               </span>
           {item.name}
-          {!isDatabaseCompleted && (
-            <span className="ml-1 text-[10px] text-warning">(not saved)</span>
-          )}
             </span>
       ) : (
         <span className={`border-base-content/40 flex items-center justify-center rounded-full border pr-2`}>

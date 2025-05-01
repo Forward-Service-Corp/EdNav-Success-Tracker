@@ -116,7 +116,7 @@ function ClientProfilePersonalOrganization({ isNarrow, isMedium }) {
 
       {/* Scrollable Content */}
       <div
-        className={`bg-base-200 flex-1 p-6 transition-all duration-700 ${detailsOpen ? 'h-[80px] overflow-hidden' : 'h-[80px] overflow-hidden'}`}>
+        className={`bg-base-200 rounded flex-1 p-6 transition-all duration-700 ${detailsOpen ? 'h-[80px] overflow-hidden' : 'h-[80px] overflow-hidden'}`}>
         <div className={`grid ${getGridClasses()}`}>
           {error && (
             <div className="bg-error/20 text-error col-span-full mb-4 rounded px-4 py-2">

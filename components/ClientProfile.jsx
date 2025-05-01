@@ -10,7 +10,6 @@ import { useLayout } from '/contexts/LayoutContext';
 
 export default function ClientProfile() {
   const [isMounted, setIsMounted] = useState(false);
-  const [, setSelectedNavigator] = useState("");
   const { selectedClient, setSelectedClient } = useClient();
   const [, setActions] = useState([]); // actions are the activities
   const [hasTrackable, setHasTrackable] = useState([]);
@@ -99,9 +98,6 @@ export default function ClientProfile() {
   useEffect(() => {
     setIsMounted(true); // ✅ Mark component as mounted before interacting with localStorage
     if (typeof window !== "undefined") {
-      const storedNavigator = localStorage.getItem("navigatorName") || "";
-      setSelectedNavigator(storedNavigator);
-
       // Only set up a modal function if it doesn't already exist
       if (!window.openActivityModal) {
         // console.log('Setting up openActivityModal from ClientProfile');

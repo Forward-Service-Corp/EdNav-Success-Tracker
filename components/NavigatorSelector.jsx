@@ -1,13 +1,15 @@
 "use client";
 import { useNavigator } from '/contexts/NavigatorsContext';
-import { useEffect } from 'react';
 
 function NavigatorSelector() {
   const { selectedNavigator, setSelectedNavigator, navigatorList } = useNavigator();
 
-  useEffect(() => {
-
-  }, [selectedNavigator])
+  // useEffect(() => {
+  //   if (selectedNavigator) {
+  //     const selected = selectedNavigator?.name
+  //     setSelectedNavigator(selected);
+  //   }
+  // }, [])
 
   return (
     <div className="w-[180px]" style={{ zIndex: 10 }}>
