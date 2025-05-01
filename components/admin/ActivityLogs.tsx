@@ -159,7 +159,6 @@ export default function ActivityLogs() {
                   mode="single"
                   selected={dateFrom}
                   onSelect={setDateFrom}
-                  initialFocus
                 />
               </PopoverContent>
             </Popover>
@@ -176,7 +175,6 @@ export default function ActivityLogs() {
                   mode="single"
                   selected={dateTo}
                   onSelect={setDateTo}
-                  initialFocus
                 />
               </PopoverContent>
             </Popover>
