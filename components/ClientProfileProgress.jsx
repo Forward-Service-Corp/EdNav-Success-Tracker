@@ -4,162 +4,159 @@ import ProgressButton from './ProgressButton';
 
 function ClientProfileProgress({
   hasTrackable,
-  setUpdated,
-  hasTrackableCopy,
-                                 isNarrow
+                                 setUpdated, isNarrow
                                }) {
   const { selectedClient } = useClient();
   const [completionPercentage, setCompletionPercentage] = useState(0);
 // New state variables for better control
-  const [savedItem, setSavedItem] = useState([]); // Items saved in the database
-  const [newSelections, setNewSelections] = useState([]); // Items selected but not yet saved
-  const [displayItems, setDisplayItems] = useState([]); // Combined items for display
-  const [, setRecentlySelectedProgram] = useState(false);
+  const [savedItem] = useState([]); // Items saved in the database
+  const [newSelections] = useState([]); // Items selected but not yet saved
+  const [displayItems, setDisplayItems] = useState(selectedClient?.trackable?.items); // Combined items for display
 
-  // Initialize our state when hasTrackable changes
+  // // Initialize our state when hasTrackable changes
   useEffect(() => {
     if (Array.isArray(hasTrackable) && hasTrackable.length > 0) {
       // Initial setup of our state arrays
-      initializeStateArrays(hasTrackable);
+      // initializeStateArrays(selectedClient.trackable.items);
 
       // Calculate completion based on display items
       const percentage = calculateCompletionPercentage(displayItems);
       setCompletionPercentage(percentage);
       // console.log('Updated completion percentage:', percentage);
     } else {
-      setSavedItem([]);
-      setNewSelections([]);
+      // setSavedItem([]);
+      // setNewSelections([]);
       setDisplayItems([]);
       setCompletionPercentage(0);
     }
-  }, [hasTrackable]);
+  }, [selectedClient]);
 
   // Initialize our state arrays from the incoming hasTrackable
-  const initializeStateArrays = (items) => {
-    // Create arrays for saved items and new selections
-    const saved = [];
-    const newSelect = [];
-    const display = [];
-
-    // Process each item
-    items.forEach((item, index) => {
-      // First check if item has an explicit savedInDatabase flag (from ActivityDynamicSelect)
-      const isSavedInDB = item.savedInDatabase === true;
-
-      // Fallback to check hasTrackableCopy if no explicit flag (backward compatibility)
-      const isSavedInDBFallback = !isSavedInDB && Array.isArray(hasTrackableCopy) &&
-        hasTrackableCopy[index] &&
-        hasTrackableCopy[index].completed === true;
-
-      // Use either the explicit flag or the fallback
-      const isItemSaved = isSavedInDB || isSavedInDBFallback;
-
-      // Create an item with appropriate flags
-      const processedItem = {
-        ...item,
-        savedInDatabase: isItemSaved,
-        index: index // Store original index for reference
-      };
-
-      // Add to appropriate arrays
-      if (isItemSaved) {
-        // This is a database-saved item
-        saved.push(processedItem);
-      } else if (item.completed) {
-        // This is selected but not yet saved
-        newSelect.push(processedItem);
-      }
-
-      // Always add to a display array
-      display.push(processedItem);
-    });
-
-    // Update state
-    setSavedItem(saved);
-    setNewSelections(newSelect);
-    setDisplayItems(display);
-
-    // Check if this is a recently selected program
-    checkIfRecentlySelected(display);
-  };
+  // const initializeStateArrays = (items) => {
+  //   // Create arrays for saved items and new selections
+  //   const saved = [];
+  //   const newSelect = [];
+  //   const display = [];
+  //
+  //   // Process each item
+  //   items.forEach((item, index) => {
+  //     // First check if item has an explicit savedInDatabase flag (from ActivityDynamicSelect)
+  //     const isSavedInDB = item?.completed === true;
+  //
+  //     // Fallback to check hasTrackableCopy if no explicit flag (backward compatibility)
+  //     // const isSavedInDBFallback = !isSavedInDB && Array.isArray(hasTrackableCopy) &&
+  //     //   hasTrackableCopy[index] &&
+  //     //   hasTrackableCopy[index].completed === true;
+  //
+  //     // Use either the explicit flag or the fallback
+  //     const isItemSaved = isSavedInDB || false;
+  //
+  //     // Create an item with appropriate flags
+  //     const processedItem = {
+  //       ...item,
+  //       savedInDatabase: isItemSaved,
+  //       index: index // Store original index for reference
+  //     };
+  //
+  //     // Add to appropriate arrays
+  //     if (isItemSaved) {
+  //       // This is a database-saved item
+  //       saved.push(processedItem);
+  //     } else if (item?.completed) {
+  //       // This is selected but not yet saved
+  //       newSelect.push(processedItem);
+  //     }
+  //
+  //     // Always add to a display array
+  //     display.push(processedItem);
+  //   });
+  //
+  //   // Update state
+  //   setSavedItem(saved);
+  //   setNewSelections(newSelect);
+  //   setDisplayItems(display);
+  //
+  //   // Check if this is a recently selected program
+  //   checkIfRecentlySelected(display);
+  // };
 
   // Check if the program was recently selected
-  const checkIfRecentlySelected = (items) => {
-    if (!selectedClient?.trackable?.program) {
-      // console.log('No program selected yet');
-      return;
-    }
-
-    // Check if there are any saved items - if none, it's a new selection
-    // Explicitly check for the savedInDatabase flag from ActivityDynamicSelect
-    const hasSavedItems = items.some(item => item.savedInDatabase === true);
-    // console.log('Has saved items?', hasSavedItems);
-
-    if (!hasSavedItems) {
-      // Also check localStorage as a backup for saved items
-      let hasSavedItemsInStorage = false;
-      if (typeof window !== 'undefined' && selectedClient?._id) {
-        try {
-          const savedTrackable = localStorage.getItem(`trackable-${selectedClient._id}`);
-          if (savedTrackable) {
-            const parsedTrackable = JSON.parse(savedTrackable);
-            if (parsedTrackable && Array.isArray(parsedTrackable.items)) {
-              hasSavedItemsInStorage = parsedTrackable.items.some(item =>
-                item && item.savedInDatabase === true
-              );
-              // console.log('Has saved items in localStorage?', hasSavedItemsInStorage);
-            }
-          }
-        } catch (e) {
-          console.error('Error checking localStorage for saved items:', e);
-        }
-      }
-
-      // If we still don't have saved items, check the timestamp
-      if (!hasSavedItemsInStorage) {
-        // Check timestamp if available
-        // First try the client state
-        let trackableTimestamp = selectedClient.trackable?.createdAt
-          ? new Date(selectedClient.trackable.createdAt)
-          : null;
-
-        // Then check localStorage as backup
-        if (!trackableTimestamp && typeof window !== 'undefined' && selectedClient?._id) {
-          try {
-            const savedTrackable = localStorage.getItem(`trackable-${selectedClient._id}`);
-            if (savedTrackable) {
-              const parsedTrackable = JSON.parse(savedTrackable);
-              if (parsedTrackable && parsedTrackable.createdAt) {
-                trackableTimestamp = new Date(parsedTrackable.createdAt);
-              }
-            }
-          } catch (e) {
-            console.error('Error checking localStorage for timestamp:', e);
-          }
-        }
-
-        if (trackableTimestamp) {
-          const currentTime = new Date();
-          const timeDiff = (currentTime - trackableTimestamp) / 1000; // in seconds
-
-          // Consider it recent if less than 5 minutes old
-          const isRecentSelection = timeDiff < 300; // 5 minutes
-          // console.log('Is recent selection based on timestamp?', isRecentSelection, 'Time diff:', timeDiff);
-          setRecentlySelectedProgram(isRecentSelection);
-        } else {
-          // No timestamp, assume it's recent
-          // console.log('No timestamp found, assuming recent selection');
-          setRecentlySelectedProgram(true);
-        }
-      } else {
-        // Has saved items in localStorage, not a recent selection
-        setRecentlySelectedProgram(false);
-      }
-    } else {
-      // Has saved items, not a recent selection
-      setRecentlySelectedProgram(false);
-    }
-  };
+  // const checkIfRecentlySelected = (items) => {
+  //   if (!selectedClient?.trackable?.program) {
+  //     // console.log('No program selected yet');
+  //     return;
+  //   }
+  //
+  //   // Check if there are any saved items - if none, it's a new selection
+  //   // Explicitly check for the savedInDatabase flag from ActivityDynamicSelect
+  //   const hasSavedItems = items.some(item => item.savedInDatabase === true);
+  //   // console.log('Has saved items?', hasSavedItems);
+  //
+  //   if (!hasSavedItems) {
+  //     // Also check localStorage as a backup for saved items
+  //     let hasSavedItemsInStorage = false;
+  //     if (typeof window !== 'undefined' && selectedClient?._id) {
+  //       try {
+  //         const savedTrackable = localStorage.getItem(`trackable-${selectedClient._id}`);
+  //         if (savedTrackable) {
+  //           const parsedTrackable = JSON.parse(savedTrackable);
+  //           if (parsedTrackable && Array.isArray(parsedTrackable.items)) {
+  //             hasSavedItemsInStorage = parsedTrackable.items.some(item =>
+  //               item && item.savedInDatabase === true
+  //             );
+  //             // console.log('Has saved items in localStorage?', hasSavedItemsInStorage);
+  //           }
+  //         }
+  //       } catch (e) {
+  //         console.error('Error checking localStorage for saved items:', e);
+  //       }
+  //     }
+  //
+  //     // If we still don't have saved items, check the timestamp
+  //     if (!hasSavedItemsInStorage) {
+  //       // Check timestamp if available
+  //       // First try the client state
+  //       let trackableTimestamp = selectedClient.trackable?.createdAt
+  //         ? new Date(selectedClient.trackable.createdAt)
+  //         : null;
+  //
+  //       // Then check localStorage as backup
+  //       if (!trackableTimestamp && typeof window !== 'undefined' && selectedClient?._id) {
+  //         try {
+  //           const savedTrackable = localStorage.getItem(`trackable-${selectedClient._id}`);
+  //           if (savedTrackable) {
+  //             const parsedTrackable = JSON.parse(savedTrackable);
+  //             if (parsedTrackable && parsedTrackable.createdAt) {
+  //               trackableTimestamp = new Date(parsedTrackable.createdAt);
+  //             }
+  //           }
+  //         } catch (e) {
+  //           console.error('Error checking localStorage for timestamp:', e);
+  //         }
+  //       }
+  //
+  //       if (trackableTimestamp) {
+  //         const currentTime = new Date();
+  //         const timeDiff = (currentTime - trackableTimestamp) / 1000; // in seconds
+  //
+  //         // Consider it recent if less than 5 minutes old
+  //         const isRecentSelection = timeDiff < 300; // 5 minutes
+  //         // console.log('Is recent selection based on timestamp?', isRecentSelection, 'Time diff:', timeDiff);
+  //         setRecentlySelectedProgram(isRecentSelection);
+  //       } else {
+  //         // No timestamp, assume it's recent
+  //         // console.log('No timestamp found, assuming recent selection');
+  //         setRecentlySelectedProgram(true);
+  //       }
+  //     } else {
+  //       // Has saved items in localStorage, not a recent selection
+  //       setRecentlySelectedProgram(false);
+  //     }
+  //   } else {
+  //     // Has saved items, not a recent selection
+  //     setRecentlySelectedProgram(false);
+  //   }
+  // };
 
   // Update the display items whenever savedItems or newSelections change
   useEffect(() => {
@@ -187,130 +184,16 @@ function ClientProfileProgress({
     });
 
     // Update display items
-    setDisplayItems(combined);
+    setDisplayItems(selectedClient?.trackable?.items);
 
     // Also calculate completion percentage
-    const percentage = calculateCompletionPercentage(combined);
+    const percentage = calculateCompletionPercentage(selectedClient?.trackable?.items);
     setCompletionPercentage(percentage);
 
     // Mark as updated if there are new selections
     setUpdated(newSelections.length > 0);
   }, [savedItem, newSelections, hasTrackable]);
 
-  // const handleTrackableUpdate = async () => {
-  //   // Prevent multiple clicks
-  //   if (isUpdating) return;
-  //   setIsUpdating(true);
-  //
-  //   try {
-  //     // console.log('Updating trackable items:', displayItems);
-  //
-  //     // Safety check
-  //     if (!selectedClient || !selectedClient._id) {
-  //       console.error('No client selected');
-  //       setIsUpdating(false);
-  //       return;
-  //     }
-  //
-  //     // Show a confirmation dialog if this is a recently selected program
-  //     if (recentlySelectedProgram) {
-  //       const confirmSave = window.confirm(
-  //         `This will permanently save your ${selectedClient.trackable?.program} program selection. Continue?`
-  //       );
-  //
-  //       if (!confirmSave) {
-  //         setIsUpdating(false);
-  //         return;
-  //       }
-  //     }
-  //
-  //     // Check if all items are completed for graduation
-  //     const validTrackable = Array.isArray(displayItems) ? displayItems : [];
-  //     const completed = validTrackable.filter(item => item && item.completed === true);
-  //     const graduated = completed.length === validTrackable.length && validTrackable.length > 0;
-  //
-  //     // Preserve the program value (GED or HSED)
-  //     const program = selectedClient.trackable?.program || 'GED'; // Default to GED if not set
-  //
-  //     // Create a new client object with updated trackable items
-  //     const updatedClient = {
-  //       ...selectedClient,
-  //       trackable: {
-  //         ...selectedClient.trackable,
-  //         program: program, // Ensure program value is preserved
-  //         items: validTrackable,
-  //         programComplete: graduated
-  //       }
-  //     };
-  //
-  //     // console.log('Sending trackable update with program:', program);
-  //
-  //     // Update client in context for UI updates
-  //     setSelectedClient(updatedClient);
-  //
-  //     // Save in localStorage for persistence
-  //     if (typeof window !== 'undefined') {
-  //       try {
-  //         // Store the current time as the creation time if not already set
-  //         if (!updatedClient.trackable.createdAt) {
-  //           updatedClient.trackable.createdAt = new Date().toISOString();
-  //         }
-  //
-  //         localStorage.setItem(`trackable-${selectedClient._id}`,
-  //           JSON.stringify(updatedClient.trackable)
-  //         );
-  //       } catch (e) {
-  //         console.error('Failed to save trackable to localStorage', e);
-  //       }
-  //     }
-  //
-  //     // console.log('Sending trackable update to API:', updatedClient);
-  //
-  //     // Send update to the API
-  //     const res = await fetch(`/api/trackable?clientId=${selectedClient._id}`, {
-  //       headers: {
-  //         'Content-Type': 'application/json'
-  //       },
-  //       body: JSON.stringify(updatedClient),
-  //       method: 'POST'
-  //     });
-  //
-  //     const data = await res.json();
-  //     if (data.error) {
-  //       console.error('API error:', data.error);
-  //     } else {
-  //       // console.log('Trackable update successful:', data);
-  //
-  //       // Update state to reflect that everything is now saved
-  //       if (data.trackable && data.trackable.items) {
-  //         // Add a savedInDatabase flag to all completed items
-  //         const itemsWithSavedFlag = data.trackable.items.map(item => ({
-  //           ...item,
-  //           savedInDatabase: item.completed // Only completed items are saved
-  //         }));
-  //
-  //         // Update all our state arrays
-  //         setSavedItem(itemsWithSavedFlag.filter(item => item.completed));
-  //         setNewSelections([]); // Clear the new selections since they're now saved
-  //         setDisplayItems(itemsWithSavedFlag);
-  //
-  //         // Update the parent state too
-  //         setHasTrackable(itemsWithSavedFlag);
-  //         // setHasTrackableCopy(JSON.parse(JSON.stringify(itemsWithSavedFlag)));
-  //
-  //         // This is no longer a recently selected program
-  //         setRecentlySelectedProgram(false);
-  //       }
-  //     }
-  //
-  //     // Update was successful
-  //     setUpdated(false);
-  //   } catch (error) {
-  //     console.error('Error updating trackable:', error);
-  //   } finally {
-  //     setIsUpdating(false);
-  //   }
-  // };
 
   function calculateCompletionPercentage(items) {
     if (!Array.isArray(items) || items.length === 0) return 0;
@@ -327,80 +210,6 @@ function ClientProfileProgress({
     selectedClient?.trackable?.program === 'HSED' ||
     (typeof window !== 'undefined' && selectedClient?._id && localStorage.getItem(`trackable-${selectedClient._id}`));
 
-  // useEffect(() => {
-  //   // Check localStorage for trackable data when a component mounts or client changes
-  //   if (typeof window !== 'undefined' && selectedClient?._id) {
-  //     try {
-  //       const savedTrackable = localStorage.getItem(`trackable-${selectedClient._id}`);
-  //       if (savedTrackable) {
-  //         const parsedTrackable = JSON.parse(savedTrackable);
-  //         if (parsedTrackable && parsedTrackable.program &&
-  //           (parsedTrackable.program === 'GED' || parsedTrackable.program === 'HSED')) {
-  //
-  //           // Get timestamps to check if this was a recent selection
-  //           const trackableTimestamp = parsedTrackable.createdAt ? new Date(parsedTrackable.createdAt) : null;
-  //           const currentTime = new Date();
-  //           const timeDiff = trackableTimestamp ? (currentTime - trackableTimestamp) / 1000 : Infinity; // in seconds
-  //
-  //           // Consider it a recent selection if it was made in the last 5 minutes
-  //           // AND if there are no items saved to the database yet
-  //           const hasSavedItems = parsedTrackable.items &&
-  //             Array.isArray(parsedTrackable.items) &&
-  //             parsedTrackable.items.some(item => item && item.savedInDatabase === true);
-  //
-  //           const isRecentSelection = timeDiff < 300 && !hasSavedItems; // 5 minutes in seconds
-  //           setRecentlySelectedProgram(isRecentSelection);
-  //
-  //           // If we have valid trackable data with GED/HSED in localStorage but not in the client,
-  //           // update the client to include this data
-  //           if (selectedClient?.trackable?.program !== 'GED' && selectedClient?.trackable?.program !== 'HSED') {
-  //             // console.log('Restoring saved trackable program data from localStorage');
-  //             setTimeout(() => {
-  //               const updatedClient = {
-  //                 ...selectedClient,
-  //                 trackable: {
-  //                   ...(selectedClient?.trackable || {}),
-  //                   program: parsedTrackable.program,
-  //                   items: parsedTrackable.items || [],
-  //                   createdAt: parsedTrackable.createdAt || new Date().toISOString()
-  //                 }
-  //               };
-  //               setSelectedClient(updatedClient);
-  //             }, 0);
-  //           }
-  //         }
-  //       }
-  //     } catch (e) {
-  //       console.error('Error checking localStorage for trackable data:', e);
-  //     }
-  //
-  //     // Set up listener for trackableUpdated events from ActivityDynamicSelect
-  //     const handleTrackableUpdate = (event) => {
-  //       if (event.detail && event.detail.trackable && event.detail.clientId === selectedClient._id) {
-  //         // console.log('ClientProfileProgress received trackableUpdated event:', event.detail);
-  //
-  //         // Get the trackable data from the event
-  //         const trackableData = event.detail.trackable;
-  //
-  //         // Update our hasTrackable state with the new data
-  //         if (trackableData.items && Array.isArray(trackableData.items)) {
-  //           setHasTrackable(trackableData.items);
-  //
-  //           // Initialize state arrays with the new data
-  //           initializeStateArrays(trackableData.items);
-  //         }
-  //       }
-  //     };
-  //
-  //     // Add event listener
-  //     window.addEventListener('trackableUpdated', handleTrackableUpdate);
-  //
-  //     // Remove it on cleanup
-  //     return () => {
-  //       window.removeEventListener('trackableUpdated', handleTrackableUpdate);
-  //     };
-  //   }
-  // }, [selectedClient, setSelectedClient]);
 
   // Function to safely render trackable items
   const renderTrackableItems = () => {
@@ -411,16 +220,16 @@ function ClientProfileProgress({
 
     return displayItems.map((item, index) => {
       // Skip rendering if item is invalid
-      if (!item) {
-        console.warn('Invalid item at index:', index);
-        return null;
-      }
+      // if (!item) {
+      //   console.warn('Invalid item at index:', index);
+      //   return null;
+      // }
 
       return (
         <ProgressButton
           item={item}
           index={index}
-          isDisabled={item.completed}
+          isDisabled={item?.completed}
           key={`item-${index}`} />
       );
     });

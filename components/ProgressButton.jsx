@@ -43,20 +43,20 @@ function ProgressButton({ item, index, isDisabled }) {
       className={`cursor-pointer text-nowrap ${isDisabled || saving ? 'opacity-70 cursor-not-allowed' : ''}`}
       onClick={saveItem}
     >
-      {item.completed === true ? (
+      {item?.completed === true ? (
         <span
           className={`border-success flex items-center justify-center rounded-full border pr-2`}>
               <span className={`mr-1`}>
                 <CheckCircleIcon className={`text-success h-6 w-6`} />
               </span>
-          {item.name}
+          {item?.name}
             </span>
       ) : (
         <span className={`border-base-content/40 flex items-center justify-center rounded-full border pr-2`}>
               <span className={`mr-1`}>
                 <span className={`text-base-content/40 m-[2px] block h-5 w-5 rounded-full border`} />
               </span>
-          {item.name}
+          {item?.name}
             </span>
       )}
     </button>

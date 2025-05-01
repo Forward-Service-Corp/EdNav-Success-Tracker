@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { useClient } from '@/contexts/ClientContext';
-import { useActivities } from '@/contexts/ActivityContext';
-import { generateSentence } from '@/utils/generateSentence';
+import { useClient } from '../contexts/ClientContext';
+import { useActivities } from '../contexts/ActivityContext';
+import { generateSentence } from '../utils/generateSentence';
 
 const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
   // console.log('ActivityDynamicSelect initialized with questions:', questions);

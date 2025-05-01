@@ -25,7 +25,7 @@ function ClientProfilePersonalOrganization({ isNarrow, isMedium }) {
     lastGrade: selectedClient?.lastGrade || "",
     pin: selectedClient?.pin || "",
     region: selectedClient?.region || "",
-    clientStatus: selectedClient?.clientStatus.toLowerCase() || '',
+    clientStatus: selectedClient?.clientStatus?.toString().toLowerCase() || '',
     county: selectedClient?.county || "",
     group: selectedClient?.group || "",
   });
