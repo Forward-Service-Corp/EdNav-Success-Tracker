@@ -208,7 +208,7 @@ function ClientProfileProgress({
   // Determine if the progress area should be visible based on client data
   const isProgressVisible = selectedClient?.trackable?.program === 'GED' ||
     selectedClient?.trackable?.program === 'HSED' ||
-    (typeof window !== 'undefined' && selectedClient?._id && localStorage.getItem(`trackable-${selectedClient._id}`));
+    (typeof window !== 'undefined' && selectedClient?._id && selectedClient?.trackable?.program === 'GED/HSED');
 
 
   // Function to safely render trackable items
@@ -219,11 +219,6 @@ function ClientProfileProgress({
     }
 
     return displayItems.map((item, index) => {
-      // Skip rendering if item is invalid
-      // if (!item) {
-      //   console.warn('Invalid item at index:', index);
-      //   return null;
-      // }
 
       return (
         <ProgressButton

@@ -11,10 +11,34 @@ export async function POST(request) {
   try {
     const body = await request.json(); // Correctly parse request body
     const collection = await getCollection('clients');
-
+    const activities = await getCollection('actions');
     if (clientId) {
       if (trackable) {
         const { completed, name } = body;
+        if (name === 'transcripts' || name === 'tabe' || name === 'orientation') {
+          await collection.updateOne(
+            { _id: new ObjectId(clientId) },
+            // {
+            //   $set: {
+            //     [name]: {
+            //       completed: completed,
+            //       createdAt: new Date().toISOString(),
+            //       name
+            //     }
+            //   }
+            // },
+            {
+              $set: {
+                [`trackable.items.${trackable}`]: {
+                  completed: completed,
+                  createdAt: new Date().toISOString(),
+                  name
+                }
+              }
+            });
+        }
+
+
         await collection.updateOne(
           { _id: new ObjectId(clientId) },
           {
@@ -28,6 +52,7 @@ export async function POST(request) {
           });
       }
       const { _id, ...updateData } = body;
+      const activity = await activities.insertOne({ body });
       const result = await collection.updateOne(
         { _id: new ObjectId(_id ?? clientId) },
         { $set: updateData }

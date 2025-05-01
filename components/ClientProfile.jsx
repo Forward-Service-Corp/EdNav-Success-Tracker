@@ -327,9 +327,9 @@ export default function ClientProfile({ setOpenPanel }) {
           // Also save to localStorage for persistence
           if (typeof window !== 'undefined') {
             try {
-              localStorage.setItem(`trackable-${selectedClient._id}`,
-                JSON.stringify(trackableWithTimestamp)
-              );
+              // localStorage.setItem(`trackable-${selectedClient._id}`,
+              //   JSON.stringify(trackableWithTimestamp)
+              // );
             } catch (e) {
               console.error('Failed to save trackable to localStorage', e);
             }

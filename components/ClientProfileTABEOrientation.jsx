@@ -106,6 +106,9 @@ function ClientProfileTabeOrientation({ isNarrow }) {
   return (
     <div className="relative grid grid-cols-1 gap-3 md:gap-6">
       <ClientProfileUnlockableSection section="orientation" isNarrow={isNarrow} />
+      <ClientProfileUnlockableSection section="tabe" isNarrow={isNarrow} />
+      {selectedClient && selectedClient?.trackable?.program === 'HSED' && (
+        <ClientProfileUnlockableSection section="transcripts" isNarrow={isNarrow} />)}
 
     </div>
   );

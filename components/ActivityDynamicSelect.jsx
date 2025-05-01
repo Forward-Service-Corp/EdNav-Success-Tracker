@@ -47,7 +47,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
   // Handle setting selectedPath and currentObject based on the client's group
   useEffect(() => {
     if (selectedClient?.group) {
-      const autoSelection = selectedClient.group.toLowerCase();
+      const autoSelection = selectedClient?.group.toLowerCase();
       if (questions[autoSelection]) {
         setSelectedPath([autoSelection]);
         setCurrentObject(questions[autoSelection]);
@@ -215,7 +215,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
         try {
           const trackableJson = JSON.stringify(updatedClient.trackable);
           // console.log(`Saving updated trackable to localStorage:`, trackableJson);
-          localStorage.setItem(`trackable-${selectedClient._id}`, trackableJson);
+          // localStorage.setItem(`trackable-${selectedClient._id}`, trackableJson);
 
           // Dispatch an event to notify other components of the trackable update
           const trackableEvent = new CustomEvent('trackableUpdated', {
@@ -498,9 +498,9 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
             // Also save in localStorage for persistence
             if (typeof window !== 'undefined') {
               try {
-                localStorage.setItem(`trackable-${selectedClient._id}`,
-                  JSON.stringify(updatedTrackable)
-                );
+                // localStorage.setItem(`trackable-${selectedClient._id}`,
+                //   JSON.stringify(updatedTrackable)
+                // );
               } catch (e) {
                 console.error('Failed to save trackable to localStorage', e);
               }
@@ -945,9 +945,9 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
             // Also save to localStorage for persistence
             if (typeof window !== 'undefined') {
               try {
-                localStorage.setItem(`trackable-${selectedClient._id}`,
-                  JSON.stringify(trackableData)
-                );
+                // localStorage.setItem(`trackable-${selectedClient._id}`,
+                //   JSON.stringify(trackableData)
+                // );
                 // console.log('Trackable data saved to localStorage');
               } catch (e) {
                 console.error('Failed to save trackable data to localStorage:', e);
@@ -1142,9 +1142,9 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
                   // Save to localStorage
                   if (typeof window !== 'undefined') {
                     try {
-                      localStorage.setItem(`trackable-${selectedClient._id}`,
-                        JSON.stringify(updatedTrackable)
-                      );
+                      // localStorage.setItem(`trackable-${selectedClient._id}`,
+                      //   JSON.stringify(updatedTrackable)
+                      // );
                     } catch (e) {
                       console.error('Failed to save trackable to localStorage:', e);
                     }
@@ -1191,9 +1191,9 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
                 // Save to localStorage
                 if (typeof window !== 'undefined') {
                   try {
-                    localStorage.setItem(`trackable-${selectedClient._id}`,
-                      JSON.stringify(updatedTrackable)
-                    );
+                    // localStorage.setItem(`trackable-${selectedClient._id}`,
+                    //   JSON.stringify(updatedTrackable)
+                    // );
                   } catch (e) {
                     console.error('Failed to save trackable to localStorage:', e);
                   }
@@ -1370,9 +1370,9 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
             // Save to localStorage
             if (typeof window !== 'undefined') {
               try {
-                localStorage.setItem(`trackable-${selectedClient._id}`,
-                  JSON.stringify(updatedTrackable)
-                );
+                // localStorage.setItem(`trackable-${selectedClient._id}`,
+                //   JSON.stringify(updatedTrackable)
+                // );
 
                 // Dispatch an event to notify other components of the trackable update
                 const trackableEvent = new CustomEvent('trackableUpdated', {

@@ -208,7 +208,7 @@ export default function ClientProfileDetailsForm({ isNarrow, isMedium }) {
         }
       })}
 
-      {selectedClient?.group.toLowerCase() === 'adult' && (
+      {selectedClient?.group?.toString().toLowerCase() === 'adult' && (
         <div className="form-control">
           <label htmlFor={'schoolIfEnrolled'} className="label">
             schoolIfEnrolled
@@ -232,7 +232,7 @@ export default function ClientProfileDetailsForm({ isNarrow, isMedium }) {
         </div>
       )}
 
-      {selectedClient?.group.toLowerCase() === 'youth' && (
+      {selectedClient?.group?.toString().toLowerCase() === 'youth' && (
         <div className="form-control">
           <label htmlFor={'schoolIfEnrolled'} className="label">
             schoolIfEnrolled

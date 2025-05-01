@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { CheckCircleIcon } from '@heroicons/react/20/solid';
 import { useClient } from '../contexts/ClientContext';
+import { generateSentence } from '../utils/generateSentence';
 
 function ProgressButton({ item, index, isDisabled }) {
   const [saving, setSaving] = useState(false);
@@ -8,17 +9,46 @@ function ProgressButton({ item, index, isDisabled }) {
 
   const saveItem = async () => {
     setSaving(true);
+    let statement = '';
+    try {
+      statement = generateSentence(
+        selectedClient?.navigator || 'Navigator', // Provide default of 'Navigator'
+        `${selectedClient.first_name || ''} ${selectedClient.last_name || ''}`.trim() || 'Client',
+        item?.name || null,
+        Array.isArray([selectedClient?.trackable?.program]) ? [selectedClient?.trackable?.program] : []
+      );
+    } catch (error) {
+      console.error('Error generating sentence for single-select:', error);
+      data.statement = `${selectedClient.navigator || 'Navigator'} recorded an activity for ${selectedClient.first_name || 'Client'}.`;
+    }
     try {
       const res = await fetch(`/api/clients/update?clientId=${selectedClient?._id}&trackable=${index}`, {
         method: 'POST',
         body: JSON.stringify({
           completed: true,
-          name: item.name
+          name: item?.name,
+          type: 'activity',
+          clientEmail: selectedClient?.email || '',
+          navigator: selectedClient?.navigator || 'Unknown',
+          timestamp: new Date().toISOString(),
+          createdAt: new Date().toISOString(),
+
+          // Activity-specific data
+          selection: item.name || '',
+          path: [selectedClient?.trackable?.program],
+          statement: statement || '',
+
+          // Selected date (ensure it's a string)
+          selectedDate: new Date().toISOString(),
+
+          // Additional data
+          fep: selectedClient?.fep || ''
         }),
         headers: {
           'Content-Type': 'application/json'
         }
       })
+
       if (!res.ok) {
         const text = await res.text(); // handle non-JSON error responses
         throw new Error(`Server error ${res.status}: ${text}`);
