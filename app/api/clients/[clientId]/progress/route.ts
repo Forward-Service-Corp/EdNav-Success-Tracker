@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCollection } from '@/lib/mongodb';
-import { safeObjectId } from '@/lib/activities/utils';
+import { ObjectId } from 'mongodb';
 
 export async function POST(
   request: NextRequest,
-  context: { params: { clientId: string } }
+  { params }: { params: Record<string, string | string[]> }
 ) {
-  const { clientId } = await context.params;
+  const clientId = Array.isArray(params.clientId) ? params.clientId[0] : params.clientId;
+
   const { completedItems } = await request.json();
 
   if (!Array.isArray(completedItems)) {
@@ -21,13 +22,12 @@ export async function POST(
     });
 
     await clients.updateOne(
-      // @ts-ignore
-      { _id: safeObjectId(clientId) },
+      { _id: new ObjectId(clientId) },
       {
         $set: {
           ...updates,
           lastActivity: new Date().toISOString()
-        }
+        },
       }
     );
 
