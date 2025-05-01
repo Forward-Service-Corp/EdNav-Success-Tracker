@@ -1,6 +1,8 @@
 // /components/blocks/molecules/ClientTableBody.tsx
 
 import ClientRow from '@/stories/blocks/molecules/ClientRow';
+import React, { useState } from 'react';
+import { useFepsLeft } from '@/contexts/FepsLeftContext';
 
 type ClientTableBodyProps = {
   clients: any[]; // Replace it with your proper client type
@@ -13,16 +15,99 @@ export default function ClientTableBody({
                                           selectedClientId,
                                           setOpenPanel
                                         }: ClientTableBodyProps) {
+  const { selectedFepLeft } = useFepsLeft();
+  const { grouped, pinned } = selectedFepLeft;
+
+  function groupByClientStatus(clients: any[]) {
+    return clients.reduce((groups, client) => {
+      const status = client.clientStatus || 'Unknown';
+      if (!groups[status]) groups[status] = [];
+      groups[status].push(client);
+      return groups;
+    }, {});
+  }
+
+  function sortPinnedFirst(clients: any) {
+    return [...clients].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
+  }
+
+  function groupAndSortClients(clients: any[]) {
+    const grouped = groupByClientStatus(clients);
+    for (const status in grouped) {
+      grouped[status] = sortPinnedFirst(grouped[status]);
+    }
+    return grouped;
+  }
+
+  const groupedClients = grouped ? groupAndSortClients(clients) : {};
+  const sortedClients = !grouped
+    ? pinned
+      ? sortPinnedFirst(clients)
+      : clients
+    : [];
+
+  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
+
+  function toggleGroup(status: string) {
+    setExpandedGroups(prev => ({ ...prev, [status]: !prev[status] }));
+  }
+
+  if (!clients) {
+    return (
+      <div className="h-full w-full flex flex-col items-center justify-center">
+        <div className="text-center">
+          <div className="loading loading-spinner loading-lg"></div>
+          <p className="text-base-content mt-4">Loading clients...</p>
+        </div>
+      </div>
+    );
+  }
+
+
+
   return (
-    <tbody className=" h-full min-h-[600px] min-w-full ">
-    {clients && clients?.map((person, i) => (
-      <ClientRow
-        key={i}
-        person={person}
-        selected={selectedClientId === person._id}
-        setOpenPanel={setOpenPanel}
-      />
-    ))}
+    <tbody className="h-full min-h-[600px] min-w-full">
+    {grouped
+      ? Object.entries(groupedClients).map(([status, clients]) => (
+        <React.Fragment key={status}>
+          <tr className="bg-base-200 cursor-pointer" onClick={() => toggleGroup(status)}>
+            <td colSpan={3} className="font-bold py-2">
+              {status}
+              <button
+                type="button"
+                className="ml-2 text-sm text-blue-500 underline"
+                tabIndex={-1}
+                onClick={e => {
+                  e.stopPropagation();
+                  toggleGroup(status);
+                }}
+              >
+                {expandedGroups[status] ? 'Hide' : 'Show'}
+              </button>
+            </td>
+          </tr>
+          {expandedGroups[status] &&
+            // @ts-ignore
+            clients.map(client => (
+              <ClientRow
+                key={client._id}
+                person={client}
+                selected={selectedClientId === client._id}
+                setOpenPanel={setOpenPanel}
+              />
+            ))}
+        </React.Fragment>
+      ))
+      : sortedClients.map(client => (
+        <ClientRow
+          key={client._id}
+          person={client}
+          selected={selectedClientId === client._id}
+          setOpenPanel={setOpenPanel}
+        />
+      ))}
     </tbody>
   );
+
+
 }

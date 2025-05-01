@@ -88,14 +88,6 @@ export default function ClientTable({
     }
   };
 
-  // const handleCollapseChange = (status) => {
-  //   setStatusCollapse((prevState) => {
-  //     if (prevState.includes(status)) {
-  //       return prevState.filter((item) => item !== status);
-  //     }
-  //     return [...prevState, status];
-  //   });
-  // };
 
   const filteredClients = useMemo(() => {
     // console.log(clientList);
@@ -128,21 +120,26 @@ export default function ClientTable({
       });
   }, [clientList, selectedNavigator, selectedFepLeft]);
 
-  const groupByClientStatus = (clients) => {
-    return clients
-      .filter((client) => {
-        if (selectedNavigator && selectedNavigator.name !== "All")
-          return client?.navigator === selectedNavigator?.name;
-        return client;
-      })
-      .sort((a, b) => (a.clientStatus > b.clientStatus ? 1 : -1))
-      .reduce((groups, client) => {
-        const status = client.clientStatus || "Unknown";
-        if (!groups[status]) groups[status] = [];
-        groups[status].push(client);
-        return groups;
-      }, {});
-  };
+  function groupByClientStatus(clients) {
+    return clients.reduce((groups, client) => {
+      const status = client.clientStatus || 'Unknown';
+      if (!groups[status]) groups[status] = [];
+      groups[status].push(client);
+      return groups;
+    }, {});
+  }
+
+  function sortPinnedFirst(clients) {
+    return [...clients].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
+  }
+
+  function groupAndSortClients(clients) {
+    const grouped = groupByClientStatus(clients);
+    for (const status in grouped) {
+      grouped[status] = sortPinnedFirst(grouped[status]);
+    }
+    return grouped;
+  }
 
   const pinnedIds = selectedNavigator?.pinned || [];
 

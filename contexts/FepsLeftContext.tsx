@@ -4,6 +4,10 @@ type FEP = {
   searchTerm: string;
   age: string;
   status: string;
+  grouped: boolean;
+  pinned: boolean;
+  sortAlpha: boolean;
+  sortDate: boolean;
   menuOpen: boolean | null;
 };
 
@@ -21,6 +25,10 @@ export const FepsLeftProvider = ({ children }: { children: ReactNode }) => {
     searchTerm: "",
     age: "All",
     status: "All",
+    grouped: false,
+    pinned: false,
+    sortAlpha: false,
+    sortDate: false,
     menuOpen: null,
   });
 
@@ -30,6 +38,10 @@ export const FepsLeftProvider = ({ children }: { children: ReactNode }) => {
       searchTerm: '',
       age: 'All',
       status: 'All',
+      grouped: false,
+      pinned: false,
+      sortAlpha: false,
+      sortDate: false,
       menuOpen: null
     });
   }, []);

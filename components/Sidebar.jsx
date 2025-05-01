@@ -6,6 +6,7 @@ import ThemeSwitcher from './ThemeSwitcher';
 import NavigatorSelector from './NavigatorSelector';
 import Button from './Button';
 import { useLayout } from '../contexts/LayoutContext';
+import { ClientViewToggles } from './ClientViewToggles';
 
 function Sidebar({ setOpenPanel }) {
   const {
@@ -57,7 +58,7 @@ function Sidebar({ setOpenPanel }) {
         <div className="divider mt-8">Status Filters</div>
         <FilterSelectRadios />
       </div>
-
+      <ClientViewToggles />
       <div
         className=" flex flex-col mt-8 items-center border-t border-base-content/10 gap-6 py-6">
         <ThemeSwitcher />
