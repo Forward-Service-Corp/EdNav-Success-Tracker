@@ -66,39 +66,39 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
     let isProgramSavedInDatabase = false;
 
     // If no program found in client data, check localStorage
-    if (typeof window !== 'undefined' && selectedClient?._id) {
-      try {
-        const savedTrackable = localStorage.getItem(`trackable-${selectedClient._id}`);
-        if (savedTrackable) {
-          const parsedTrackable = JSON.parse(savedTrackable);
-          if (parsedTrackable && parsedTrackable.program) {
-            program = parsedTrackable.program;
-
-            // Check if this program has been saved to a database by looking at the items
-            if (Array.isArray(parsedTrackable.items) && parsedTrackable.items.length > 0) {
-              // If any item is completed and saved in a database, we consider the program permanent
-              isProgramSavedInDatabase = parsedTrackable.items.some(item =>
-                item && item.completed === true && item.savedInDatabase === true
-              );
-
-              // Also check the timestamp - if it's older than 5 minutes, consider it permanent
-              if (parsedTrackable.createdAt) {
-                const creationTime = new Date(parsedTrackable.createdAt);
-                const currentTime = new Date();
-                const timeDiff = (currentTime - creationTime) / 1000; // in seconds
-
-                // If it's been more than 5 minutes since selection, consider it permanent
-                if (timeDiff > 300) { // 5 minutes
-                  isProgramSavedInDatabase = true;
-                }
-              }
-            }
-          }
-        }
-      } catch (e) {
-        console.error('Error checking localStorage for program:', e);
-      }
-    }
+    // if (typeof window !== 'undefined' && selectedClient?._id) {
+    //   try {
+    //     const savedTrackable = localStorage.getItem(`trackable-${selectedClient._id}`);
+    //     if (savedTrackable) {
+    //       const parsedTrackable = JSON.parse(savedTrackable);
+    //       if (parsedTrackable && parsedTrackable.program) {
+    //         program = parsedTrackable.program;
+    //
+    //         // Check if this program has been saved to a database by looking at the items
+    //         if (Array.isArray(parsedTrackable.items) && parsedTrackable.items.length > 0) {
+    //           // If any item is completed and saved in a database, we consider the program permanent
+    //           isProgramSavedInDatabase = parsedTrackable.items.some(item =>
+    //             item && item.completed === true && item.savedInDatabase === true
+    //           );
+    //
+    //           // Also check the timestamp - if it's older than 5 minutes, consider it permanent
+    //           if (parsedTrackable.createdAt) {
+    //             const creationTime = new Date(parsedTrackable.createdAt);
+    //             const currentTime = new Date();
+    //             const timeDiff = (currentTime - creationTime) / 1000; // in seconds
+    //
+    //             // If it's been more than 5 minutes since selection, consider it permanent
+    //             if (timeDiff > 300) { // 5 minutes
+    //               isProgramSavedInDatabase = true;
+    //             }
+    //           }
+    //         }
+    //       }
+    //     }
+    //   } catch (e) {
+    //     console.error('Error checking localStorage for program:', e);
+    //   }
+    // }
 
     // Only filter out options from educational activities
     let filteredOptions = [...options];
@@ -213,7 +213,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
       // Save the updated trackable data to localStorage for persistence
       if (typeof window !== 'undefined') {
         try {
-          const trackableJson = JSON.stringify(updatedClient.trackable);
+          // const trackableJson = JSON.stringify(updatedClient.trackable);
           // console.log(`Saving updated trackable to localStorage:`, trackableJson);
           // localStorage.setItem(`trackable-${selectedClient._id}`, trackableJson);
 
@@ -239,7 +239,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
     // Find the section in the DOM and remove the blur
     if (typeof window !== 'undefined') {
       setTimeout(() => {
-        // console.log(`Looking for DOM element with id: ${normalizedSectionName}`);
+        // console.log(`Looking for a DOM element with id: ${normalizedSectionName}`);
         const section = document.getElementById(normalizedSectionName);
         if (section) {
           // Find the message overlay and hide it
@@ -807,7 +807,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
 
         // Call onSuccess with the result
         if (typeof onSuccess === 'function') {
-          // console.log('Calling onSuccess with result');
+          // console.log('Calling onSuccess with a result');
           onSuccess(result);
         }
 
@@ -1100,7 +1100,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
       trackable.items[index]?.savedInDatabase === true;
 
     if (isAlreadySavedInDatabase) {
-      // console.log(`Item ${option} is already saved in database, cannot change`);
+      // console.log(`Item ${option} is already saved in a database, cannot change`);
       return; // Don't allow changes to items saved in a database
     }
     
@@ -1265,59 +1265,59 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
 
       try {
         // Make sure we're sending it true to indicate this is a multi-select submission
-        // console.log('Starting save operation for multi-select with path:', selectedPath);
+        // console.log('Starting save operation for multi-select with a path:', selectedPath);
 
         // First, create the optimistic update - this ensures it shows in the UI immediately
-        const optimisticResult = {
-          clientEmail: selectedClient.email || '',
-          clientId: selectedClient._id, // Explicitly set the client ID
-          fep: selectedClient.fep || '',
-          navigator: selectedClient.navigator || 'Navigator',
-          path: selectedPath,
-          statement: generateSentence(
-            selectedClient.navigator || 'Navigator',
-            `${selectedClient.first_name || ''} ${selectedClient.last_name || ''}`.trim() || 'Client',
-            multiSelectValues,
-            selectedPath
-          ) || `${selectedClient.navigator || 'Navigator'} recorded activities for ${selectedClient.first_name || 'Client'}: ${multiSelectValues.join(', ')}`,
-          selections: multiSelectValues,
-          trackable: trackable,
-          createdAt: new Date().toISOString(),
-          _id: `temp-${Date.now()}`,
-          type: 'activity',
-          isOptimistic: true, // Flag as optimistic update
-          isPermaPersistent: true, // Make it persistent
-          preventDuplicates: `${selectedClient._id}-${Date.now()}` // Unique identifier to prevent duplicates
-        };
+        // const optimisticResult = {
+        //   clientEmail: selectedClient.email || '',
+        //   clientId: selectedClient._id, // Explicitly set the client ID
+        //   fep: selectedClient.fep || '',
+        //   navigator: selectedClient.navigator || 'Navigator',
+        //   path: selectedPath,
+        //   statement: generateSentence(
+        //     selectedClient.navigator || 'Navigator',
+        //     `${selectedClient.first_name || ''} ${selectedClient.last_name || ''}`.trim() || 'Client',
+        //     multiSelectValues,
+        //     selectedPath
+        //   ) || `${selectedClient.navigator || 'Navigator'} recorded activities for ${selectedClient.first_name || 'Client'}: ${multiSelectValues.join(', ')}`,
+        //   selections: multiSelectValues,
+        //   trackable: trackable,
+        //   createdAt: new Date().toISOString(),
+        //   _id: `temp-${Date.now()}`,
+        //   type: 'activity',
+        //   isOptimistic: true, // Flag as optimistic update
+        //   isPermaPersistent: true, // Make it persistent
+        //   preventDuplicates: `${selectedClient._id}-${Date.now()}` // Unique identifier to prevent duplicates
+        // };
 
         // Track if we've already added this activity to prevent duplicates
-        let activityAdded;
+        // let activityAdded;
 
         // Add the optimistic update to the UI immediately
-        if (typeof window !== 'undefined') {
-          try {
-            // Try the direct addItemToFeed approach first
-            if (window.addItemToFeed && !activityAdded) {
-              // console.log('Adding optimistic activity to feed via addItemToFeed');
-              window.addItemToFeed(optimisticResult);
-              activityAdded = true;
-            }
-            // Only try alternative methods if the activity hasn't been added yet
-            else if (window.addActivityToFeed && !activityAdded) {
-              // console.log('Adding optimistic activity via addActivityToFeed');
-              window.addActivityToFeed(optimisticResult);
-              activityAdded = true;
-            } else if (window.addActivitySimplified && !activityAdded) {
-              // console.log('Adding optimistic activity via addActivitySimplified');
-              window.addActivitySimplified(optimisticResult);
-              activityAdded = true;
-            } else if (!activityAdded) {
-              console.error('No activity display method available!');
-            }
-          } catch (e) {
-            console.error('Error adding activity to feed:', e);
-          }
-        }
+        // if (typeof window !== 'undefined') {
+        //   try {
+        //     // Try the direct addItemToFeed approach first
+        //     if (window.addItemToFeed && !activityAdded) {
+        //       // console.log('Adding optimistic activity to feed via addItemToFeed');
+        //       window.addItemToFeed(optimisticResult);
+        //       activityAdded = true;
+        //     }
+        //     // Only try alternative methods if the activity hasn't been added yet
+        //     else if (window.addActivityToFeed && !activityAdded) {
+        //       // console.log('Adding optimistic activity via addActivityToFeed');
+        //       window.addActivityToFeed(optimisticResult);
+        //       activityAdded = true;
+        //     } else if (window.addActivitySimplified && !activityAdded) {
+        //       // console.log('Adding optimistic activity via addActivitySimplified');
+        //       window.addActivitySimplified(optimisticResult);
+        //       activityAdded = true;
+        //     } else if (!activityAdded) {
+        //       console.error('No activity display method available!');
+        //     }
+        //   } catch (e) {
+        //     console.error('Error adding activity to feed:', e);
+        //   }
+        // }
 
         // Now wait for the actual server response
         const result = await saveSelectionToMongoDB(selectedPath, true);
@@ -1583,7 +1583,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
               // Check if this item is already completed in any source
               const isCompleted = completedItems.includes(option);
 
-              // Check if the item is specifically saved in database and can't be changed
+              // Check if the item is specifically saved in a database and can't be changed
               // First check trackable state
               let isSavedInDatabase = false;
               if (trackable && Array.isArray(trackable.items) && index < trackable.items.length) {
@@ -1620,7 +1620,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
                     name={selectedPath[selectedPath.length - 1] || 'firstOption'}
                     checked={Array.isArray(multiSelectValues) && multiSelectValues.includes(option) || isCompleted}
                     onChange={() => handleMultiSelectChange(option, index)}
-                    disabled={isSavedInDatabase} // Only disable items saved in database
+                    disabled={isSavedInDatabase} // Only disable items saved in a database
                     className={isSavedInDatabase ? 'opacity-50' : ''}
                   />
                   <span>{option}</span>

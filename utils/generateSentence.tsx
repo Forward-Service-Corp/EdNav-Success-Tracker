@@ -15,7 +15,7 @@ export function generateSentence(navigator: string, client: string, selections: 
 function handleAdult(navigator: string, client: string, selections: string[], path: string[]) {
 
   if (!path.length) {
-    // Make default message more descriptive
+    // Make a default message more descriptive
     if (selections && selections.length > 0) {
       const readable = formatList(selections);
       return `${navigator} recorded activities for ${client}: ${readable}.`;
@@ -158,7 +158,7 @@ function handleAdult(navigator: string, client: string, selections: string[], pa
 function handleYouth(navigator: string, client: string, selections: string[], path: string[]): string {
 
   if (!path.length) {
-    // Make default message more descriptive
+    // Make a default message more descriptive
     if (selections && selections.length > 0) {
       const readable = formatList(selections);
       return `${navigator} recorded activities for ${client}: ${readable}.`;
