@@ -26,7 +26,10 @@ const meta: Meta<typeof ClientRow> = {
       clientStatus: 'in progress',
       county: 'string',
       navigator: 'string',
-      group: 'string'
+      group: 'string',
+      fep: 'string',
+      contactNumber: 'string',
+      email: 'string'
     }
   },
   argTypes: {
