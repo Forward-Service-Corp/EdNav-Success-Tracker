@@ -52,7 +52,7 @@ export const NavigatorContext = createContext<NavigatorContextType>({
   error: null
 });
 
-export let NavigatorProvider: ({ children }: { children: React.ReactNode }) => JSX.Element = ({ children }) => {
+export let NavigatorProvider: ({ children }: { children: React.ReactNode }) => React.ReactElement = ({ children }) => {
   const [selectedNavigator, setSelectedNavigator] = useState<Navigator | null>(null);
   const [navigatorList, setNavigatorList] = useState<Navigator[]>([]);
   const [loading, setLoading] = useState(true);
@@ -84,7 +84,6 @@ export let NavigatorProvider: ({ children }: { children: React.ReactNode }) => J
       const matchingNavigator = navigatorList.find(
         nav => nav.name.toLowerCase().trim() === userName.toLowerCase().trim()
       );
-      console.log(matchingNavigator);
       if (matchingNavigator) {
         // @ts-ignore
         setSelectedNavigator(matchingNavigator.name);
