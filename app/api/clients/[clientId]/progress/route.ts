@@ -2,11 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getCollection } from '@/lib/mongodb';
 import { safeObjectId } from '@/lib/activities/utils';
 
-export async function POST(
-  request: NextRequest,
-  context: { params: { clientId: string } }
-): Promise<NextResponse> {
-  const clientId = context.params.clientId;
+export async function POST(request: NextRequest, response
+: NextResponse, context: any) {
+  const clientId = await context.params.get('clientId') || '';
   const { completedItems } = await request.json();
 
   if (!Array.isArray(completedItems)) {
