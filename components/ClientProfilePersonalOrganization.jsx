@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useClient } from '../contexts/ClientContext';
-import ClientProfileDetailsInput from '../components/ClientProfileDetailsInput';
 import Button from './Button';
 import ClientProfilePin from './ClientProfilePin';
+import ClientProfileDetailsForm from './ClientProfileDetailsForm';
 
 function ClientProfilePersonalOrganization({ isNarrow, isMedium }) {
   const { selectedClient } = useClient();
@@ -52,11 +52,6 @@ function ClientProfilePersonalOrganization({ isNarrow, isMedium }) {
     setError("");
     setSuccessMessage("");
   }, [selectedClient]);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setChange({ ...change, [name]: value });
-  };
 
   const fetchFeps = async () => {
     let feps = [];
@@ -120,34 +115,20 @@ function ClientProfilePersonalOrganization({ isNarrow, isMedium }) {
 
       {/* Scrollable Content */}
       <div
-        className={`bg-base-200 rounded flex-1 p-6 transition-all duration-700 ${detailsOpen ? 'h-[80px] overflow-hidden' : 'h-[80px] overflow-hidden'}`}>
-        <div className={`grid ${getGridClasses()}`}>
-          {error && (
-            <div className="bg-error/20 text-error col-span-full mb-4 rounded px-4 py-2">
-              {error}
-            </div>
-          )}
+        className={`bg-base-200 rounded flex-1 p-6 transition-all duration-700 ${detailsOpen ? 'p-6 transition-all duration-700' : ' transition-all duration-700'}`}>
+        {error && (
+          <div className="bg-error/20 text-error col-span-full mb-4 rounded px-4 py-2">
+            {error}
+          </div>
+        )}
 
-          {successMessage && (
-            <div className="bg-success/20 text-success col-span-full mb-4 rounded px-4 py-2">
-              {successMessage}
-            </div>
-          )}
+        {successMessage && (
+          <div className="bg-success/20 text-success col-span-full mb-4 rounded px-4 py-2">
+            {successMessage}
+          </div>
+        )}
 
-          {selectedClient &&
-            selectedClient._id &&
-            Object.keys(change).map((field, index) => (
-              <ClientProfileDetailsInput
-                field={field}
-                change={change}
-                setChange={setChange}
-                onChange={handleChange}
-                feps={feps}
-                key={index}
-                isNarrow={isNarrow}
-              />
-            ))}
-        </div>
+        <ClientProfileDetailsForm />
       </div>
     </div>
   );
