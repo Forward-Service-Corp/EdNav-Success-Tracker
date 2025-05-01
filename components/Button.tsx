@@ -7,9 +7,9 @@ function Button({ use, label, onClick, customStyle }: {
   customStyle?: string
 }) {
   const useMap = {
-    'primary': 'btn-success btn-soft',
-    'secondary': 'btn-info btn-outline',
-    'accent': 'btn-warning btn-ghost',
+    'primary': 'btn-primary btn-soft',
+    'secondary': 'btn-secondary btn-outline',
+    'accent': 'btn-accent btn-ghost',
     'destructive': 'btn-error btn-destructive'
   };
   return (
