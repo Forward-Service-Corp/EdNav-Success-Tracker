@@ -4,10 +4,15 @@ import { useEditing } from '@/contexts/EditingContext';
 import { Dispatch, SetStateAction } from 'react';
 import ClientNameBlock from '../atoms/ClientNameBlock';
 import Badge from '../../../components/Badge';
+import { useNavigator } from '@/contexts/NavigatorsContext';
+import { useLayout } from '@/contexts/LayoutContext';
 
 type Edit = 'client' | null;
 type ClientRowProps = {
   person: {
+    fep: string;
+    contactNumber: string;
+    email: string;
     _id: string;
     first_name: string;
     last_name: string;
@@ -27,8 +32,17 @@ export default function ClientRow({
                                     setOpenPanel
                                   }: ClientRowProps) {
   const { setSelectedClient } = useClient();
+  const { selectedNavigator } = useNavigator();
+  const { currentLayout } = useLayout();
   const { setEditing } = useEditing() as {
     setEditing: Dispatch<SetStateAction<Edit>>;
+  };
+
+  const setVisibility = (val: number) => {
+    if (currentLayout.table <= val) {
+      return 'hidden';
+    }
+    return 'visible';
   };
 
   const handleClick = () => {
@@ -50,23 +64,20 @@ export default function ClientRow({
       onClick={handleClick}
     >
       <td>
-        <div className="sticky top-80 z-20 flex items-center gap-3 min-w-full w-full">
-          <ClientNameBlock
-            firstName={person?.first_name || 'John'}
-            lastName={person?.last_name || 'Doe'}
-            latestInteraction={person?.latestInteraction || '2021-01-01'}
-          />
-        </div>
+        <ClientNameBlock
+          firstName={person?.first_name || 'John'}
+          lastName={person?.last_name || 'Doe'}
+          latestInteraction={person?.latestInteraction || '2021-01-01'}
+        />
       </td>
-      <td>Email</td>
-      <td>Email</td>
-      <td>Phone</td>
+      <td className={`${setVisibility(0)}`}><span className={`truncate w-1/2`}>{person?.email}</span></td>
+      <td className={`${setVisibility(50)} whitespace-nowrap`}>{person?.contactNumber}</td>
+      <td className={`${setVisibility(50)} whitespace-nowrap`}>{person?.county || ''}</td>
       <td>
         <Badge use={person?.clientStatus?.toLowerCase() as 'active' | 'in progress' | 'graduated' | 'inactive'} />
       </td>
-      <td>FEP</td>
-      <td>{person?.county || 'Dane'}</td>
-      <td>Progress</td>
+      <td className={`${setVisibility(50)} whitespace-nowrap`}>{person?.fep || ''}</td>
+      <td>{selectedNavigator ? (selectedNavigator['pinned']?.includes(person._id) ? 'Pinned' : person?.navigator) : person?.navigator || ''}</td>
     </tr>
   );
 }

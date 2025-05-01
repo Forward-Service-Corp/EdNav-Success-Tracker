@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from 'react';
-import { useLayout } from '@/contexts/LayoutContext';
+import { useLayout } from '../contexts/LayoutContext';
 
 export default function LayoutControls() {
   const {

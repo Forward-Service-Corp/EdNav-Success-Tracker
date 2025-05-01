@@ -9,7 +9,6 @@ function ClientProfilePersonalOrganization({ isNarrow, isMedium }) {
   const [error, setError] = useState("");
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [, setFeps] = useState([]);
   const scrollRef = useRef(null);
 
   const [successMessage, setSuccessMessage] = useState("");
@@ -52,20 +51,6 @@ function ClientProfilePersonalOrganization({ isNarrow, isMedium }) {
     setError("");
     setSuccessMessage("");
   }, [selectedClient]);
-
-  const fetchFeps = async () => {
-    let feps = [];
-    const response = await fetch(`/api/feps`);
-    const data = await response.json();
-    await data.forEach((fep) => {
-      feps.push(fep.name);
-    });
-    setFeps(feps);
-  };
-
-  useEffect(() => {
-    fetchFeps().then();
-  }, []);
 
   // 🧠 New: Scroll detection
   useEffect(() => {

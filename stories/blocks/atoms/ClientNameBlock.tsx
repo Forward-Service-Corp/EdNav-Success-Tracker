@@ -15,10 +15,10 @@ const ClientNameBlock: React.FC<ClientNameBlockProps> = ({
                                                          }) => {
   return (
     <div>
-      <div className="font-medium">
+      <div className="font-medium whitespace-nowrap">
         {firstName || 'John'} {lastName || 'Doe'}
       </div>
-      <div className={`invisible max-lg:visible text-xs text-base-content/20`}>{latestInteraction || '2025-02-21'}</div>
+      <div className={`invisible lg:visible text-xs text-base-content/30`}>{latestInteraction || '2025-02-21'}</div>
     </div>
   );
 };
