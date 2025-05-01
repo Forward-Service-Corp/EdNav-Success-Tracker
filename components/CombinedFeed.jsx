@@ -131,7 +131,7 @@ export default function CombinedFeed() {
           try {
             // Store this activity in localStorage for maximum persistence
             const key = `permanentActivities-${selectedClient._id}`;
-            const storedActivities = JSON.parse(localStorage.getItem(key) || '[]');
+            // const storedActivities = JSON.parse(localStorage.getItem(key) || '[]');
 
             // Check if activity already exists in storage
             // const existsInStorage = storedActivities.some(a =>
