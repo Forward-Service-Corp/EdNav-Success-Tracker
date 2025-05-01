@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 
-
 function calculateCompletionPercentage(items) {
   if (!Array.isArray(items) || items.length === 0) return 0;
 
@@ -83,14 +82,6 @@ function ClientProfileProgress({ selectedClient, hasTrackable, isNarrow }) {
                 <span className="font-medium">Note:</span> Items saved to the database cannot be unchecked.
               </p>
             </div>
-
-            {/*<div*/}
-            {/*  onClick={handleTrackableUpdate}*/}
-            {/*  className={`${updated || recentlySelectedProgram || newSelections.length > 0? 'btn btn-sm btn-secondary': 'hidden' }`}*/}
-            {/*  data-testId="save-progress-button"*/}
-            {/*>*/}
-            {/*  {isUpdating ? 'Saving...' : 'Save Progress'}*/}
-            {/*</div>*/}
           </div>
           <div className="card-actions justify-end">
             <progress
