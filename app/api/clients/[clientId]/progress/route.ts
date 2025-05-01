@@ -3,7 +3,8 @@ import { getCollection } from '@/lib/mongodb';
 import { safeObjectId } from '@/lib/activities/utils';
 
 export async function POST(
-  { request, context }: { request: NextRequest, context: { params: { clientId: string } } }
+  request: NextRequest,
+  context: { params: { clientId: string } }
 ): Promise<NextResponse> {
   const clientId = context.params.clientId;
   const { completedItems } = await request.json();
