@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { Check } from 'lucide-react';
 import { useClient } from '../contexts/ClientContext';
 import { useClientList } from '../contexts/ClientListContext';
-import { adultSchools, navigators, wisconsinCounties, youthSchools } from '../lib/schools';
+import { adultSchools, navigators, wisconsinCounties, youthSchools } from '../public/data/schools';
 
 export default function ClientProfileDetailsForm({ isNarrow, isMedium }) {
   const { selectedClient, setSelectedClient } = useClient();

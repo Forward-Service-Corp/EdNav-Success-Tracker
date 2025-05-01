@@ -12,7 +12,7 @@ function ClientProfileUnlockableSection({ isNarrow, section }) {
   }
 
   return (
-    <div id="orientation" className={`relative`}>
+    <div id={section} className={`relative`}>
       <div
         className={`absolute top-0 right-0 bottom-0 left-0 flex items-center justify-center ${selectedClient[section] ? 'invisible' : 'visible'}`}
       >

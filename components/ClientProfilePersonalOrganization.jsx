@@ -44,7 +44,7 @@ function ClientProfilePersonalOrganization({ isNarrow, isMedium }) {
       lastGrade: selectedClient?.lastGrade || "",
       pin: selectedClient?.pin || "",
       region: selectedClient?.region || "",
-      clientStatus: selectedClient?.clientStatus.toLowerCase() || '',
+      clientStatus: selectedClient?.clientStatus?.toLowerCase() || '',
       county: selectedClient?.county || "",
       ttsDream: selectedClient?.ttsDream || "",
     });

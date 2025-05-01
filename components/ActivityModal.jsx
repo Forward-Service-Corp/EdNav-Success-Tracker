@@ -16,25 +16,16 @@ export default function ActivityModal({ open, setOpen, onSuccess }) {
     if (open === 'activity') {
       // Verify we have a selected client
       if (!selectedClient) {
-        console.warn('Cannot open activity modal: No client selected');
-        if (typeof window !== 'undefined' && typeof window.showNotification === 'function') {
-          window.showNotification({
-            title: 'No Client Selected',
-            message: 'Please select a client before adding an activity.',
-            type: 'warning',
-            duration: 3000
-          });
-        } else if (window.alert) {
-          window.alert('Please select a client before adding an activity.');
-        }
-
-        // Close the modal immediately
-        if (typeof setOpen === 'function') {
-          setOpen('');
-        }
-        return;
+        const timeout = setTimeout(() => {
+          if (!selectedClient) {
+            console.warn('Still no client selected. Closing modal.');
+            if (typeof setOpen === 'function') {
+              setOpen('');
+            }
+          }
+        }, 200);
+        return () => clearTimeout(timeout);
       }
-      
       setIsVisible(true);
       // Add a body class to prevent scrolling
       document.body.classList.add('modal-open');
@@ -63,16 +54,9 @@ export default function ActivityModal({ open, setOpen, onSuccess }) {
     return cleanedQuestions;
   };
 
-  // Add activity directly to the feed (for optimistic updates)
-  const addActivitySimplified = () => {
-    // placeholder for optimistic updates
-    // console.log('addActivitySimplified called');
-  };
-
   useEffect(() => {
     // console.log('ActivityModal mounted');
     getQuestions().then();
-    window.addActivitySimplified = addActivitySimplified;
 
     return () => {
       // console.log('ActivityModal unmounted');
@@ -90,50 +74,24 @@ export default function ActivityModal({ open, setOpen, onSuccess }) {
     }
 
     try {
-      // First check if simplified approach is available
-      if (typeof window !== 'undefined' && window.addActivitySimplified) {
-        // console.log('Using simplified activity approach with optimistic updates');
+      // Extract the activity data from the result
+      const activityData = result.activity || result.data || result;
 
-        // Extract the activity data from the result
-        const activityData = result.activity || result.data || result;
-
-        // Add directly via API with optimistic update built in
-        window.addActivitySimplified(activityData);
-        // console.log(window.addActivitySimplified(activityData));
+      if (['GED', 'HSED', 'GED/HSED'].includes(activityData?.selection)) {
+        document.body.classList.add('progress-onboarding');
+        // Optional: set a flag in localStorage or state to show onboarding dialog
       }
-      // Fall back to the original approach if simplified is not available
-      else if (typeof window !== 'undefined' && window.addActivityToFeed) {
-        // console.log('Using original activity approach as fallback');
 
-        // Extract the activity data from the result
-        const activityData = result.activity || result.data || result;
-
-        // Skip meaningless activities
+      if (!activityData.selection || !['GED', 'HSED', 'GED/HSED'].includes(activityData.selection)) {
         if (!activityData.statement && !activityData.description &&
           !activityData.details && !activityData.category) {
-          // console.log('Skipping activity with no meaningful content');
           setOpen('');
           return;
         }
+      }
 
-        // Create an optimistic update with our simplified approach if available
-        if (typeof window !== 'undefined' && window.optimisticallyAddActivity) {
-          const optimisticActivity = {
-            ...activityData,
-            _id: `modal-opt-${Date.now()}`,
-            type: 'activity',
-            date: new Date(activityData.timestamp || activityData.createdAt || Date.now()),
-            statement: activityData.statement || 'Activity recorded',
-            navigator: activityData.navigator || 'System',
-            isOptimistic: true
-          };
-
-          window.optimisticallyAddActivity(optimisticActivity);
-        }
-        // Otherwise use the original approach
-        else {
-          window.addActivityToFeed(activityData);
-        }
+      if (typeof window !== 'undefined' && window.addActivityToFeed) {
+        window.addActivityToFeed(activityData);
       } else {
         console.warn('No activity management method available');
       }

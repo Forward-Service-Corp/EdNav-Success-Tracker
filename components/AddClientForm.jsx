@@ -2,7 +2,7 @@
 
 "use client";
 import React, { useEffect, useState } from 'react';
-import { adultSchools, youthSchools } from '/lib/schools';
+import { adultSchools, youthSchools } from '/public/data/schools';
 import { useClient } from '../contexts/ClientContext';
 import InputVariants from '../components/InputVariants';
 import { useEditing } from '../contexts/EditingContext';

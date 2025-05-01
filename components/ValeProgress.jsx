@@ -8,7 +8,7 @@ export default function ProgressTracker({ clientId, initialProgress, clientType,
   useEffect(() => {
     // Initialize progress state from database
     const progressMap = {};
-    initialProgress.forEach(item => {
+    initialProgress?.forEach(item => {
       progressMap[item.name] = item.completed; // Assume each item has { name, completed }
     });
     setLocalProgress(progressMap);

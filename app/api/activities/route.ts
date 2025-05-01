@@ -59,72 +59,6 @@ const flattenActivityData = (activity: any) => {
       flattenedActivity.path_string = activity.path.join(' > ');
     }
 
-    // Extract selections as a string if they exist{
-    //     "message": "Action added successfully",
-    //     "wholeUser": null,
-    //     "userActions": [
-    //         {
-    //             "_id": "680e010046a3a03ef7db9a91",
-    //             "clientId": "67d5c0221c0f769dfe401fb3",
-    //             "clientEmail": "clientemail@domain.com",
-    //             "clientName": "Client Name",
-    //             "what": "what",
-    //             "when": "2025-06-02T19:54:49.045Z",
-    //             "where": "where",
-    //             "who": "who",
-    //             "activityDetail": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce id dictum tellus, at ornare metus. Integer accumsan justo sed erat dictum, in fermentum tellus gravida.",
-    //             "createdAt": "2026-03-02T19:54:49.045Z",
-    //             "timestamp": "2025-04-27T10:03:44.799Z",
-    //             "selectedDate": "2025-04-27T10:03:44.799Z"
-    //         }
-    //     ],
-    //     "comments": [],
-    //     "_id": "680e010046a3a03ef7db9a91",
-    //     "user": {
-    //         "acknowledged": true,
-    //         "modifiedCount": 0,
-    //         "upsertedId": null,
-    //         "upsertedCount": 0,
-    //         "matchedCount": 0
-    //     },
-    //     "activity": {
-    //         "clientId": "67d5c0221c0f769dfe401fb3",
-    //         "clientEmail": "clientemail@domain.com",
-    //         "clientName": "Client Name",
-    //         "what": "what",
-    //         "when": "2025-06-02T19:54:49.045Z",
-    //         "where": "where",
-    //         "who": "who",
-    //         "activityDetail": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce id dictum tellus, at ornare metus. Integer accumsan justo sed erat dictum, in fermentum tellus gravida.",
-    //         "createdAt": "2026-03-02T19:54:49.045Z",
-    //         "_id": "680e010046a3a03ef7db9a91"
-    //     },
-    //     "data": {
-    //         "clientId": "67d5c0221c0f769dfe401fb3",
-    //         "clientEmail": "clientemail@domain.com",
-    //         "clientName": "Client Name",
-    //         "what": "what",
-    //         "when": "2025-06-02T19:54:49.045Z",
-    //         "where": "where",
-    //         "who": "who",
-    //         "activityDetail": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce id dictum tellus, at ornare metus. Integer accumsan justo sed erat dictum, in fermentum tellus gravida.",
-    //         "createdAt": "2026-03-02T19:54:49.045Z",
-    //         "_id": "680e010046a3a03ef7db9a91"
-    //     },
-    //     "flattenedActivity": {
-    //         "clientId": "67d5c0221c0f769dfe401fb3",
-    //         "clientEmail": "clientemail@domain.com",
-    //         "clientName": "Client Name",
-    //         "what": "what",
-    //         "when": "2025-06-02T19:54:49.045Z",
-    //         "where": "where",
-    //         "who": "who",
-    //         "activityDetail": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce id dictum tellus, at ornare metus. Integer accumsan justo sed erat dictum, in fermentum tellus gravida.",
-    //         "createdAt": "2026-03-02T19:54:49.045Z",
-    //         "_id": "680e010046a3a03ef7db9a91",
-    //         "created_date": "2026-03-02"
-    //     }
-    // }
     if (activity.selections && Array.isArray(activity.selections)) {
       flattenedActivity.selections_string = activity.selections.join(', ');
     }
@@ -155,9 +89,9 @@ export async function GET(request: NextRequest) {
   const url = new URL(request.url);
   const clientId = url.searchParams.get("clientId");
   try {
-    const actionsCollection = await getCollection("actions");
+    const activitiesCollection = await getCollection('activities');
     const notesCollection = await getCollection("notes");
-    const actionRes = await actionsCollection
+    const actionRes = await activitiesCollection
       .aggregate([
         { $match: { clientId } },
         {
@@ -211,8 +145,8 @@ export async function POST(request: NextRequest) {
     // Parse the JSON body and log for debugging
     const body = await request.json();
     // console.log('Received activity request body:', JSON.stringify(body, null, 2));
-    
-    const actionsCollection = await getCollection("actions");
+
+    const activitiesCollection = await getCollection('activities');
     const clientsCollection = await getCollection("clients");
     const notesCollection = await getCollection("notes");
     const commentsCollection = await getCollection("comments");
@@ -344,7 +278,7 @@ export async function POST(request: NextRequest) {
             .toArray();
 
           // Use safe conversion for an activities query
-          const activities = await actionsCollection
+          const activities = await activitiesCollection
             .find({
               $or: [
                 { _id: clientObjectId },
@@ -695,10 +629,10 @@ export async function POST(request: NextRequest) {
       };
 
       // console.log('Inserting activity with payload:', JSON.stringify(cleanPayload, null, 2));
-      const result = await actionsCollection.insertOne(cleanPayload);
+      const result = await activitiesCollection.insertOne(cleanPayload);
       // console.log('Activity inserted successfully with ID:', result.insertedId);
 
-      const userActions = await actionsCollection
+      const userActions = await activitiesCollection
         .find({ clientId: body.clientId })
         .sort({ createdAt: -1 })
         .toArray();
@@ -736,12 +670,6 @@ export async function POST(request: NextRequest) {
 
       // Create a flattened version of the saved activity for Power BI
       const flattenedActivity = flattenActivityData(savedActivity);
-
-      // console.log('API response:', {
-      //   message: 'Action added successfully',
-      //   activity: savedActivity,
-      //   flattenedActivity
-      // });
 
       return NextResponse.json(
         {

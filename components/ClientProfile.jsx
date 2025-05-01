@@ -8,11 +8,12 @@ import { useClient } from '/contexts/ClientContext';
 import ActivityModal from '../components/ActivityModal';
 import { useLayout } from '/contexts/LayoutContext';
 import { XSquare } from 'phosphor-react';
+import ProgressTracker from './ValeProgress';
 
 export default function ClientProfile({ setOpenPanel }) {
   const [isMounted, setIsMounted] = useState(false);
   const { selectedClient, setSelectedClient } = useClient();
-  const [, setActions] = useState([]); // actions are the activities
+  const [, setActions] = useState([]); // activities are the activities
   const [hasTrackable, setHasTrackable] = useState([]);
   const [hasTrackableUpdated, setHasTrackableUpdated] = useState(false);
   const [hasTrackableCopy, setHasTrackableCopy] = useState([]);
@@ -420,6 +421,8 @@ export default function ClientProfile({ setOpenPanel }) {
             />
           </div>
           <div className={`${layoutConfig.isNarrow ? 'col-span-1' : 'col-span-2'}`}>
+            <ProgressTracker clientId={selectedClient?._id} initialProgress={selectedClient?.trackable?.items}
+                             clientType={null} updateProfileStatus={null} />
             <ClientProfileProgress
               hasTrackableCopy={hasTrackableCopy}
               hasTrackable={hasTrackable}

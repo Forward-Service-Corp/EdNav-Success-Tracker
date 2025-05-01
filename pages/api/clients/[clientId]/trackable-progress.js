@@ -1,4 +1,4 @@
-// pages/api/clients/[id]/trackable-progress.js
+// pages/api/clients/[clientId]/trackable-progress.js
 
 import db from '../../../../lib/mongodb';
 import { ObjectId } from 'mongodb';

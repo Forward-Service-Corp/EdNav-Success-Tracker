@@ -113,7 +113,7 @@ export default function ActivityLogs() {
           <div>
             <CardTitle>Activity Logs</CardTitle>
             <CardDescription>
-              View system activity and user actions
+              View system activity and user activities
             </CardDescription>
           </div>
           <Button variant="outline" onClick={handleExportLogs}>
