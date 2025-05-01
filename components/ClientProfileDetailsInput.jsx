@@ -53,7 +53,7 @@ const navigators = [
 ];
 
 function ClientProfileDetailsInput({ field, index, feps }) {
-  const { selectedClient } = useClient();
+  const { selectedClient, setSelectedClient } = useClient();
   const [updating, setUpdating] = useState(false);
   const [clientCopy, setClientCopy] = useState({});
   const [showSuccess, setShowSuccess] = useState(false);
@@ -142,16 +142,11 @@ function ClientProfileDetailsInput({ field, index, feps }) {
 
     const data = await response.json();
     if (data) {
+      console.log(data);
       setUpdating(false);
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);
-      // setSelectedClient((prev) => {
-      //   return {
-      //     ...prev,
-      //     [field]: data.user[field],
-      //     changed: true
-      //   };
-      // });
+      setSelectedClient(data.client);
     } else {
       console.error(`There was an error updating the client.`);
     }

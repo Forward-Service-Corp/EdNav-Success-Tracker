@@ -21,8 +21,8 @@ export async function POST(request) {
       if (result.matchedCount === 0) {
         return NextResponse.json({ error: 'Client not found' }, { status: 404 });
       }
-
-      return NextResponse.json({ message: 'Client updated successfully', _id: clientId, result }, { status: 200 });
+      const client = await collection.findOne({ _id: new ObjectId(_id.toString() || clientId.toString() || '') });
+      return NextResponse.json({ client }, { status: 200 });
     }
 
   } catch (error) {
