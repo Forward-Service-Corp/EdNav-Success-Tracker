@@ -9,11 +9,11 @@ function ClientProfilePersonalOrganization({ isNarrow, isMedium }) {
   const [error, setError] = useState("");
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [feps, setFeps] = useState([]);
+  const [, setFeps] = useState([]);
   const scrollRef = useRef(null);
 
   const [successMessage, setSuccessMessage] = useState("");
-  const [change, setChange] = useState({
+  const [, setChange] = useState({
     first_name: selectedClient?.first_name || "",
     last_name: selectedClient?.last_name || "",
     email: selectedClient?.email || "",
@@ -82,17 +82,6 @@ function ClientProfilePersonalOrganization({ isNarrow, isMedium }) {
     };
   }, []);
 
-  // Get grid classes based on container width
-  const getGridClasses = () => {
-    if (isNarrow) {
-      return 'grid-cols-1 gap-3';
-    } else if (isMedium) {
-      return 'grid-cols-1 md:grid-cols-2 gap-4';
-    } else {
-      return 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8';
-    }
-  };
-
   return (
     <div
       className={` rounded shadow transition-all duration-700 flex flex-col ${detailsOpen ? 'min-h-full h-full' : 'h-[80px] overflow-hidden'}`}>
@@ -128,7 +117,7 @@ function ClientProfilePersonalOrganization({ isNarrow, isMedium }) {
           </div>
         )}
 
-        <ClientProfileDetailsForm />
+        <ClientProfileDetailsForm isNarrow={isNarrow} isMedium={isMedium} />
       </div>
     </div>
   );

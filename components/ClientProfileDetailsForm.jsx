@@ -4,7 +4,7 @@ import { useClient } from '../contexts/ClientContext';
 import { useClientList } from '../contexts/ClientListContext';
 import { adultSchools, navigators, wisconsinCounties, youthSchools } from '../lib/schools';
 
-export default function ClientProfileDetailsForm() {
+export default function ClientProfileDetailsForm({ isNarrow, isMedium }) {
   const { selectedClient, setSelectedClient } = useClient();
   const { setClientList } = useClientList();
   const [clientCopy, setClientCopy] = useState({ ...selectedClient });
@@ -23,6 +23,16 @@ export default function ClientProfileDetailsForm() {
     setClientCopy({ ...selectedClient });
   }, [selectedClient]);
 
+  // Get grid classes based on container width
+  const getGridClasses = () => {
+    if (isNarrow) {
+      return 'grid-cols-1 gap-3';
+    } else if (isMedium) {
+      return 'grid-cols-1 md:grid-cols-2 gap-4';
+    } else {
+      return 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8';
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -61,7 +71,7 @@ export default function ClientProfileDetailsForm() {
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   return (
-    <form className="space-y-4 w-full grid grid-cols-1 xl:grid-cols-3 lg:grid-cols-2 gap-4">
+    <form className={`space-y-4 w-full grid ${getGridClasses()}`}>
       {[
         { name: 'first_name', label: 'First Name', type: 'text', minLength: 2 },
         { name: 'last_name', label: 'Last Name', type: 'text', minLength: 2 },
