@@ -7,7 +7,7 @@ import { useClient } from '/contexts/ClientContext';
 import ActivityModal from '../components/ActivityModal';
 import { useLayout } from '/contexts/LayoutContext';
 import { XSquare } from 'phosphor-react';
-import ProgressTracker from './ValeProgress';
+import ClientProfileProgress from './ClientProfileProgress';
 
 export default function ClientProfile({ setOpenPanel }) {
   const [isMounted, setIsMounted] = useState(false);
@@ -331,18 +331,18 @@ export default function ClientProfile({ setOpenPanel }) {
   const handleActivityModalOpen = (state) => {
     // console.log('Activity modal open state changing from', activityModalOpen, 'to', state);
 
-    if (!selectedClient && state) {
-      console.warn('Cannot open activity modal: No client selected');
-      if (typeof window !== 'undefined' && typeof window.showNotification === 'function') {
-        window.showNotification({
-          title: 'No Client Selected',
-          message: 'Please select a client before adding an activity.',
-          type: 'warning',
-          duration: 3000
-        });
-      }
-      return;
-    }
+    // if (!selectedClient && state) {
+    //   console.warn('Cannot open activity modal: No client selected');
+    //   if (typeof window !== 'undefined' && typeof window.showNotification === 'function') {
+    //     window.showNotification({
+    //       title: 'No Client Selected',
+    //       message: 'Please select a client before adding an activity.',
+    //       type: 'warning',
+    //       duration: 3000
+    //     });
+    //   }
+    //   return;
+    // }
 
     // If we're closing the modal, make sure we preserve the selected client
     if (state === '' && selectedClient) {
@@ -397,8 +397,9 @@ export default function ClientProfile({ setOpenPanel }) {
       <div
         className={`no-scrollbar absolute top-0 right-0 bottom-0 left-0 overflow-y-scroll`}
       >
-        <div onClick={() => setOpenPanel('')}><XSquare className={`absolute top-4 right-4 cursor-pointer z-50`}
-                                                       size={24} color="base-content" /></div>
+        <div onClick={() => setOpenPanel('')}>
+          <XSquare className={`absolute top-4 right-4 cursor-pointer z-50`} size={24} color="base-content" />
+        </div>
         <div className={`grid ${getGridClasses()}`}>
           <div className={`${layoutConfig.isNarrow ? 'col-span-1' : 'col-span-2'}`}>
             <ClientProfilePersonalOrganization
@@ -408,19 +409,10 @@ export default function ClientProfile({ setOpenPanel }) {
             />
           </div>
           <div className={`${layoutConfig.isNarrow ? 'col-span-1' : 'col-span-2'}`}>
-            {/*<ProgressTracker clientId={selectedClient?._id} initialProgress={selectedClient?.trackable?.items}*/}
-            {/*                 clientType={null} updateProfileStatus={null} />*/}
             <ClientProfileProgress
-              hasTrackableCopy={hasTrackableCopy}
-              hasTrackable={hasTrackable}
-              setHasTrackable={setHasTrackable}
-              updated={updated}
-              setUpdated={setUpdated}
               isNarrow={layoutConfig.isNarrow}
               isMedium={layoutConfig.isMedium}
             />
-            <ProgressTracker clientId={selectedClient?._id} initialProgress={selectedClient?.trackable?.items}
-                             clientType={null} updateProfileStatus={null} />
           </div>
           <div className={`col-span-1`}>
             <CombinedFeed isNarrow={layoutConfig.isNarrow} />

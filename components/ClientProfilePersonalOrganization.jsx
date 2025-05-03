@@ -52,7 +52,7 @@ function ClientProfilePersonalOrganization({ isNarrow, isMedium }) {
     setSuccessMessage("");
   }, [selectedClient]);
 
-  // 🧠 New: Scroll detection
+  // New: Scroll detection
   useEffect(() => {
     const scrollContainer = scrollRef.current;
     if (!scrollContainer) return;
@@ -69,20 +69,20 @@ function ClientProfilePersonalOrganization({ isNarrow, isMedium }) {
 
   return (
     <div
-      className={` rounded shadow transition-all duration-700 flex flex-col ${detailsOpen ? 'min-h-full h-full' : 'h-[80px] overflow-hidden'}`}>
+      className={`rounded shadow transition-all duration-700 flex flex-col ${detailsOpen ? 'min-h-full h-full' : 'h-[80px] overflow-hidden'}`}>
       {/* Sticky Header */}
       <div
-        className={`sticky top-0 z-10 bg-base-100 p-6 rounded shadow-lg flex justify-between transition-all duration-300 ${
-          scrolled ? 'h-[60px] text-base' : 'h-[80px] text-lg md:text-2xl'
+        className={`sticky top-0 z-10 bg-base-100 px-4 py-6 rounded shadow-lg flex justify-between transition-all duration-300 ${
+          scrolled ? 'h-[60px] text-base' : 'h-[80px] text-lg md:text-xl'
         } items-center`}
       >
-        <div className="flex items-center gap-4">
-          <div><ClientProfilePin /></div>
+        <div className="flex items-center">
+          <ClientProfilePin />
           <div>{selectedClient?.first_name + ' ' + selectedClient?.last_name}</div>
         </div>
         <Button
-          label={`${detailsOpen ? 'Close' : 'View & Edit'} Details`}
-          use="secondary"
+          label={`${detailsOpen ? 'Close' : 'View & Edit'} `}
+          use="accent"
           onClick={() => setDetailsOpen(!detailsOpen)}
         />
       </div>

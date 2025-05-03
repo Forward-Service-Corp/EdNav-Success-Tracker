@@ -17,11 +17,10 @@ function ClientProfilePin() {
 
   let savePinned;
   savePinned = async () => {
-    const data = await fetch(`/api/navigators/update?clientId=${selectedClient._id}&navigatorId=${selectedNavigator.name}`, {
+    const data = await fetch(`/api/navigators/update?clientId=${selectedClient?._id}&navigatorId=${selectedNavigator?.name}`, {
       method: 'POST'
     });
     const json = await data.json();
-    console.log(json);
     await setSelectedNavigator(json.navigator);
   };
 
@@ -38,10 +37,12 @@ function ClientProfilePin() {
   }
 
   return (
-    <div>
-      <button className={`p-2 pr-4`} onClick={handlePinClick}>
+    <div className={` mr-3 max-h-[36px]`}>
+      <button
+        className={`p-[6px] rounded-full bg-base-300/30 border-1 border-base-300 flex items-center justify-center max-h-[30px] max-w-[30px] ${selectedNavigator && selectedNavigator.pinned?.length > 0 && selectedNavigator.pinned?.includes(selectedClient?._id) ? 'text-warning bg-warning/30 border-warning' : 'text-base-content/20'}`}
+        onClick={handlePinClick}>
         <PinIcon
-          className={`hover:text-base-content/80 ${selectedNavigator && selectedNavigator.pinned?.length > 0 && selectedNavigator.pinned?.includes(selectedClient?._id) ? "text-base-content" : "text-base-content/20"}`}
+          className={`hover:text-base-content/80 ${selectedNavigator && selectedNavigator.pinned?.length > 0 && selectedNavigator.pinned?.includes(selectedClient?._id) ? 'text-warning' : 'text-base-content/20'}`}
         />
       </button>
     </div>

@@ -13,7 +13,7 @@ function Button({ use, label, onClick, customStyle }: {
     'destructive': 'btn-error btn-destructive'
   };
   return (
-    <button onClick={onClick} className={`btn ${useMap[use]} ${customStyle || null}`}>{label}</button>
+    <button onClick={onClick} className={`btn btn-sm ${useMap[use]} ${customStyle || null}`}>{label}</button>
   );
 }
 

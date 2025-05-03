@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useFepsLeft } from '@/contexts/FepsLeftContext';
 import { useLayout } from '@/contexts/LayoutContext';
 import LayoutChangeButton from '@/components/LayoutChangeButton';
+import { ClientViewToggles } from '@/components/ClientViewToggles';
 
 function SearchField() {
   const { setSelectedFepLeft } = useFepsLeft();
@@ -43,8 +44,8 @@ function SearchField() {
   }, [currentLayout, isSidebarVisible, isDetailsVisible]);
 
   return (
-    <div className=" sticky top-0 z-50 flex h-[80px] items-center justify-between py-4 ">
-      <div className={`z-50 flex h-full items-center justify-start gap-2 ml-1`}>
+    <div className=" sticky top-0 z-50 flex h-[80px] items-center justify-between py-4 w-full min-w-full ">
+      <div className={`z-50 flex h-full items-center justify-between gap-4 w-full min-w-full`}>
         {/* Layout Dropdown */}
         <LayoutChangeButton activeLayout={activeLayout} setLayoutConfig={setLayoutConfig}
                             setActiveLayout={setActiveLayout} />
@@ -71,6 +72,7 @@ function SearchField() {
             }));
           }} />
         </label>
+        <ClientViewToggles />
       </div>
     </div>
   );

@@ -11,18 +11,21 @@ export const ClientViewToggles = () => {
   };
 
   return (
-    <div className="flex flex-wrap gap-2 p-2">
-      <button onClick={() => toggle('grouped')} className="btn btn-sm">
-        {selectedFepLeft.grouped ? 'Grouped ✅' : 'Grouped ❌'}
+    <div className={`flex w-fit gap-2 p-2 `}>
+      <button onClick={() => toggle('grouped')}
+              className={`btn btn-sm ${selectedFepLeft.grouped ? 'bg-primary/30 border-primary/60' : 'bg-base-300/30 border-base-300'} `}>
+        {selectedFepLeft.grouped ? 'Grouped' : 'Grouped'}
       </button>
-      <button onClick={() => toggle('pinned')} className="btn btn-sm">
-        {selectedFepLeft.pinned ? 'Pinned ✅' : 'Pinned ❌'}
+      <button onClick={() => toggle('pinned')}
+              className={`btn btn-sm ${selectedFepLeft.pinned ? 'bg-primary/30 border-primary/60' : 'bg-base-300/30 border-base-300'} `}>
+        {selectedFepLeft.pinned ? 'Pinned' : 'Pinned'}
       </button>
-      <button onClick={() => toggle('sortAlpha')} className="btn btn-sm">
-        {selectedFepLeft.sortAlpha ? 'Alpha ✅' : 'Alpha ❌'}
-      </button>
-      <button onClick={() => toggle('sortDate')} className="btn btn-sm">
-        {selectedFepLeft.sortDate ? 'Date ✅' : 'Date ❌'}
+      {/*<button onClick={() => toggle('sortAlpha')} className="btn btn-sm">*/}
+      {/*  {selectedFepLeft.sortAlpha? 'Alpha': 'Alpha'}*/}
+      {/*</button>*/}
+      <button onClick={() => toggle('sortDate')}
+              className={`btn btn-sm ${selectedFepLeft.sortDate ? 'bg-primary/30 border-primary/60' : 'bg-base-300/30 border-base-300'} `}>
+        {selectedFepLeft.sortDate ? 'Date' : 'Date'}
       </button>
     </div>
   );

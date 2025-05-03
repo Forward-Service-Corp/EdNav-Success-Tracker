@@ -8,8 +8,6 @@ function ClientProfileProgress({
                                }) {
   const { selectedClient } = useClient();
   const [completionPercentage, setCompletionPercentage] = useState(0);
-  // const [savedItem] = useState([]); // Items saved in the database
-  // const [newSelections] = useState([]); // Items selected but not yet saved
   const [displayItems, setDisplayItems] = useState(selectedClient?.trackable?.items); // Combined items for display
 
   // // Initialize our state when hasTrackable changes
@@ -27,29 +25,6 @@ function ClientProfileProgress({
 
   // Update the display items whenever savedItems or newSelections change
   useEffect(() => {
-    // Combine saved items and new selections into display items
-    // const combined = Array.isArray(hasTrackable) ? [...hasTrackable] : [];
-
-    // Mark items as completed based on saved status and new selections
-    // combined.forEach((item, index) => {
-    // Check if this item is saved in a database
-    // const isSavedInDB = savedItem.some(saved =>
-    //   saved.index === index && saved.completed === true
-    // );
-
-    // Check if this item is in new selections
-    // const isNewlySelected = newSelections.some(newItem =>
-    //   newItem.index === index && newItem.completed === true
-    // );
-
-    // Update the completion status
-    // combined[index] = {
-    //   ...item,
-    //   completed: isSavedInDB || isNewlySelected,
-    //   savedInDatabase: isSavedInDB
-    // };
-    // });
-
     // Update display items
     setDisplayItems(selectedClient?.trackable?.items);
 
@@ -59,7 +34,7 @@ function ClientProfileProgress({
 
     // Mark as updated if there are new selections
     // setUpdated(newSelections.length > 0);
-  }, [hasTrackable]);
+  }, [hasTrackable, selectedClient]);
 
 
   function calculateCompletionPercentage(items) {
@@ -77,15 +52,10 @@ function ClientProfileProgress({
     selectedClient?.trackable?.program === 'HSED' ||
     (typeof window !== 'undefined' && selectedClient?._id && selectedClient?.trackable?.program === 'GED/HSED');
 
-
   // Function to safely render trackable items
   const renderTrackableItems = () => {
-    // if (!Array.isArray(displayItems || [])) {
-    //   console.error('displayItems is not an array:', displayItems);
-    //   return <div className="text-error">Error: Invalid trackable data</div>;
-    // }
 
-    return displayItems?.map((item, index) => {
+    return selectedClient?.trackable?.items?.map((item, index) => {
 
       return (
         <ProgressButton
@@ -97,7 +67,6 @@ function ClientProfileProgress({
     });
   };
 
-  // Helper function to handle program reset
   return (
     <div className={`relative`}>
       <div
