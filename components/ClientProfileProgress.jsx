@@ -1,60 +1,104 @@
 import React, { useEffect, useState } from 'react';
+import { useClient } from '../contexts/ClientContext';
+import ProgressButton from './ProgressButton';
 
-
-function calculateCompletionPercentage(items) {
-  if (!Array.isArray(items) || items.length === 0) return 0;
-
-  const completedCount = items.filter((item) => item && item.completed === true).length;
-  const totalCount = items.length;
-
-  return ((completedCount / totalCount) * 100).toFixed(1);
-}
-
-function ClientProfileProgress({ selectedClient, hasTrackable, isNarrow }) {
-  const [displayItems, setDisplayItems] = useState(() =>
-    Array.isArray(selectedClient?.trackable?.items) ? [...selectedClient.trackable.items] : []
-  );
+function ClientProfileProgress({
+                                 hasTrackable,
+                                 isNarrow
+                               }) {
+  const { selectedClient } = useClient();
   const [completionPercentage, setCompletionPercentage] = useState(0);
+  // const [savedItem] = useState([]); // Items saved in the database
+  // const [newSelections] = useState([]); // Items selected but not yet saved
+  const [displayItems, setDisplayItems] = useState(selectedClient?.trackable?.items); // Combined items for display
 
+  // // Initialize our state when hasTrackable changes
   useEffect(() => {
-    const items = selectedClient?.trackable?.items;
-    if (Array.isArray(items)) {
-      setDisplayItems([...items]);
-      const percentage = calculateCompletionPercentage(items);
+    if (Array.isArray(hasTrackable) && hasTrackable.length > 0) {
+
+      // Calculate completion based on display items
+      const percentage = calculateCompletionPercentage(displayItems);
       setCompletionPercentage(percentage);
     } else {
       setDisplayItems([]);
       setCompletionPercentage(0);
     }
+  }, [selectedClient]);
+
+  // Update the display items whenever savedItems or newSelections change
+  useEffect(() => {
+    // Combine saved items and new selections into display items
+    // const combined = Array.isArray(hasTrackable) ? [...hasTrackable] : [];
+
+    // Mark items as completed based on saved status and new selections
+    // combined.forEach((item, index) => {
+    // Check if this item is saved in a database
+    // const isSavedInDB = savedItem.some(saved =>
+    //   saved.index === index && saved.completed === true
+    // );
+
+    // Check if this item is in new selections
+    // const isNewlySelected = newSelections.some(newItem =>
+    //   newItem.index === index && newItem.completed === true
+    // );
+
+    // Update the completion status
+    // combined[index] = {
+    //   ...item,
+    //   completed: isSavedInDB || isNewlySelected,
+    //   savedInDatabase: isSavedInDB
+    // };
+    // });
+
+    // Update display items
+    setDisplayItems(selectedClient?.trackable?.items);
+
+    // Also calculate completion percentage
+    const percentage = calculateCompletionPercentage(selectedClient?.trackable?.items);
+    setCompletionPercentage(percentage);
+
+    // Mark as updated if there are new selections
+    // setUpdated(newSelections.length > 0);
   }, [hasTrackable]);
 
+
+  function calculateCompletionPercentage(items) {
+    if (!Array.isArray(items) || items.length === 0) return 0;
+
+    // Only count trackable items, not the program selection itself
+    const completedCount = items.filter((item) => item && item.completed === true).length;
+    const totalCount = items.length;
+
+    return ((completedCount / totalCount) * 100).toFixed(1);
+  }
+
+  // Determine if the progress area should be visible based on client data
   const isProgressVisible = selectedClient?.trackable?.program === 'GED' ||
     selectedClient?.trackable?.program === 'HSED' ||
     (typeof window !== 'undefined' && selectedClient?._id && selectedClient?.trackable?.program === 'GED/HSED');
 
-  // Render trackable items with guard for displayItems
-  const renderTrackableItems = () => {
-    if (!Array.isArray(displayItems)) {
-      console.error('displayItems is not an array:', displayItems);
-      return <div className="text-error">Trackable items failed to load.</div>;
-    }
-    if (displayItems.length === 0) {
-      return <div className="text-warning">No trackable items available for this client.</div>;
-    }
 
-    return displayItems.map((item, index) => (
-      <ProgressButton
-        key={index}
-        item={item}
-        index={index}
-        isDisabled={item?.completed}
-        allItems={displayItems}
-      />
-    ));
+  // Function to safely render trackable items
+  const renderTrackableItems = () => {
+    // if (!Array.isArray(displayItems || [])) {
+    //   console.error('displayItems is not an array:', displayItems);
+    //   return <div className="text-error">Error: Invalid trackable data</div>;
+    // }
+
+    return displayItems?.map((item, index) => {
+
+      return (
+        <ProgressButton
+          item={item}
+          index={index}
+          isDisabled={item?.completed}
+          key={`item-${index}`} />
+      );
+    });
   };
 
+  // Helper function to handle program reset
   return (
-    <div>
     <div className={`relative`}>
       <div
         className={`absolute top-0 right-0 bottom-0 left-0 flex items-center justify-center ${isProgressVisible ? 'invisible' : 'visible'}`}
@@ -105,8 +149,13 @@ function ClientProfileProgress({ selectedClient, hasTrackable, isNarrow }) {
         </div>
       </div>
     </div>
-    </div>
   );
 }
+
+// Default props
+ClientProfileProgress.defaultProps = {
+  isNarrow: false,
+  isMedium: false
+};
 
 export default ClientProfileProgress;
