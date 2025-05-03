@@ -2,11 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getCollection } from '@/lib/mongodb';
 import { safeObjectId } from '@/lib/activities/utils';
 
-export async function POST(
-  request: NextRequest,
-  context: { params: { clientId: string } }
-) {
-  const { clientId } = await context.params;
+export async function POST(request: NextRequest, response
+: NextResponse, context: any) {
+  const clientId = await context.params.get('clientId') || '';
   const { completedItems } = await request.json();
 
   if (!Array.isArray(completedItems)) {
@@ -21,13 +19,13 @@ export async function POST(
     });
 
     await clients.updateOne(
-      // @ts-ignore
+      // @ts-expect-error: _id is a string, not ObjectId
       { _id: safeObjectId(clientId) },
       {
         $set: {
           ...updates,
           lastActivity: new Date().toISOString()
-        }
+        },
       }
     );
 

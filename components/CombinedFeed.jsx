@@ -131,23 +131,23 @@ export default function CombinedFeed() {
           try {
             // Store this activity in localStorage for maximum persistence
             const key = `permanentActivities-${selectedClient._id}`;
-            const storedActivities = JSON.parse(localStorage.getItem(key) || '[]');
+            // const storedActivities = JSON.parse(localStorage.getItem(key) || '[]');
 
             // Check if activity already exists in storage
-            const existsInStorage = storedActivities.some(a =>
-              (a._id && a._id === formattedActivity._id) ||
-              (a.fingerprint && a.fingerprint === formattedActivity.fingerprint) ||
-              (a.statement === formattedActivity.statement &&
-                Math.abs(new Date(a.date).getTime() - formattedActivity.date.getTime()) < 60000)
-            );
+            // const existsInStorage = storedActivities.some(a =>
+            //   (a._id && a._id === formattedActivity._id) ||
+            //   (a.fingerprint && a.fingerprint === formattedActivity.fingerprint) ||
+            //   (a.statement === formattedActivity.statement &&
+            //     Math.abs(new Date(a.date).getTime() - formattedActivity.date.getTime()) < 60000)
+            // );
 
-            if (!existsInStorage) {
-              storedActivities.push(formattedActivity);
-              localStorage.setItem(key, JSON.stringify(storedActivities));
-              // console.log('Activity stored in localStorage for permanent backup');
-            } else {
-              // console.log('Activity already exists in localStorage, not adding duplicate');
-            }
+            // if (!existsInStorage) {
+            //   storedActivities.push(formattedActivity);
+            //   localStorage.setItem(key, JSON.stringify(storedActivities));
+            //   // console.log('Activity stored in localStorage for permanent backup');
+            // } else {
+            //   // console.log('Activity already exists in localStorage, not adding duplicate');
+            // }
           } catch (e) {
             console.error('Failed to store in localStorage:', e);
           }
@@ -295,7 +295,7 @@ export default function CombinedFeed() {
             // Skip if already in localStorage
             if (!stored.some(s => s._id === formattedItem._id)) {
               stored.push(formattedItem);
-              localStorage.setItem(key, JSON.stringify(stored));
+              // localStorage.setItem(key, JSON.stringify(stored));
               // console.log('FEED DEBUG: Also saved to localStorage');
             }
           } catch (e) {

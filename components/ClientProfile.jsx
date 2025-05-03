@@ -1,22 +1,21 @@
 "use client";
 import React, { useEffect, useRef, useState } from 'react';
 import CombinedFeed from './CombinedFeed';
-import ClientProfileProgress from '../components/ClientProfileProgress';
 import ClientProfilePersonalOrganization from '../components/ClientProfilePersonalOrganization';
 import ClientProfileTABEOrientation from '../components/ClientProfileTABEOrientation';
 import { useClient } from '/contexts/ClientContext';
 import ActivityModal from '../components/ActivityModal';
 import { useLayout } from '/contexts/LayoutContext';
 import { XSquare } from 'phosphor-react';
+import ProgressTracker from './ValeProgress';
 
 export default function ClientProfile({ setOpenPanel }) {
   const [isMounted, setIsMounted] = useState(false);
   const { selectedClient, setSelectedClient } = useClient();
   const [, setActions] = useState([]); // activities are the activities
-  const [hasTrackable, setHasTrackable] = useState([]);
+  const [, setHasTrackable] = useState([]);
   const [hasTrackableUpdated, setHasTrackableUpdated] = useState(false);
-  const [hasTrackableCopy, setHasTrackableCopy] = useState([]);
-  const [updated, setUpdated] = useState(false);
+  const [, setHasTrackableCopy] = useState([]);
   const [activityModalOpen, setActivityModalOpen] = useState("");
   const [slideState, setSlideState] = useState('out'); // "in" or "out"
   const { currentLayout } = useLayout();
@@ -323,17 +322,6 @@ export default function ClientProfile({ setOpenPanel }) {
 
           setHasTrackableCopy(itemsForCopy);
           setHasTrackableUpdated(true);
-
-          // Also save to localStorage for persistence
-          if (typeof window !== 'undefined') {
-            try {
-              // localStorage.setItem(`trackable-${selectedClient._id}`,
-              //   JSON.stringify(trackableWithTimestamp)
-              // );
-            } catch (e) {
-              console.error('Failed to save trackable to localStorage', e);
-            }
-          }
         }, 0);
       }
     }
@@ -431,6 +419,8 @@ export default function ClientProfile({ setOpenPanel }) {
               isNarrow={layoutConfig.isNarrow}
               isMedium={layoutConfig.isMedium}
             />
+            <ProgressTracker clientId={selectedClient?._id} initialProgress={selectedClient?.trackable?.items}
+                             clientType={null} updateProfileStatus={null} />
           </div>
           <div className={`col-span-1`}>
             <CombinedFeed isNarrow={layoutConfig.isNarrow} />
