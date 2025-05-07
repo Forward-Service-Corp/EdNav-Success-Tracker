@@ -8,6 +8,7 @@ import ActivityModal from '../components/ActivityModal';
 import { useLayout } from '/contexts/LayoutContext';
 import { XSquare } from 'phosphor-react';
 import ClientProfileProgress from './ClientProfileProgress';
+import Button from './Button';
 // import Button from './Button';
 
 export default function ClientProfile({ setOpenPanel }) {
@@ -350,7 +351,6 @@ export default function ClientProfile({ setOpenPanel }) {
                         const cachedTrackable = localStorage.getItem(`trackable-${selectedClient._id}`);
                         if (cachedTrackable) {
                             const parsed = JSON.parse(cachedTrackable);
-                            // console.log('Found cached trackable data:', parsed);
 
                             // Only use cached data if it has an item array
                             if (parsed && Array.isArray(parsed.items)) {
@@ -516,15 +516,8 @@ export default function ClientProfile({ setOpenPanel }) {
             },
             body: JSON.stringify(selectedClient)
         }).then();
-
         const data = await res.json();
-
-
-        console.log('success');
         await setSelectedClient(data.client);
-        await console.log(data.client);
-        await setReferralResults('');
-        await setGraduationResults('');
     };
 
     return (
@@ -578,12 +571,14 @@ export default function ClientProfile({ setOpenPanel }) {
                           </div>
                           <div>
                               <div className="flex w-full">
-                                  <div className={`pt-3 rounded-box grid grow place-items-start `}>
-                                      <select value={referralResults} onChange={(e) => {
-                                          setReferralResults(e.target.value);
-                                          console.log(e.target.value);
-                                          handleResultsChange(e).then();
-                                      }}
+                                  <div className={`pt-3 rounded-box grow place-items-start flex`}>
+                                      <select value={selectedClient?.graduationResults} onChange={(e) => {
+                                          setSelectedClient(prev => ({
+                                              ...prev,
+                                              graduationResults: e.target.value
+                                          }));
+                                      }
+                                      }
                                               className="select select-sm" name="graduationResults">
                                           <option disabled={true} value="">Pick a result</option>
                                           {
@@ -594,6 +589,9 @@ export default function ClientProfile({ setOpenPanel }) {
                                               })
                                           }
                                       </select>
+                                      <Button className={`btn btn-xs text-xs `} label={`Save`} use={`accent`}
+                                              onClick={handleResultsChange}
+                                              disabled={referralResults !== '' && graduationResults !== ''} />
                                   </div>
                                   <div className={`rounded-box grow place-items-center hidden `}>
                                       <input type="text" placeholder="Type here" className={`input input-sm `}
@@ -611,12 +609,10 @@ export default function ClientProfile({ setOpenPanel }) {
                           </div>
                           <div>
                               <div className="flex w-full">
-                                  <div className={`p-0 rounded-box grid grow place-items-center`}>
-                                      <select value={referralResults}
+                                  <div className={`p-0 rounded-box grow place-items-center flex`}>
+                                      <select value={selectedClient?.referralResults || ''}
                                               onChange={(e) => {
                                                   setReferralResults(e.target.value);
-                                                  console.log(e.target.value);
-                                                  handleResultsChange(e).then();
                                               }}
                                               className="select select-sm" name="referralResults">
                                           <option disabled={true} value="">Pick a result</option>
@@ -629,6 +625,8 @@ export default function ClientProfile({ setOpenPanel }) {
                                               })
                                           }
                                       </select>
+                                      <Button className={`btn btn-xs text-xs `} label={`Save`} use={`accent`}
+                                              onClick={handleResultsChange} />
                                   </div>
                                   <div className={`rounded-box grow place-items-center hidden`}>
                                       <input type="text" placeholder="Type here" name={'graduation-text'}

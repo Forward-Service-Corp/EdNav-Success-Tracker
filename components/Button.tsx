@@ -1,6 +1,7 @@
 import React from 'react';
 
-function Button({ use, label, onClick, customStyle }: {
+// @ts-ignore
+function Button({ use, label, onClick, customStyle, disabled }: {
   use: 'primary' | 'secondary' | 'accent' | 'destructive',
   label: string,
   onClick: () => void,
@@ -13,7 +14,8 @@ function Button({ use, label, onClick, customStyle }: {
     'destructive': 'btn-error btn-destructive'
   };
   return (
-    <button onClick={onClick} className={`btn btn-sm ${useMap[use]} ${customStyle || null}`}>{label}</button>
+    <button disabled={disabled} onClick={onClick}
+            className={`btn btn-sm ${useMap[use]} ${customStyle || null}`}>{label}</button>
   );
 }
 

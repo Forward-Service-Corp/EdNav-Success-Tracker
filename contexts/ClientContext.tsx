@@ -12,6 +12,7 @@ type Client = {
   email: string;
   fep: string;
   first_name: string;
+  graduationResults: string;
   group: string;
   isYouth: boolean;
   lastGrade: string;
@@ -26,6 +27,7 @@ type Client = {
   };
   pin: string;
   region: string;
+  referralResults: string;
   schoolIfEnrolled: string;
   tabe: {
     completionDate: string;
