@@ -87,12 +87,12 @@ function ProgressButton({ item, index, isDisabled }) {
     <button
       key={index}
       disabled={isDisabled || saving}
-      className={`cursor-pointer text-nowrap ${isDisabled || saving ? 'opacity-70 cursor-not-allowed' : ''}`}
+      className={`text-nowrap transition-all duration-500 ${isDisabled || saving ? 'cursor-not-allowed' : ''} text-[10px]`}
       onClick={startCount}
     >
       {item?.completed === true ? (
         <span
-          className={`border-success flex items-center justify-center rounded-full border pr-2`}>
+          className={`border-success text-success flex items-center justify-center rounded-full border pr-2 cursor-not-allowed`}>
               <span className={`mr-1`}>
                <CheckCircleIcon className={`text-success h-6 w-6`} />
               </span>
@@ -100,10 +100,10 @@ function ProgressButton({ item, index, isDisabled }) {
             </span>
       ) : (
         <span
-          className={`${counting ? 'text-warning border-warning' : 'border-base-content/40'}  flex items-center justify-center rounded-full border pr-2`}>
+          className={`${counting ? 'text-error border-error' : 'border-base-content/50'}  flex items-center justify-center rounded-full border pr-2 `}>
               <span className={`mr-1`}>
                 <span
-                  className={`${counting ? 'text-warning border-warning' : 'border-base-content/40'} m-[2px] block h-5 w-5 rounded-full border text-center text-xs`}>
+                  className={`${counting ? 'text-error border-error' : 'border-base-content/50'} m-[2px] block h-5 w-5 rounded-full border text-center`}>
                   {counting ? count.toString() : null}
                 </span>
               </span>

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getCollection } from '/lib/mongodb';
-import { ObjectId } from 'mongodb';
+import { safeObjectId } from '../../../lib/safeObjectId';
 
 export async function GET(request) {
   const url = await new URL(request.url);
@@ -12,7 +12,7 @@ export async function GET(request) {
     if (navigator) {
       clients = await collection.find({navigator: navigator}).toArray()
     } else if (clientId) {
-      clients = await collection.findOne({ _id: ObjectId.createFromBase64(clientId.toString()) });
+      clients = await collection.findOne({ _id: safeObjectId(clientId.toString()) });
     } else if (grouped === "true") {
       clients = await collection.aggregate([
         // { $match: { navigator: nav } },
@@ -36,6 +36,8 @@ export async function GET(request) {
 
 // POST to add a new client
 export async function POST(request) {
+  const url = await new URL(request.url);
+  const clientId = url.searchParams.get('clientId');
   try {
     const body = await request.json(); // Correctly parse request body
     const collection = await getCollection("clients");
@@ -43,19 +45,22 @@ export async function POST(request) {
     // If _id exists, it's an update operation
     if (body._id) {
       const id = body._id;
-      body.name = body.first_name + " " + body.last_name;
       const { _id, ...updateData } = body;
 
       const result = await collection.updateOne(
-        { _id: ObjectId.createFromBase64(id) },
+        { _id: safeObjectId(id) },
           { $set: updateData }
       );
+
+      if (result) console.log(result);
+
+      const client = await collection.findOne({ _id: safeObjectId(clientId.toString()) });
+      console.log(client);
 
       if (result.matchedCount === 0) {
         return NextResponse.json({ error: "Client not found" }, { status: 404 });
       }
-
-      return NextResponse.json({ message: "Client updated successfully", _id: id }, { status: 200 });
+      return NextResponse.json({ message: 'Client updated successfully', client }, { status: 200 });
     }
 
     // Otherwise, it's a new client

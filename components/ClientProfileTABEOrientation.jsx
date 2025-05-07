@@ -20,11 +20,11 @@ function ClientProfileTabeOrientation({ isNarrow }) {
   });
 
   useEffect(() => {
-    // console.log('ClientProfileTABEOrientation: selectedClient updated:', {
-    //   hasOrientation: !!selectedClient?.orientation?.referralDate,
-    //   hasTabe: !!selectedClient?.tabe?.referralDate,
-    //   hasTranscripts: !!selectedClient?.transcripts?.referralDate
-    // });
+    console.log('ClientProfileTABEOrientation: selectedClient updated:', {
+      hasOrientation: !!selectedClient?.orientation?.referralDate,
+      hasTabe: !!selectedClient?.tabe?.referralDate,
+      hasTranscripts: !!selectedClient?.transcripts?.referralDate
+    });
     
     setDateValue({
       orientation: {
@@ -101,7 +101,7 @@ function ClientProfileTabeOrientation({ isNarrow }) {
         // }
       }, 300); // Give some time for the component to render
     }
-  }, [selectedClient]);
+  }, []);
 
   return (
     <div className="relative grid grid-cols-1 gap-3 md:gap-6">

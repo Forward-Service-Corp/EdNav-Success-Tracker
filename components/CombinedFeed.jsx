@@ -130,7 +130,7 @@ export default function CombinedFeed() {
         if (typeof window !== 'undefined' && selectedClient?._id) {
           try {
             // Store this activity in localStorage for maximum persistence
-            const key = `permanentActivities-${selectedClient._id}`;
+            // const key = `permanentActivities-${selectedClient._id}`;
             // const storedActivities = JSON.parse(localStorage.getItem(key) || '[]');
 
             // Check if activity already exists in storage
@@ -884,7 +884,7 @@ export default function CombinedFeed() {
     return (
       <div className="bg-base-100 w-full rounded shadow">
         <div className="">
-          <h2 className="">Client Activity Feed</h2>
+          <span className={`mb-3 text-xl uppercase font-light tracking-wider`}>Activity Feed</span>
           <div className="text-base-content/50 flex  items-center justify-center">
             <div className="text-center">
               <svg
@@ -916,7 +916,7 @@ export default function CombinedFeed() {
     return (
       <div className=" bg-base-100 h-full w-full shadow">
         <div className="">
-          <h2 className="">Activity Feed</h2>
+          <span className={`mb-3 text-xl uppercase font-light tracking-wider`}>Activity Feed</span>
           <div className="flex h-96 items-center justify-center">
             <div className="loading loading-spinner loading-lg"></div>
           </div>
@@ -929,7 +929,7 @@ export default function CombinedFeed() {
     <div className="bg-base-200 h-full w-full rounded shadow">
       <div className="p-6">
         <div className="flex items-center justify-between flex-wrap gap-2">
-          <span className={`text-xl`}>Activity Feed</span>
+          <span className={`mb-3 text-xl uppercase font-light tracking-wider`}>Activity Feed</span>
           <div className="flex gap-1 md:gap-2">
             <Button use={`primary`} onClick={() => setIsAddingNote(!isAddingNote)}
                     label={isAddingNote ? 'Cancel' : 'Post Note'} />
@@ -987,7 +987,7 @@ export default function CombinedFeed() {
 
         {/* Comment Entry Form */}
         {commentingOn && (
-          <div className=" my-3 rounded p-3">
+          <div className=" my-3 rounded">
             <h3 className="mb-2 font-medium">
               Add Comment to{" "}
               {commentingOn.type === "activity" ? "Activity" : "Note"}
@@ -1016,9 +1016,9 @@ export default function CombinedFeed() {
           </div>
         )}
 
-        <div className="p-4">
+        <div className="">
           {combinedFeed.length === 0 ? (
-            <p className="text-base-content/60 py-4 text-center">
+            <p className="text-base-content/60 py-4 text-center text-xs">
               No activities or notes found for this client.
             </p>
           ) : (
@@ -1041,7 +1041,7 @@ export default function CombinedFeed() {
                     <div className="w-full">
                       {item.type === "activity" ? (
                         <div>
-                          <p className="">
+                          <p className="text-xs">
                             {item.statement || "Activity recorded"}
                           </p>
                           <p className="text-xs opacity-70">

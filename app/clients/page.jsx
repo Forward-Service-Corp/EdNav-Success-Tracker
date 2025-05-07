@@ -94,7 +94,7 @@ function ClientsPageContent({ setMenuOpen, menuOpen }) {
       // If a profile panel is opened but a details panel is hidden, show it
       setLayoutConfig(isSidebarVisible ? 'DEFAULT' : 'NO_SIDEBAR');
     }
-  }, [openPanel, isDetailsVisible, isSidebarVisible, setLayoutConfig]);
+  }, [isDetailsVisible, isSidebarVisible, setLayoutConfig]);
 
   return (
     <div className="flex h-screen w-screen bg-base-300">

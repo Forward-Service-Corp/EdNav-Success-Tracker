@@ -47,9 +47,11 @@ function Sidebar({
     >
       <Logo />
       <div
-        className={`text-base-content box-border flex w-full flex-col gap-4 mt-5 `}
+        className={`text-base-content box-border flex w-full flex-col gap-4 mt-10 `}
       >
         <Button use={`primary`} label={`Dashboard`} onClick={() => setOpenPanel('')} />
+        <Button use={`primary`} label="+ Add Client" onClick={() => setOpenPanel('form')} />
+        <Button use={`accent`} label="Logout" onClick={() => setOpenPanel('form')} />
         <div className="divider mt-8 mb-3">Age Filters</div>
         <FilterSelectRadiosAge />
       </div>
@@ -63,9 +65,6 @@ function Sidebar({
         className=" flex flex-col mt-8 items-center border-t border-base-content/10 gap-6 py-6">
         <ThemeSwitcher />
         <NavigatorSelector />
-        <Button use="primary" label="+ Add Client" onClick={() => setOpenPanel('form')}
-                customStyle={`w-[180px]`} />
-        <Button use="secondary" label="Logout" onClick={() => setOpenPanel('form')} customStyle={`w-[180px]`} />
       </div>
     </div>
   );

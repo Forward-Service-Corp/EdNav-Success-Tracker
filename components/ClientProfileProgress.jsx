@@ -85,7 +85,7 @@ function ClientProfileProgress({
         <div className="card-body">
           <div className={`mt-0 mb-4 flex items-center justify-between`}>
             <div>
-              <div className={`${isNarrow ? 'text-lg' : 'text-2xl'} flex items-center gap-2`}>
+              <div className={`${isNarrow ? 'text-lg' : 'text-xl'} uppercase font-light tracking-wider`}>
                 {selectedClient?.trackable?.program || 'Program'} Progress -{' '}
                 {completionPercentage}%
               </div>
@@ -96,14 +96,6 @@ function ClientProfileProgress({
                 <span className="font-medium">Note:</span> Items saved to the database cannot be unchecked.
               </p>
             </div>
-
-            {/*<div*/}
-            {/*  onClick={handleTrackableUpdate}*/}
-            {/*  className={`${updated || recentlySelectedProgram || newSelections.length > 0? 'btn btn-sm btn-secondary': 'hidden' }`}*/}
-            {/*  data-testId="save-progress-button"*/}
-            {/*>*/}
-            {/*  {isUpdating ? 'Saving...' : 'Save Progress'}*/}
-            {/*</div>*/}
           </div>
           <div className="card-actions justify-end">
             <progress
