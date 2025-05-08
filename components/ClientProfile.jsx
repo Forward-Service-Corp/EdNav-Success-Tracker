@@ -554,7 +554,7 @@ export default function ClientProfile({ setOpenPanel }) {
                         isMedium={layoutConfig.isMedium}
                       />
                   </div>
-                  <div className={`${layoutConfig.isNarrow ? 'col-span-1' : 'col-span-3'}`}>
+                  <div className={`${layoutConfig.isNarrow ? 'col-span-1' : 'col-span-5'}`}>
                       <ClientProfileProgress
                         isNarrow={layoutConfig.isNarrow}
                         isMedium={layoutConfig.isMedium}
