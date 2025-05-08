@@ -1,5 +1,5 @@
 /** @type {import('tailwindcss').Config} */
-import withMT from "@material-tailwind/html/utils/withMT";
+import withMT from '@material-tailwind/html/utils/withMT';
 
 export default withMT({
   content: [
@@ -24,6 +24,7 @@ export default withMT({
           "100%": { transform: "scale(1)", opacity: 1 },
         },
       },
+      plugins: [require('daisyui')],
       animation: {
         fadeInZoom: "fadeInZoom 0.4s ease-out",
         pulseOnce: "pulseOnce 0.6s ease-in-out",

@@ -8,7 +8,6 @@ import ActivityModal from '../components/ActivityModal';
 import { useLayout } from '/contexts/LayoutContext';
 import { XSquare } from 'phosphor-react';
 import ClientProfileProgress from './ClientProfileProgress';
-import Button from './Button';
 // import Button from './Button';
 
 export default function ClientProfile({ setOpenPanel }) {
@@ -561,81 +560,81 @@ export default function ClientProfile({ setOpenPanel }) {
                         isMedium={layoutConfig.isMedium}
                       />
                   </div>
-                  <div className={`${layoutConfig.isNarrow ? 'col-span-1' : 'col-span-2'} flex flex-col flex-1 gap-2 `}>
-                      <div className={`p-5 bg-base-200  max-h-1/2 h-1/2  rounded flex flex-col justify-around `}>
-                          <div className={`text-xl uppercase font-light tracking-wider`}>graduation results
-                              {/*<Button className={`btn btn-xs text-xs `} label={`Custom text`} use={`accent`} onClick={null}/>*/}
-                              <div className={`text-[9px] text-secondary font-normal capitalize`}>Placeholder
-                                  sentence.
-                              </div>
-                          </div>
-                          <div>
-                              <div className="flex w-full">
-                                  <div className={`pt-3 rounded-box grow place-items-start flex`}>
-                                      <select value={selectedClient?.graduationResults} onChange={(e) => {
-                                          setSelectedClient(prev => ({
-                                              ...prev,
-                                              graduationResults: e.target.value
-                                          }));
-                                      }
-                                      }
-                                              className="select select-sm" name="graduationResults">
-                                          <option disabled={true} value="">Pick a result</option>
-                                          {
-                                              resultsOfReferral.map((item, index) => {
-                                                  return (
-                                                    <option key={index.toString() + item} value={item}>{item}</option>
-                                                  );
-                                              })
-                                          }
-                                      </select>
-                                      <Button className={`btn btn-xs text-xs `} label={`Save`} use={`accent`}
-                                              onClick={handleResultsChange}
-                                              disabled={referralResults !== '' && graduationResults !== ''} />
-                                  </div>
-                                  <div className={`rounded-box grow place-items-center hidden `}>
-                                      <input type="text" placeholder="Type here" className={`input input-sm `}
-                                             name={'referral-select'} />
-                                  </div>
-                              </div>
-                          </div>
-                      </div>
-                      <div className={`p-5 bg-base-200 max-h-1/2 h-1/2 rounded flex flex-col justify-around `}>
-                          <div className={`text-xl uppercase font-light tracking-wider`}>referral results
-                              {/*<Button className={`btn btn-xs text-xs `} label={`Custom text`} use={`accent`} onClick={}/>*/}
-                              <div className={`text-[9px] text-secondary font-normal capitalize`}>Placeholder
-                                  sentence.
-                              </div>
-                          </div>
-                          <div>
-                              <div className="flex w-full">
-                                  <div className={`p-0 rounded-box grow place-items-center flex`}>
-                                      <select value={selectedClient?.referralResults || ''}
-                                              onChange={(e) => {
-                                                  setReferralResults(e.target.value);
-                                              }}
-                                              className="select select-sm" name="referralResults">
-                                          <option disabled={true} value="">Pick a result</option>
-                                          {
-                                              resultsOfGraduation.map((item, index) => {
-                                                  return (
-                                                    <option key={index.toString() + item.toString()}
-                                                            value={item}>{item}</option>
-                                                  );
-                                              })
-                                          }
-                                      </select>
-                                      <Button className={`btn btn-xs text-xs `} label={`Save`} use={`accent`}
-                                              onClick={handleResultsChange} />
-                                  </div>
-                                  <div className={`rounded-box grow place-items-center hidden`}>
-                                      <input type="text" placeholder="Type here" name={'graduation-text'}
-                                             className="input input-sm" />
-                                  </div>
-                              </div>
-                          </div>
-                      </div>
-                  </div>
+                  {/*<div className={`${layoutConfig.isNarrow ? 'col-span-1' : 'col-span-2'} flex flex-col flex-1 gap-2 `}>*/}
+                  {/*    <div className={`p-5 bg-base-200  max-h-1/2 h-1/2  rounded flex flex-col justify-around `}>*/}
+                  {/*        <div className={`text-xl uppercase font-light tracking-wider`}>graduation results*/}
+                  {/*            /!*<Button className={`btn btn-xs text-xs `} label={`Custom text`} use={`accent`} onClick={null}/>*!/*/}
+                  {/*            <div className={`text-[9px] text-secondary font-normal capitalize`}>Placeholder*/}
+                  {/*                sentence.*/}
+                  {/*            </div>*/}
+                  {/*        </div>*/}
+                  {/*        <div>*/}
+                  {/*            <div className="flex w-full">*/}
+                  {/*                <div className={`pt-3 rounded-box grow place-items-start flex`}>*/}
+                  {/*                    <select value={selectedClient?.graduationResults} onChange={(e) => {*/}
+                  {/*                        setSelectedClient(prev => ({*/}
+                  {/*                            ...prev,*/}
+                  {/*                            graduationResults: e.target.value*/}
+                  {/*                        }));*/}
+                  {/*                    }*/}
+                  {/*                    }*/}
+                  {/*                            className="select select-sm" name="graduationResults">*/}
+                  {/*                        <option disabled={true} value="">Pick a result</option>*/}
+                  {/*                        {*/}
+                  {/*                            resultsOfReferral.map((item, index) => {*/}
+                  {/*                                return (*/}
+                  {/*                                  <option key={index.toString() + item} value={item}>{item}</option>*/}
+                  {/*                                );*/}
+                  {/*                            })*/}
+                  {/*                        }*/}
+                  {/*                    </select>*/}
+                  {/*                    <Button className={`btn btn-xs text-xs `} label={`Save`} use={`accent`}*/}
+                  {/*                            onClick={handleResultsChange}*/}
+                  {/*                            disabled={referralResults !== '' && graduationResults !== ''} />*/}
+                  {/*                </div>*/}
+                  {/*                <div className={`rounded-box grow place-items-center hidden `}>*/}
+                  {/*                    <input type="text" placeholder="Type here" className={`input input-sm `}*/}
+                  {/*                           name={'referral-select'} />*/}
+                  {/*                </div>*/}
+                  {/*            </div>*/}
+                  {/*        </div>*/}
+                  {/*    </div>*/}
+                  {/*    <div className={`p-5 bg-base-200 max-h-1/2 h-1/2 rounded flex flex-col justify-around `}>*/}
+                  {/*        <div className={`text-xl uppercase font-light tracking-wider`}>referral results*/}
+                  {/*            /!*<Button className={`btn btn-xs text-xs `} label={`Custom text`} use={`accent`} onClick={}/>*!/*/}
+                  {/*            <div className={`text-[9px] text-secondary font-normal capitalize`}>Placeholder*/}
+                  {/*                sentence.*/}
+                  {/*            </div>*/}
+                  {/*        </div>*/}
+                  {/*        <div>*/}
+                  {/*            <div className="flex w-full">*/}
+                  {/*                <div className={`p-0 rounded-box grow place-items-center flex`}>*/}
+                  {/*                    <select value={selectedClient?.referralResults || ''}*/}
+                  {/*                            onChange={(e) => {*/}
+                  {/*                                setReferralResults(e.target.value);*/}
+                  {/*                            }}*/}
+                  {/*                            className="select select-sm" name="referralResults">*/}
+                  {/*                        <option disabled={true} value="">Pick a result</option>*/}
+                  {/*                        {*/}
+                  {/*                            resultsOfGraduation.map((item, index) => {*/}
+                  {/*                                return (*/}
+                  {/*                                  <option key={index.toString() + item.toString()}*/}
+                  {/*                                          value={item}>{item}</option>*/}
+                  {/*                                );*/}
+                  {/*                            })*/}
+                  {/*                        }*/}
+                  {/*                    </select>*/}
+                  {/*                    <Button className={`btn btn-xs text-xs `} label={`Save`} use={`accent`}*/}
+                  {/*                            onClick={handleResultsChange} />*/}
+                  {/*                </div>*/}
+                  {/*                <div className={`rounded-box grow place-items-center hidden`}>*/}
+                  {/*                    <input type="text" placeholder="Type here" name={'graduation-text'}*/}
+                  {/*                           className="input input-sm" />*/}
+                  {/*                </div>*/}
+                  {/*            </div>*/}
+                  {/*        </div>*/}
+                  {/*    </div>*/}
+                  {/*</div>*/}
                   <div className={`col-span-2`}>
                       <ClientProfileTABEOrientation isNarrow={layoutConfig.isNarrow} />
                   </div>
