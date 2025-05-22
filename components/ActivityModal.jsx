@@ -1,7 +1,7 @@
-'use client';
-import React, { useEffect, useState } from 'react';
-import ActivityDynamicSelect from './ActivityDynamicSelect';
-import { useClient } from '@/contexts/ClientContext';
+"use client";
+import React, { useEffect, useState } from "react";
+import ActivityDynamicSelect from "./ActivityDynamicSelect";
+import { useClient } from "/contexts/ClientContext";
 
 export default function ActivityModal({ open, setOpen, onSuccess }) {
   const [questions, setQuestions] = useState([]);
@@ -13,14 +13,14 @@ export default function ActivityModal({ open, setOpen, onSuccess }) {
   // Force visibility when open changes
   useEffect(() => {
     // console.log('ActivityModal open state changed to:', open);
-    if (open === 'activity') {
+    if (open === "activity") {
       // Verify we have a selected client
       if (!selectedClient) {
         const timeout = setTimeout(() => {
           if (!selectedClient) {
-            console.warn('Still no client selected. Closing modal.');
-            if (typeof setOpen === 'function') {
-              setOpen('');
+            console.warn("Still no client selected. Closing modal.");
+            if (typeof setOpen === "function") {
+              setOpen("");
             }
           }
         }, 200);
@@ -28,17 +28,17 @@ export default function ActivityModal({ open, setOpen, onSuccess }) {
       }
       setIsVisible(true);
       // Add a body class to prevent scrolling
-      document.body.classList.add('modal-open');
+      document.body.classList.add("modal-open");
     } else {
       setIsVisible(false);
-      document.body.classList.remove('modal-open');
+      document.body.classList.remove("modal-open");
     }
-  }, [open, selectedClient, setOpen]);
+  }, [open, selectedClient, setOpen, setIsVisible, setQuestions, isVisible]);
 
   const getQuestions = async () => {
     let cleanedQuestions = {};
     try {
-      const response = await fetch('/api/questions');
+      const response = await fetch("/api/questions");
       const questions = await response.json();
       const { adult, youth } = await questions;
       cleanedQuestions.adult = adult;
@@ -46,7 +46,7 @@ export default function ActivityModal({ open, setOpen, onSuccess }) {
       setQuestions(cleanedQuestions);
       // console.log('Questions loaded:', cleanedQuestions);
     } catch (error) {
-      console.error('Error fetching questions:', error);
+      console.error("Error fetching questions:", error);
       // Set the default empty structure if questions can't be loaded
       cleanedQuestions = { adult: {}, youth: {} };
       setQuestions(cleanedQuestions);
@@ -61,7 +61,7 @@ export default function ActivityModal({ open, setOpen, onSuccess }) {
     return () => {
       // console.log('ActivityModal unmounted');
     };
-  }, []);
+  }, [selectedClient, setOpen, setIsVisible, selectedClient]);
 
   // When an activity is successfully added, pass it to parent components
   const handleActivitySuccess = (result) => {
@@ -69,7 +69,7 @@ export default function ActivityModal({ open, setOpen, onSuccess }) {
 
     // Make sure we have a valid result with necessary data
     if (!result) {
-      console.error('No result from activity submission');
+      console.error("No result from activity submission");
       return;
     }
 
@@ -77,23 +77,30 @@ export default function ActivityModal({ open, setOpen, onSuccess }) {
       // Extract the activity data from the result
       const activityData = result.activity || result.data || result;
 
-      if (['GED', 'HSED', 'GED/HSED'].includes(activityData?.selection)) {
-        document.body.classList.add('progress-onboarding');
-        // Optional: set a flag in localStorage or state to show onboarding dialog
+      if (["GED", "HSED", "GED/HSED"].includes(activityData?.selection)) {
+        document.body.classList.add("progress-onboarding");
+        // Optional: set a flag in localStorage or state to show the onboarding dialog
       }
 
-      if (!activityData.selection || !['GED', 'HSED', 'GED/HSED'].includes(activityData.selection)) {
-        if (!activityData.statement && !activityData.description &&
-          !activityData.details && !activityData.category) {
-          setOpen('');
+      if (
+        !activityData.selection ||
+        !["GED", "HSED", "GED/HSED"].includes(activityData.selection)
+      ) {
+        if (
+          !activityData.statement &&
+          !activityData.description &&
+          !activityData.details &&
+          !activityData.category
+        ) {
+          setOpen("");
           return;
         }
       }
 
-      if (typeof window !== 'undefined' && window.addActivityToFeed) {
+      if (typeof window !== "undefined" && window.addActivityToFeed) {
         window.addActivityToFeed(activityData);
       } else {
-        console.warn('No activity management method available');
+        console.warn("No activity management method available");
       }
 
       // Call the provided onSuccess callback
@@ -102,19 +109,19 @@ export default function ActivityModal({ open, setOpen, onSuccess }) {
         onSuccess(result);
       }
     } catch (error) {
-      console.error('Error in handleActivitySuccess:', error);
+      console.error("Error in handleActivitySuccess:", error);
     } finally {
       // Always close the modal after a short delay to allow state updates to complete
       // console.log('Scheduling activity modal close');
       setTimeout(() => {
         // console.log('Closing activity modal');
-        setOpen('');
+        setOpen("");
       }, 500); // Add a small delay to prevent race conditions with state updates
     }
   };
 
   // If not open, don't render anything
-  if (open !== 'activity' && !isVisible) {
+  if (open !== "activity" && !isVisible) {
     return null;
   }
 
@@ -124,28 +131,38 @@ export default function ActivityModal({ open, setOpen, onSuccess }) {
       <div className="fixed inset-0 z-50 overflow-y-auto">
         {/* Backdrop/overlay */}
         <div
-          className="fixed inset-0 bg-base-300/50 backdrop-blur-sm transition-opacity"
-          onClick={() => setOpen('')}
+          className="bg-base-300/50 fixed inset-0 backdrop-blur-sm transition-opacity"
+          onClick={() => setOpen("")}
         />
 
         {/* Modal container */}
         <div className="flex min-h-full items-center justify-center p-4 text-center">
           <div
-            className="w-full max-w-md transform overflow-hidden rounded-2xl z-100 bg-base-300 text-base-content p-6 text-left align-middle shadow-xl transition-all"
-            onClick={e => e.stopPropagation()}
+            className="bg-base-300 text-base-content z-100 w-full max-w-md transform overflow-hidden rounded-2xl p-6 text-left align-middle shadow-xl transition-all"
+            onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-medium leading-6">
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-lg leading-6 font-medium">
                 No Client Selected
               </h3>
               <button
                 type="button"
                 className="text-gray-400 hover:text-gray-500 focus:outline-none"
-                onClick={() => setOpen('')}
+                onClick={() => setOpen("")}
               >
                 <span className="sr-only">Close</span>
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <svg
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             </div>
@@ -153,8 +170,8 @@ export default function ActivityModal({ open, setOpen, onSuccess }) {
             <div className="p-4 text-center">
               <p>Please select a client before adding an activity.</p>
               <button
-                className="mt-4 rounded-lg bg-blue-500 hover:bg-blue-600 p-2 text-white"
-                onClick={() => setOpen('')}
+                className="mt-4 rounded-lg bg-blue-500 p-2 text-white hover:bg-blue-600"
+                onClick={() => setOpen("")}
               >
                 Close
               </button>
@@ -165,37 +182,48 @@ export default function ActivityModal({ open, setOpen, onSuccess }) {
     );
   }
 
-  // Fallback to a simpler modal implementation that doesn't depend on headlessui
+  // Fallback to a simpler modal implementation that doesn't depend on headless
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
       {/* Backdrop/overlay */}
       <div
-        className="fixed inset-0 bg-base-300/50 backdrop-blur-sm transition-opacity"
-        onClick={() => setOpen('')}
+        className="bg-base-300/50 fixed inset-0 backdrop-blur-sm transition-opacity"
+        onClick={() => setOpen("")}
       />
 
       {/* Modal container */}
-      <div className="flex min-h-full items-center justify-center p-4 text-center ">
+      <div className="flex min-h-full items-center justify-center p-4 text-center">
         <div
-          className="w-full max-w-md transform overflow-hidden rounded-2xl z-100 bg-base-300 text-base-content p-6 text-left align-middle shadow-xl transition-all"
-          onClick={e => e.stopPropagation()}
+          className="bg-base-300 text-base-content z-100 w-full max-w-md transform overflow-hidden rounded-2xl p-6 text-left align-middle shadow-xl transition-all"
+          onClick={(e) => e.stopPropagation()}
         >
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-medium leading-6">
-              Add an activity for {selectedClient.first_name} {selectedClient.last_name}
+          <div className="mb-4 flex items-center justify-between">
+            <h3 className="text-lg leading-6 font-medium">
+              Add an activity for {selectedClient.first_name}{" "}
+              {selectedClient.last_name}
             </h3>
             <button
               type="button"
               className="text-gray-400 hover:text-gray-500 focus:outline-none"
-              onClick={() => setOpen('')}
+              onClick={() => setOpen("")}
             >
               <span className="sr-only">Close</span>
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <svg
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             </button>
           </div>
-          
+
           <ActivityDynamicSelect
             setOpen={setOpen}
             questions={questions}

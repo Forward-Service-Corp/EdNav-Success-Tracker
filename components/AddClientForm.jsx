@@ -2,16 +2,18 @@
 
 "use client";
 import React, { useEffect, useState } from "react";
-import { adultSchools, youthSchools } from "/public/data/schools";
+import {
+  adultSchools,
+  wisconsinCounties,
+  youthSchools,
+} from "/public/data/schools";
 import { useClient } from "../contexts/ClientContext";
 import InputVariants from "../components/InputVariants";
 import { useEditing } from "../contexts/EditingContext";
 import { validation } from "../lib/validation";
-import { XSquare } from "phosphor-react";
-import Button from "./Button";
 
 function AddClientForm({ setOpenPanel }) {
-  const [feps] = useState([]);
+  const [feps, setFeps] = useState([]);
   const [errors, setErrors] = useState({});
   const { setEditing } = useEditing();
   const { setSelectedClient } = useClient(null);
@@ -47,27 +49,7 @@ function AddClientForm({ setOpenPanel }) {
     "Kecia Thompson-Gorgon",
     "Andrew McCauley",
     "Sara Jackson",
-  ];
-  const locations = [
-    "Brown",
-    "Calumet",
-    "Columbia",
-    "Dane",
-    "Fond du Lac",
-    "Grant",
-    "Green",
-    "Jefferson",
-    "Manitowoc",
-    "Marathon",
-    "Outagamie",
-    "Portage",
-    "Rock",
-    "Shawano",
-    "Sheboygan",
-    "Waupaca",
-    "Waushara",
-    "Winnebago",
-    "Wood",
+    "Test User",
   ];
   const lastGradeCompletedOptions = [
     "5th",
@@ -102,6 +84,18 @@ function AddClientForm({ setOpenPanel }) {
     transcripts: false,
     ttsDream: "",
   };
+
+  useEffect(() => {
+    async function fetchData() {
+      const res = await fetch("/api/feps");
+      const data = await res.json();
+      await console.log(data);
+      const names = data.map((person) => person.name);
+      await setFeps(names);
+    }
+
+    fetchData().then();
+  }, []);
 
   async function postData() {
     const response = await fetch(`/api/clients`, {
@@ -274,7 +268,7 @@ function AddClientForm({ setOpenPanel }) {
       label: "County",
       type: "select",
       required: true,
-      options: locations,
+      options: wisconsinCounties,
       value: formData.officeCity,
     },
     {
@@ -401,15 +395,6 @@ function AddClientForm({ setOpenPanel }) {
     >
       <div className={`mb-8 flex h-[80px] items-center justify-between`}>
         <div className={`text-lg md:text-2xl`}>Personal Details</div>
-        <Button
-          label={`Details`}
-          use={`secondary`}
-          onClick={() => {
-            setEditing("");
-            setSelectedClient(null);
-            setOpenPanel(false);
-          }}
-        />
       </div>
       <form onSubmit={handleSubmit}>
         <div className="relative mt-[70px] grid grid-cols-3 gap-6">
@@ -453,9 +438,7 @@ function AddClientForm({ setOpenPanel }) {
           setOpenPanel("");
         }}
         className={`text-base-content mt-5 mr-5 cursor-pointer text-2xl`}
-      >
-        <XSquare size={33} className={`text-base-content`} />
-      </div>
+      ></div>
     </div>
   );
 }
