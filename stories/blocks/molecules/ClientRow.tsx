@@ -1,11 +1,11 @@
 // /components/blocks/molecules/ClientRow.tsx
 import { useClient } from "@/contexts/ClientContext";
 import { useEditing } from "@/contexts/EditingContext";
-import { Dispatch, SetStateAction } from "react";
-import ClientNameBlock from "../atoms/ClientNameBlock";
-import Badge from "../../../components/Badge";
-import { useNavigator } from "@/contexts/NavigatorsContext";
 import { useLayout } from "@/contexts/LayoutContext";
+import { useNavigator } from "@/contexts/NavigatorsContext";
+import { Dispatch, SetStateAction } from "react";
+import Badge from "../../../components/Badge";
+import ClientNameBlock from "../atoms/ClientNameBlock";
 
 type Edit = "client" | null;
 type ClientRowProps = {
@@ -23,12 +23,20 @@ type ClientRowProps = {
     group: string;
   };
   selected: boolean;
+  open?: (
+    url?: string | URL,
+    target?: string,
+    features?: string,
+  ) => WindowProxy | null;
+  setOpen?: any;
 };
 
 export default function ClientRow({
-                                    person,
-                                    selected,
-                                  }: ClientRowProps) {
+  person,
+  open,
+  setOpen,
+  selecte,
+}: ClientRowProps) {
   const { setSelectedClient } = useClient();
   const { selectedNavigator } = useNavigator();
   const { currentLayout } = useLayout();
@@ -38,13 +46,14 @@ export default function ClientRow({
 
   const setVisibility = (val: number) => {
     if (currentLayout.table <= val) {
-      return 'hidden';
+      return "hidden";
     }
-    return 'visible';
+    return "visible";
   };
 
   const handleClick = () => {
-    setEditing('client');
+    setEditing("client");
+    setOpen("profile");
     if (selected) {
       setSelectedClient(null);
     } else {
@@ -54,26 +63,48 @@ export default function ClientRow({
 
   return (
     <tr
-      className={`cursor-pointer bg-base-200 hover:bg-base-200/20 transition-colors duration-300 min-w-full w-full ${
-        selected ? 'bg-accent/20' : ''
+      className={`bg-base-200 hover:bg-base-200/20 w-full min-w-full cursor-pointer transition-colors duration-300 ${
+        selected ? "bg-accent/20" : ""
       }`}
       onClick={handleClick}
     >
       <td>
         <ClientNameBlock
-          firstName={person?.first_name || 'John'}
-          lastName={person?.last_name || 'Doe'}
-          latestInteraction={person?.latestInteraction || '2021-01-01'}
+          firstName={person?.first_name || "John"}
+          lastName={person?.last_name || "Doe"}
+          latestInteraction={person?.latestInteraction || "2021-01-01"}
         />
       </td>
-      <td className={`${setVisibility(0)}`}><span className={`truncate w-1/2`}>{person?.email}</span></td>
-      <td className={`${setVisibility(50)} whitespace-nowrap`}>{person?.contactNumber}</td>
-      <td className={`${setVisibility(50)} whitespace-nowrap`}>{person?.county || ''}</td>
-      <td>
-        <Badge use={person?.clientStatus?.toLowerCase() as 'active' | 'in progress' | 'graduated' | 'inactive'} />
+      <td className={`${setVisibility(0)}`}>
+        <span className={`w-1/2 truncate`}>{person?.email}</span>
       </td>
-      <td className={`${setVisibility(50)} whitespace-nowrap`}>{person?.fep || ''}</td>
-      <td>{selectedNavigator ? (selectedNavigator['pinned']?.includes(person._id) ? 'Pinned' : person?.navigator) : person?.navigator || ''}</td>
+      <td className={`${setVisibility(50)} whitespace-nowrap`}>
+        {person?.contactNumber}
+      </td>
+      <td className={`${setVisibility(50)} whitespace-nowrap`}>
+        {person?.county || ""}
+      </td>
+      <td>
+        <Badge
+          use={
+            person?.clientStatus?.toLowerCase() as
+              | "active"
+              | "in progress"
+              | "graduated"
+              | "inactive"
+          }
+        />
+      </td>
+      <td className={`${setVisibility(50)} whitespace-nowrap`}>
+        {person?.fep || ""}
+      </td>
+      <td>
+        {selectedNavigator
+          ? selectedNavigator["pinned"]?.includes(person._id)
+            ? "Pinned"
+            : person?.navigator
+          : person?.navigator || ""}
+      </td>
     </tr>
   );
 }

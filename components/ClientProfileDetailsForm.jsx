@@ -3,7 +3,12 @@ import { Check } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useClient } from "../contexts/ClientContext";
 import { useClientList } from "../contexts/ClientListContext";
-import { adultSchools, navigators, wisconsinCounties, youthSchools } from "../public/data/schools";
+import {
+  adultSchools,
+  navigators,
+  wisconsinCounties,
+  youthSchools,
+} from "../public/data/schools";
 
 export default function ClientProfileDetailsForm({ isNarrow, isMedium }) {
   const { selectedClient, setSelectedClient } = useClient();
@@ -76,7 +81,7 @@ export default function ClientProfileDetailsForm({ isNarrow, isMedium }) {
     } else if (name === "first_name" || name === "last_name") {
       setErrors((prev) => ({
         ...prev,
-        [name]: newValue.length < 2 ? "Must be at least 2 characters" : ",
+        [name]: newValue.length < 2 ? "Must be at least 2 characters" : "",
       }));
     } else {
       setErrors((prev) => ({ ...prev, [name]: "" }));
@@ -89,10 +94,10 @@ export default function ClientProfileDetailsForm({ isNarrow, isMedium }) {
       {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(clientCopy)
-      }
+        body: JSON.stringify(clientCopy),
+      },
     );
 
     const data = await response.json();
@@ -100,7 +105,7 @@ export default function ClientProfileDetailsForm({ isNarrow, isMedium }) {
       await setSelectedClient(data.client);
       await setClientList((prev) => [
         ...prev.filter((c) => c._id !== selectedClient._id),
-        data.client
+        data.client,
       ]);
       setIsEditing(false);
     } else {
@@ -132,41 +137,41 @@ export default function ClientProfileDetailsForm({ isNarrow, isMedium }) {
           label: "First Name",
           type: "text",
           minLength: 2,
-          autoComplete: "given-name"
+          autoComplete: "given-name",
         },
         {
           name: "last_name",
           label: "Last Name",
           type: "text",
           minLength: 2,
-          autoComplete: "family-name"
+          autoComplete: "family-name",
         },
         { name: "email", label: "Email", type: "email", autoComplete: "email" },
         {
           name: "contactNumber",
           label: "Contact Number",
           type: "tel",
-          autoComplete: "tel"
+          autoComplete: "tel",
         },
         {
           name: "caseNumber",
           label: "Case Number",
           type: "text",
-          autoComplete: "off"
+          autoComplete: "off",
         },
         {
           name: "dateReferred",
           label: "Date Referred",
           type: "date",
-          autoComplete: "off"
+          autoComplete: "off",
         },
         { name: "dob", label: "DOB", type: "date", autoComplete: "bday" },
         {
           name: "pin",
           label: "PIN",
           type: "text",
-          autoComplete: "new-password"
-        }
+          autoComplete: "new-password",
+        },
       ].map(({ name, label, type, minLength, autoComplete }) => {
         const isValid = clientCopy[name] && !errors[name];
         return (
@@ -237,10 +242,10 @@ export default function ClientProfileDetailsForm({ isNarrow, isMedium }) {
         { field: "region", list: ["1", "2", "3", "4", "5", "6"] },
         {
           field: "clientStatus",
-          list: ["active", "inactive", "in progress", "graduated"]
+          list: ["active", "inactive", "in progress", "graduated"],
         },
         { field: "county", list: wisconsinCounties },
-        { field: "group", list: ["adult", "youth"] }
+        { field: "group", list: ["adult", "youth"] },
       ].map((item) => {
         if (
           clientCopy[item.field] !== undefined &&

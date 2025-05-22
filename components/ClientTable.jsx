@@ -8,11 +8,17 @@ import { useFepsLeft } from "/contexts/FepsLeftContext";
 import { useLayout } from "/contexts/LayoutContext";
 import { useNavigator } from "/contexts/NavigatorsContext";
 
-export default function ClientTable({ menuOpen, setMenuOpen, setOpen, open, toggleSidebar }) {
+export default function ClientTable({
+  menuOpen,
+  setMenuOpen,
+  setOpen,
+  open,
+  toggleSidebar,
+}) {
   const { clientList, loading, error } = useClientList();
   const { selectedNavigator } = useNavigator();
   const { selectedFepLeft } = useFepsLeft();
-  const { selectedCliet } = useClient();
+  const { selectedClient } = useClient();
   const { currentLayout } = useLayout();
   const [isMounted, setIsMounted] = useState(false);
   const [viewMode, setViewMode] = useState(null);
@@ -28,7 +34,7 @@ export default function ClientTable({ menuOpen, setMenuOpen, setOpen, open, togg
     details: true,
   });
 
-  / Update container width on layout changes
+  // Update container width on layout changes
   useEffect(() => {
     if (tableRef.current) {
       updateContainerWidth();
@@ -66,19 +72,19 @@ export default function ClientTable({ menuOpen, setMenuOpen, setOpen, open, togg
       setVisibleColumns({
         status: false,
         county: false,
-        details: true
+        details: true,
       });
     } else if (width < 600) {
       setVisibleColumns({
         status: true,
         county: false,
-        details: true
+        details: true,
       });
     } else {
       setVisibleColumns({
         status: true,
         county: true,
-        details: true
+        details: true,
       });
     }
   };
@@ -239,6 +245,8 @@ export default function ClientTable({ menuOpen, setMenuOpen, setOpen, open, togg
       <div className="no-scrollbar w-full min-w-full flex-1 overflow-y-auto">
         <div className="w-full">
           <ClientsTable
+            open={open}
+            setOpen={setOpen}
             clients={clientsToShow}
             selectedClientId={selectedClient?._id}
           />
