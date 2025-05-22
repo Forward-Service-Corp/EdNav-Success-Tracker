@@ -26,11 +26,11 @@ function NavigatorSelector() {
             Select a navigator
           </option>
           <option value="All">All</option>
-          navigatorList.map((nav, index) => (
-          <option key={index} value={(nav && nav?.name) || "All"}>
-            {nav?.name}
-          </option>
-          ))
+          {navigatorList.map((nav, index) => (
+            <option key={index} value={(nav && nav?.name) || "All"}>
+              {nav?.name}
+            </option>
+          ))}
         </select>
       </label>
     </div>
