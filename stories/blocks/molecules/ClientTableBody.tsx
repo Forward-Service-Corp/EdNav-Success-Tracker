@@ -19,7 +19,7 @@ export default function ClientTableBody({
   clients,
   open,
   setOpen,
-  selectedClientI,
+  selectedClientId,
 }: ClientTableBodyProps) {
   const { selectedFepLeft } = useFepsLeft();
   const { grouped, pinned } = selectedFepLeft;

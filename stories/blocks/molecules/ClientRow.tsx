@@ -31,12 +31,7 @@ type ClientRowProps = {
   setOpen?: any;
 };
 
-export default function ClientRow({
-  person,
-  open,
-  setOpen,
-  selecte,
-}: ClientRowProps) {
+export default function ClientRow({ person, open, setOpen, selected }: ClientRowProps) {
   const { setSelectedClient } = useClient();
   const { selectedNavigator } = useNavigator();
   const { currentLayout } = useLayout();

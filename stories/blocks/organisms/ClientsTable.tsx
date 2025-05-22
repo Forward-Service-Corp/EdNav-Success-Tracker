@@ -20,7 +20,7 @@ const ClientsTable = ({
   clients,
   selectedClientId,
   open,
-  setOpe,
+  setOpen,
 }: ClientsTableProps) => (
   <table className="no-scrollbar sticky top-80 z-10 table w-full min-w-full overflow-y-scroll">
     <ClientTableBody
