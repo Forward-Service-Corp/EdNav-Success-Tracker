@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 function RecentClientsList({ clients }) {
   return (
     <div className="bg-base-100 rounded-lg p-4 shadow-md">
@@ -15,3 +17,5 @@ function RecentClientsList({ clients }) {
     </div>
   );
 }
+
+export default RecentClientsList;
