@@ -1,26 +1,23 @@
 // /components/blocks/organisms/ClientsTable.tsx
 
-'use client';
+"use client";
 
-import ClientTableBody from '../molecules/ClientTableBody';
+import ClientTableBody from "../molecules/ClientTableBody";
 
 type ClientsTableProps = {
   clients: any[];
   selectedClientId: string | null;
-  setOpenPanel: (panel: string | null) => void;
 };
 
 // Define the component with a name before exporting
 const ClientsTable = ({
                         clients,
                         selectedClientId,
-                        setOpenPanel
                       }: ClientsTableProps) => (
   <table className="no-scrollbar sticky top-80 z-10 table min-w-full w-full overflow-y-scroll">
     <ClientTableBody
       clients={clients}
       selectedClientId={selectedClientId}
-      setOpenPanel={setOpenPanel}
     />
   </table>
 );

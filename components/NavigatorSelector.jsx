@@ -5,6 +5,8 @@ function NavigatorSelector() {
   const { selectedNavigator, setSelectedNavigator, navigatorList } =
     useNavigator();
 
+  console.log(navigatorList);
+
   return (
     <div className="w-[180px]" style={{ zIndex: 10 }}>
       <label htmlFor="theme-select" className="text-sm">

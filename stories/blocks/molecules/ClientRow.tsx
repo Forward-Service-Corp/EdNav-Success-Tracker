@@ -1,13 +1,13 @@
 // /components/blocks/molecules/ClientRow.tsx
-import { useClient } from '@/contexts/ClientContext';
-import { useEditing } from '@/contexts/EditingContext';
-import { Dispatch, SetStateAction } from 'react';
-import ClientNameBlock from '../atoms/ClientNameBlock';
-import Badge from '../../../components/Badge';
-import { useNavigator } from '@/contexts/NavigatorsContext';
-import { useLayout } from '@/contexts/LayoutContext';
+import { useClient } from "@/contexts/ClientContext";
+import { useEditing } from "@/contexts/EditingContext";
+import { Dispatch, SetStateAction } from "react";
+import ClientNameBlock from "../atoms/ClientNameBlock";
+import Badge from "../../../components/Badge";
+import { useNavigator } from "@/contexts/NavigatorsContext";
+import { useLayout } from "@/contexts/LayoutContext";
 
-type Edit = 'client' | null;
+type Edit = "client" | null;
 type ClientRowProps = {
   person: {
     fep: string;
@@ -17,19 +17,17 @@ type ClientRowProps = {
     first_name: string;
     last_name: string;
     latestInteraction: string;
-    clientStatus: 'active' | 'in progress' | 'graduated' | 'inactive';
+    clientStatus: "active" | "in progress" | "graduated" | "inactive";
     county: string;
     navigator: string;
     group: string;
-  }
+  };
   selected: boolean;
-  setOpenPanel: (panel: string | null) => void;
 };
 
 export default function ClientRow({
                                     person,
                                     selected,
-                                    setOpenPanel
                                   }: ClientRowProps) {
   const { setSelectedClient } = useClient();
   const { selectedNavigator } = useNavigator();
@@ -49,10 +47,8 @@ export default function ClientRow({
     setEditing('client');
     if (selected) {
       setSelectedClient(null);
-      setOpenPanel(null);
     } else {
       setSelectedClient(person);
-      setOpenPanel('profile');
     }
   };
 

@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useClient } from "../../contexts/ClientContext";
 import { useLoading } from "../../contexts/LoadingContext";
 import { LayoutProvider } from "../../contexts/LayoutContext";
 import { useSession } from "next-auth/react";
@@ -13,36 +12,27 @@ import { useRouter } from "next/navigation";
 
 function ClientsPage() {
   const { setLoading } = useLoading(false);
-  const { selectedClient } = useClient();
-
-  const [openPanel, setOpenPanel] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [open, setOpen] = useState("");
 
   useEffect(() => {
     setLoading(false);
   }, []);
 
-  useEffect(() => {
-    if (selectedClient) {
-      setOpenPanel("profile");
-    }
-  }, [selectedClient]);
-
   return (
     <LayoutProvider>
       <ClientsPageContent
-        openPanel={openPanel}
-        setOpenPanel={setOpenPanel}
         setMenuOpen={setMenuOpen}
         menuOpen={menuOpen}
+        open={open}
+        setOpen={setOpen}
       />
     </LayoutProvider>
   );
 }
 
 // Separate component that can access the LayoutProvider
-function ClientsPageContent({ setMenuOpen, menuOpen }) {
-  const [openPanel, setOpenPanel] = useState("");
+function ClientsPageContent({ setMenuOpen, menuOpen, open, setOpen }) {
   const { useLayout } = require("../../contexts/LayoutContext");
   const { data: session } = useSession();
   const router = useRouter();
@@ -95,7 +85,7 @@ function ClientsPageContent({ setMenuOpen, menuOpen }) {
 
   // Update layout when a panel changes
   useEffect(() => {
-    if (openPanel === "profile" && !isDetailsVisible) {
+    if (open === "profile" && !isDetailsVisible) {
       // If a profile panel is opened but a details panel is hidden, show it
       setLayoutConfig(isSidebarVisible ? "DEFAULT" : "NO_SIDEBAR");
     }
@@ -113,17 +103,19 @@ function ClientsPageContent({ setMenuOpen, menuOpen }) {
         {/* Sidebar Panel */}
         {isSidebarVisible && (
           <Sidebar
-            setOpenPanel={setOpenPanel}
             setMenuOpen={setMenuOpen}
             menuOpen={menuOpen}
             toggleSidebar={toggleSidebar}
+            setOpen={setOpen}
+            open={open}
           />
         )}
 
         {/* Table Panel */}
         <div className="h-full" style={styles.table}>
           <ClientTable
-            setOpenPanel={setOpenPanel}
+            setOpen={setOpen}
+            open={open}
             setMenuOpen={setMenuOpen}
             menuOpen={menuOpen}
             toggleSidebar={toggleSidebar}
@@ -133,10 +125,10 @@ function ClientsPageContent({ setMenuOpen, menuOpen }) {
         {/* Details Panel */}
         {isDetailsVisible && (
           <div className="h-full" style={styles.details}>
-            {openPanel === "profile" ? (
-              <ClientProfile setOpenPanel={setOpenPanel} />
-            ) : openPanel === "form" ? (
-              <AddClientForm setOpenPanel={setOpenPanel} />
+            {open === "profile" ? (
+              <ClientProfile />
+            ) : open === "form" ? (
+              <AddClientForm />
             ) : (
               <DashboardContainer />
             )}

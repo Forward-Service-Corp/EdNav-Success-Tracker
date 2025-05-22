@@ -1,20 +1,19 @@
 // /components/blocks/organisms/ClientTableContainer.tsx
 
-import { useClientList } from '@/contexts/ClientListContext';
-import { useClient } from '@/contexts/ClientContext';
-import { useFepsLeft } from '@/contexts/FepsLeftContext';
-import { useNavigator } from '@/contexts/NavigatorsContext';
-import { useEffect, useMemo, useState } from 'react';
+import { useClientList } from "@/contexts/ClientListContext";
+import { useClient } from "@/contexts/ClientContext";
+import { useFepsLeft } from "@/contexts/FepsLeftContext";
+import { useNavigator } from "@/contexts/NavigatorsContext";
+import { useEffect, useMemo, useState } from "react";
 
-import ClientsTable from '@/stories/blocks/organisms/ClientsTable';
-import SearchBar from '../../../components/SearchField';
-import { LayoutProvider } from '@/contexts/LayoutContext';
+import ClientsTable from "@/stories/blocks/organisms/ClientsTable";
+import SearchBar from "../../../components/SearchField";
+import { LayoutProvider } from "@/contexts/LayoutContext";
 
-export default function ClientTableContainer({ setOpenPanel }: {
+export default function ClientTableContainer({}: {
   menuOpen: boolean;
   setMenuOpen?: (val: boolean) => void; // Made optional since it's commented out
   toggleSidebar: () => void;
-  setOpenPanel: (panel: string | null) => void;
 }) {
   const { clientList } = useClientList();
   const { selectedNavigator } = useNavigator();
@@ -22,7 +21,7 @@ export default function ClientTableContainer({ setOpenPanel }: {
   const { selectedClient } = useClient();
 
   const [isMounted, setIsMounted] = useState(false);
-  const [viewMode] = useState<'pinned' | 'grouped' | null>(null);
+  const [viewMode] = useState<"pinned" | "grouped" | null>(null);
 
   const pinnedIds = selectedNavigator?.pinned || [];
 
@@ -38,9 +37,9 @@ export default function ClientTableContainer({ setOpenPanel }: {
           group?: string;
           _id: { toString(): string };
         }) =>
-          selectedNavigator?.name !== 'All'
+          selectedNavigator?.name !== "All"
             ? client?.navigator === selectedNavigator?.name
-            : true
+            : true,
       )
       .filter(
         (client: {
@@ -58,22 +57,23 @@ export default function ClientTableContainer({ setOpenPanel }: {
               .includes(selectedFepLeft.searchTerm.toLowerCase());
 
           const matchesStatus =
-            selectedFepLeft.status === 'All' ||
-            client?.clientStatus.toLowerCase() === selectedFepLeft.status.toLowerCase();
+            selectedFepLeft.status === "All" ||
+            client?.clientStatus.toLowerCase() ===
+              selectedFepLeft.status.toLowerCase();
 
           const matchesGroup =
-            selectedFepLeft.age === 'All' ||
+            selectedFepLeft.age === "All" ||
             client?.group === selectedFepLeft.age;
 
           return matchesSearch && matchesStatus && matchesGroup;
-        }
+        },
       );
   }, [clientList, selectedNavigator, selectedFepLeft]);
 
   const clientsToShow = useMemo(() => {
     if (!filteredClients) return [];
 
-    if (viewMode === 'pinned') {
+    if (viewMode === "pinned") {
       return [...filteredClients].sort((a, b) => {
         const aPinned = pinnedIds.includes(a._id.toString());
         const bPinned = pinnedIds.includes(b._id.toString());
@@ -98,7 +98,6 @@ export default function ClientTableContainer({ setOpenPanel }: {
           <ClientsTable
             clients={clientsToShow}
             selectedClientId={selectedClient?._id || null}
-            setOpenPanel={setOpenPanel}
           />
         </div>
       </div>

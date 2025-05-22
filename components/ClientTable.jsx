@@ -1,23 +1,18 @@
-'use client';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { useClientList } from '/contexts/ClientListContext';
-import { useClient } from '/contexts/ClientContext';
-import { useNavigator } from '/contexts/NavigatorsContext';
-import { useLayout } from '/contexts/LayoutContext';
-import { useFepsLeft } from '/contexts/FepsLeftContext';
-import SearchField from './SearchField';
-import ClientsTable from '../stories/blocks/organisms/ClientsTable';
+"use client";
+import { useEffect, useMemo, useRef, useState } from "react";
+import ClientsTable from "../stories/blocks/organisms/ClientsTable";
+import SearchField from "./SearchField";
+import { useClient } from "/contexts/ClientContext";
+import { useClientList } from "/contexts/ClientListContext";
+import { useFepsLeft } from "/contexts/FepsLeftContext";
+import { useLayout } from "/contexts/LayoutContext";
+import { useNavigator } from "/contexts/NavigatorsContext";
 
-export default function ClientTable({
-                                      menuOpen,
-                                      setMenuOpen,
-                                      toggleSidebar,
-                                      setOpenPanel
-                                    }) {
+export default function ClientTable({ menuOpen, setMenuOpen, setOpen, open, toggleSidebar }) {
   const { clientList, loading, error } = useClientList();
   const { selectedNavigator } = useNavigator();
   const { selectedFepLeft } = useFepsLeft();
-  const { selectedClient } = useClient();
+  const { selectedCliet } = useClient();
   const { currentLayout } = useLayout();
   const [isMounted, setIsMounted] = useState(false);
   const [viewMode, setViewMode] = useState(null);
@@ -30,10 +25,10 @@ export default function ClientTable({
   const [, setVisibleColumns] = useState({
     status: true,
     county: true,
-    details: true
+    details: true,
   });
 
-  // Update container width on layout changes
+  / Update container width on layout changes
   useEffect(() => {
     if (tableRef.current) {
       updateContainerWidth();
@@ -94,14 +89,14 @@ export default function ClientTable({
 
     return clientList
       .sort((a, b) => {
-        const aName = a?.first_name?.toLowerCase() || 'z';
-        const bName = b?.first_name?.toLowerCase() || 'z';
+        const aName = a?.first_name?.toLowerCase() || "z";
+        const bName = b?.first_name?.toLowerCase() || "z";
         return aName.localeCompare(bName);
       })
       .filter((client) =>
-        selectedNavigator !== 'All'
+        selectedNavigator !== "All"
           ? client?.navigator === selectedNavigator?.name
-          : true
+          : true,
       )
       .filter((client) => {
         const matchesSearch =
@@ -113,11 +108,12 @@ export default function ClientTable({
             .includes(selectedFepLeft.searchTerm.toLowerCase());
 
         const matchesStatus =
-          selectedFepLeft.status === 'All' ||
-          client?.clientStatus.toLowerCase() === selectedFepLeft.status.toLowerCase();
+          selectedFepLeft.status === "All" ||
+          client?.clientStatus.toLowerCase() ===
+            selectedFepLeft.status.toLowerCase();
 
         const matchesGroup =
-          selectedFepLeft.age === 'All' ||
+          selectedFepLeft.age === "All" ||
           client?.group === selectedFepLeft.age;
 
         return matchesSearch && matchesStatus && matchesGroup;
@@ -126,7 +122,7 @@ export default function ClientTable({
 
   function groupByClientStatus(clients) {
     return clients.reduce((groups, client) => {
-      const status = client.clientStatus.toLowerCase() || 'Unknown';
+      const status = client.clientStatus.toLowerCase() || "Unknown";
       if (!groups[status]) groups[status] = [];
       groups[status].push(client);
       return groups;
@@ -146,7 +142,7 @@ export default function ClientTable({
       });
     }
 
-    if (viewMode === 'grouped') {
+    if (viewMode === "grouped") {
       return groupByClientStatus(filteredClients); // returns object
     }
 
@@ -164,8 +160,8 @@ export default function ClientTable({
   if (loading) {
     return (
       <div className="h-full w-full">
-        <div className="h-full w-full flex flex-col">
-          <div className=" sticky top-0 z-50 flex h-[80px] items-center justify-between px-3 py-4 shadow w-full">
+        <div className="flex h-full w-full flex-col">
+          <div className="sticky top-0 z-50 flex h-[80px] w-full items-center justify-between px-3 py-4 shadow">
             <SearchField
               menuOpen={menuOpen}
               setMenuOpen={setMenuOpen}
@@ -191,9 +187,8 @@ export default function ClientTable({
   if (error) {
     return (
       <div className="h-full w-full">
-        <div className="h-full flex flex-col">
-          <div
-            className="bg-base-300 sticky top-0 z-50 flex h-[80px] items-center justify-between px-3 py-4 shadow w-full">
+        <div className="flex h-full flex-col">
+          <div className="bg-base-300 sticky top-0 z-50 flex h-[80px] w-full items-center justify-between px-3 py-4 shadow">
             <SearchField
               menuOpen={menuOpen}
               setMenuOpen={setMenuOpen}
@@ -236,15 +231,17 @@ export default function ClientTable({
   }
 
   return (
-    <div className="h-full flex flex-col" ref={tableRef}>
-      <div
-        className="bg-base-100 rounded min-w-full sticky top-0 z-50 flex h-[80px] items-center justify-between px-3 py-4 shadow-lg w-full">
+    <div className="flex h-full flex-col" ref={tableRef}>
+      <div className="bg-base-100 sticky top-0 z-50 flex h-[80px] w-full min-w-full items-center justify-between rounded px-3 py-4 shadow-lg">
         <SearchField />
       </div>
 
-      <div className="flex-1 overflow-y-auto min-w-full w-full no-scrollbar">
-        <div className="w-full ">
-          <ClientsTable clients={clientsToShow} selectedClientId={selectedClient?._id} setOpenPanel={setOpenPanel} />
+      <div className="no-scrollbar w-full min-w-full flex-1 overflow-y-auto">
+        <div className="w-full">
+          <ClientsTable
+            clients={clientsToShow}
+            selectedClientId={selectedClient?._id}
+          />
         </div>
       </div>
     </div>

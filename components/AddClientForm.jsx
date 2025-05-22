@@ -11,11 +11,13 @@ import { useClient } from "../contexts/ClientContext";
 import InputVariants from "../components/InputVariants";
 import { useEditing } from "../contexts/EditingContext";
 import { validation } from "../lib/validation";
+import { useNavigator } from "../contexts/NavigatorsContext";
 
-function AddClientForm({ setOpenPanel }) {
+function AddClientForm() {
   const [feps, setFeps] = useState([]);
   const [errors, setErrors] = useState({});
   const { setEditing } = useEditing();
+  const { navigatorList } = useNavigator();
   const { setSelectedClient } = useClient(null);
   const [formData, setFormData] = useState({
     caseNumber: "",
@@ -36,21 +38,7 @@ function AddClientForm({ setOpenPanel }) {
     schoolIfEnrolled: "",
     ttsDream: "",
   });
-  const navigatorNames = [
-    "All",
-    "Stacy Martinez",
-    "Hailey Jester",
-    "Corine Boelk",
-    "Ashleigh Chesney",
-    "Rich Basche",
-    "Rachael Banerdt",
-    "Morgan Sole",
-    "Marissa Foth",
-    "Kecia Thompson-Gorgon",
-    "Andrew McCauley",
-    "Sara Jackson",
-    "Test User",
-  ];
+  const navigatorNames = navigatorList.map((navigator) => navigator.name);
   const lastGradeCompletedOptions = [
     "5th",
     "6th",
@@ -336,13 +324,11 @@ function AddClientForm({ setOpenPanel }) {
       alert("Please fill in all required fields.");
     }
     setFormData(formBackup);
-    setOpenPanel(null);
   };
 
   const handleReset = () => {
     setFormData(formBackup);
     setEditing("");
-    setOpenPanel(null);
   };
 
   const deriveStatusFromClientData = (obj, path = []) => {
@@ -435,7 +421,6 @@ function AddClientForm({ setOpenPanel }) {
         onClick={() => {
           setEditing("");
           setSelectedClient(null);
-          setOpenPanel("");
         }}
         className={`text-base-content mt-5 mr-5 cursor-pointer text-2xl`}
       ></div>

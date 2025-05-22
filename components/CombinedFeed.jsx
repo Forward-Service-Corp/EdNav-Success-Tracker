@@ -1,10 +1,10 @@
 "use client";
-import React, { useCallback, useEffect, useState } from 'react';
-import { useClient } from '/contexts/ClientContext';
-import { format } from 'date-fns';
-import { useNotification } from '/contexts/NotificationContext';
-import { useNavigator } from '/contexts/NavigatorsContext';
-import Button from './Button';
+import React, { useCallback, useEffect, useState } from "react";
+import { useClient } from "/contexts/ClientContext";
+import { format } from "date-fns";
+import { useNotification } from "/contexts/NotificationContext";
+import { useNavigator } from "/contexts/NavigatorsContext";
+import Button from "./Button";
 
 export default function CombinedFeed() {
   const { selectedClient } = useClient();
@@ -30,7 +30,12 @@ export default function CombinedFeed() {
       }
 
       // Skip empty "Activity recorded" activities without valuable content
-      if (!activity.statement && !activity.description && !activity.details && !activity.category) {
+      if (
+        !activity.statement &&
+        !activity.description &&
+        !activity.details &&
+        !activity.category
+      ) {
         // console.log('Skipping empty activity with no valuable content');
         return;
       }
@@ -42,17 +47,22 @@ export default function CombinedFeed() {
         // console.log(`Replacing temporary activity with ID ${activity.replace}`);
         setActivities((prevActivities) => {
           // Find the temporary activity to replace
-          const tempActivity = prevActivities.find(a => a._id === activity.replace);
+          const tempActivity = prevActivities.find(
+            (a) => a._id === activity.replace,
+          );
 
           if (!tempActivity) {
             // console.log(`Temporary activity with ID ${activity.replace} not found, adding as new`);
             // Mark as permanent, so it doesn't get removed
-            return [{
-              ...activity,
-              replace: undefined,
-              isPermaPersistent: true,
-              isOptimistic: false
-            }, ...prevActivities];
+            return [
+              {
+                ...activity,
+                replace: undefined,
+                isPermaPersistent: true,
+                isOptimistic: false,
+              },
+              ...prevActivities,
+            ];
           }
 
           // console.log(`Found temporary activity to replace:`, tempActivity);
@@ -61,7 +71,12 @@ export default function CombinedFeed() {
           // console.log(`Updated activities array:`, updatedActivities);
           return prevActivities.map((a) =>
             a._id === activity.replace
-              ? { ...activity, replace: undefined, isPermaPersistent: true, isOptimistic: false }
+              ? {
+                  ...activity,
+                  replace: undefined,
+                  isPermaPersistent: true,
+                  isOptimistic: false,
+                }
               : a,
           );
         });
@@ -76,10 +91,17 @@ export default function CombinedFeed() {
         isPermaPersistent: true, // Mark as permanent, so it doesn't get removed
         // Add a unique fingerprint for better duplicate detection
         fingerprint: JSON.stringify({
-          statement: activity.statement || '',
-          navigator: activity.navigator || '',
-          createdAtApprox: new Date(activity.timestamp || activity.createdAt || Date.now()).getTime() - (new Date(activity.timestamp || activity.createdAt || Date.now()).getTime() % 1000) // Round to nearest second for better comparison
-        })
+          statement: activity.statement || "",
+          navigator: activity.navigator || "",
+          createdAtApprox:
+            new Date(
+              activity.timestamp || activity.createdAt || Date.now(),
+            ).getTime() -
+            (new Date(
+              activity.timestamp || activity.createdAt || Date.now(),
+            ).getTime() %
+              1000), // Round to nearest second for better comparison
+        }),
       };
 
       // Add an ID if one doesn't exist
@@ -94,19 +116,31 @@ export default function CombinedFeed() {
         // Enhanced duplicate detection - check by ID, fingerprint, or content similarity
         const isDuplicate = prevActivities.some((a) => {
           // Check by exact ID match
-          if (a._id && formattedActivity._id && a._id.toString() === formattedActivity._id.toString()) {
+          if (
+            a._id &&
+            formattedActivity._id &&
+            a._id.toString() === formattedActivity._id.toString()
+          ) {
             // console.log('Duplicate detected by ID match');
             return true;
           }
 
           // Check by fingerprint
-          if (a.fingerprint && formattedActivity.fingerprint && a.fingerprint === formattedActivity.fingerprint) {
+          if (
+            a.fingerprint &&
+            formattedActivity.fingerprint &&
+            a.fingerprint === formattedActivity.fingerprint
+          ) {
             // console.log('Duplicate detected by fingerprint match');
             return true;
           }
 
           // Check by content similarity for entries without fingerprints
-          if (!a.fingerprint && formattedActivity.statement && a.statement === formattedActivity.statement) {
+          if (
+            !a.fingerprint &&
+            formattedActivity.statement &&
+            a.statement === formattedActivity.statement
+          ) {
             // If statements match, check timestamp proximity (within 60 seconds)
             const aTime = new Date(a.timestamp || a.createdAt || 0).getTime();
             const newTime = formattedActivity.date.getTime();
@@ -127,12 +161,11 @@ export default function CombinedFeed() {
         }
 
         // Store the activity in localStorage for persistence with duplicate checks
-        if (typeof window !== 'undefined' && selectedClient?._id) {
+        if (typeof window !== "undefined" && selectedClient?._id) {
           try {
             // Store this activity in localStorage for maximum persistence
-            // const key = `permanentActivities-${selectedClient._id}`;
+            // a const key = `permanentActivities-${selectedClient._id}`;
             // const storedActivities = JSON.parse(localStorage.getItem(key) || '[]');
-
             // Check if activity already exists in storage
             // const existsInStorage = storedActivities.some(a =>
             //   (a._id && a._id === formattedActivity._id) ||
@@ -140,7 +173,6 @@ export default function CombinedFeed() {
             //   (a.statement === formattedActivity.statement &&
             //     Math.abs(new Date(a.date).getTime() - formattedActivity.date.getTime()) < 60000)
             // );
-
             // if (!existsInStorage) {
             //   storedActivities.push(formattedActivity);
             //   localStorage.setItem(key, JSON.stringify(storedActivities));
@@ -149,7 +181,7 @@ export default function CombinedFeed() {
             //   // console.log('Activity already exists in localStorage, not adding duplicate');
             // }
           } catch (e) {
-            console.error('Failed to store in localStorage:', e);
+            console.error("Failed to store in localStorage:", e);
           }
         }
 
@@ -160,22 +192,27 @@ export default function CombinedFeed() {
       // Use a single integrity check instead of multiple
       const activityId = formattedActivity._id;
       const checkActivityExists = () => {
-        setActivities(prevActivities => {
+        setActivities((prevActivities) => {
           // Only add back if it doesn't already exist by any detection method
-          const exists = prevActivities.some(a => {
+          const exists = prevActivities.some((a) => {
             // Check by ID
             if (a._id === activityId) return true;
 
             // Check by fingerprint
-            if (a.fingerprint && formattedActivity.fingerprint &&
-              a.fingerprint === formattedActivity.fingerprint) return true;
+            if (
+              a.fingerprint &&
+              formattedActivity.fingerprint &&
+              a.fingerprint === formattedActivity.fingerprint
+            )
+              return true;
 
             // Check by content and timestamp
             if (a.statement === formattedActivity.statement) {
-              const timeDiff = Math.abs(
-                new Date(a.timestamp || a.createdAt || 0).getTime() -
-                formattedActivity.date.getTime()
-              ) / 1000;
+              const timeDiff =
+                Math.abs(
+                  new Date(a.timestamp || a.createdAt || 0).getTime() -
+                    formattedActivity.date.getTime(),
+                ) / 1000;
               if (timeDiff < 60) return true;
             }
 
@@ -216,7 +253,7 @@ export default function CombinedFeed() {
 
   // Expose the functions globally
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       // console.log('Exposing global feed functions');
 
       // Original function maintained for backward compatibility
@@ -230,7 +267,7 @@ export default function CombinedFeed() {
 
         // If no client selected, can't add items
         if (!selectedClient || !selectedClient._id) {
-          console.error('FEED DEBUG: Cannot add item - no client selected');
+          console.error("FEED DEBUG: Cannot add item - no client selected");
           return null;
         }
 
@@ -239,7 +276,9 @@ export default function CombinedFeed() {
           // console.log('FEED DEBUG: Item missing clientId, adding current client ID');
           item.clientId = selectedClient._id;
         } else if (item.clientId !== selectedClient._id) {
-          console.warn('FEED DEBUG: Item has different clientId than selected client, skipping');
+          console.warn(
+            "FEED DEBUG: Item has different clientId than selected client, skipping",
+          );
           return null; // Don't add items for other clients
         }
 
@@ -247,16 +286,16 @@ export default function CombinedFeed() {
         const formattedItem = {
           ...item,
           clientId: selectedClient._id, // Ensure client ID is set
-          type: item.type || (item.noteContent ? 'note' : 'activity'),
-          date: new Date(item.timestamp || item.createdAt || Date.now())
+          type: item.type || (item.noteContent ? "note" : "activity"),
+          date: new Date(item.timestamp || item.createdAt || Date.now()),
         };
 
         // console.log('FEED DEBUG: Formatted item:', formattedItem);
 
         // MOST DIRECT APPROACH: Add directly to the combined feed first for immediate display
-        setCombinedFeed(prev => {
+        setCombinedFeed((prev) => {
           // Skip if already in the feed
-          if (prev.some(existing => existing._id === formattedItem._id)) {
+          if (prev.some((existing) => existing._id === formattedItem._id)) {
             // console.log('FEED DEBUG: Item already in feed, not adding duplicate');
             return prev;
           }
@@ -266,20 +305,24 @@ export default function CombinedFeed() {
         });
 
         // Also add to an appropriate state collection for consistency
-        if (formattedItem.type === 'note' || formattedItem.isNote || formattedItem.noteContent) {
+        if (
+          formattedItem.type === "note" ||
+          formattedItem.isNote ||
+          formattedItem.noteContent
+        ) {
           // console.log('FEED DEBUG: Adding note to state for consistency');
-          setNotes(prev => {
+          setNotes((prev) => {
             // Skip if already in notes
-            if (prev.some(note => note._id === formattedItem._id)) {
+            if (prev.some((note) => note._id === formattedItem._id)) {
               return prev;
             }
             return [formattedItem, ...prev];
           });
         } else {
           // console.log('FEED DEBUG: Adding activity to state for consistency');
-          setActivities(prev => {
+          setActivities((prev) => {
             // Skip if already in activities
-            if (prev.some(activity => activity._id === formattedItem._id)) {
+            if (prev.some((activity) => activity._id === formattedItem._id)) {
               return prev;
             }
             return [formattedItem, ...prev];
@@ -287,19 +330,19 @@ export default function CombinedFeed() {
         }
 
         // If it's an activity, also persist to localStorage for extra safety
-        if (formattedItem.type === 'activity' && selectedClient?._id) {
+        if (formattedItem.type === "activity" && selectedClient?._id) {
           try {
             const key = `permanentActivities-${selectedClient._id}`;
-            const stored = JSON.parse(localStorage.getItem(key) || '[]');
+            const stored = JSON.parse(localStorage.getItem(key) || "[]");
 
             // Skip if already in localStorage
-            if (!stored.some(s => s._id === formattedItem._id)) {
+            if (!stored.some((s) => s._id === formattedItem._id)) {
               stored.push(formattedItem);
               // localStorage.setItem(key, JSON.stringify(stored));
               // console.log('FEED DEBUG: Also saved to localStorage');
             }
           } catch (e) {
-            console.error('FEED DEBUG: Error saving to localStorage:', e);
+            console.error("FEED DEBUG: Error saving to localStorage:", e);
           }
         }
 
@@ -311,28 +354,30 @@ export default function CombinedFeed() {
         // console.log('Optimistically adding activity to state:', activity);
 
         // Add directly to state with a forced re-render
-        setActivities(prev => {
+        setActivities((prev) => {
           // console.log('Current activities before adding: ', prev.length);
           // console.log('New activities after adding:', newActivities.length);
           return [activity, ...prev];
         });
 
         // Also add directly to the combined feed for immediate feedback
-        setCombinedFeed(prev => {
+        setCombinedFeed((prev) => {
           // console.log('Adding directly to combined feed for immediate display');
           const formattedActivity = {
             ...activity,
-            type: 'activity',
-            date: new Date(activity.timestamp || activity.createdAt || Date.now())
+            type: "activity",
+            date: new Date(
+              activity.timestamp || activity.createdAt || Date.now(),
+            ),
           };
           return [formattedActivity, ...prev].sort((a, b) => b.date - a.date);
         });
 
         // Force a check after a short delay
         setTimeout(() => {
-          setActivities(prev => {
+          setActivities((prev) => {
             // console.log('Checking if optimistic activity was added correctly');
-            const hasActivity = prev.some(a => a._id === activity._id);
+            const hasActivity = prev.some((a) => a._id === activity._id);
             // console.log('Activity present in state:', hasActivity);
             if (!hasActivity) {
               // console.log('Activity was not found, re-adding it');
@@ -347,29 +392,37 @@ export default function CombinedFeed() {
         // console.log('Replacing optimistic activity with real one:', { tempId, realActivity });
 
         // Replace in activities state
-        setActivities(prev =>
-          prev.map(a =>
+        setActivities((prev) =>
+          prev.map((a) =>
             a._id === tempId
               ? {
-                ...realActivity,
-                type: 'activity',
-                date: new Date(realActivity.timestamp || realActivity.createdAt || Date.now())
-              }
-              : a
-          )
+                  ...realActivity,
+                  type: "activity",
+                  date: new Date(
+                    realActivity.timestamp ||
+                      realActivity.createdAt ||
+                      Date.now(),
+                  ),
+                }
+              : a,
+          ),
         );
 
-        // Also replace in combined feed for consistency
-        setCombinedFeed(prev =>
-          prev.map(item =>
-            (item.type === 'activity' && item._id === tempId)
+        // Also replace it in a combined feed for consistency
+        setCombinedFeed((prev) =>
+          prev.map((item) =>
+            item.type === "activity" && item._id === tempId
               ? {
-                ...realActivity,
-                type: 'activity',
-                date: new Date(realActivity.timestamp || realActivity.createdAt || Date.now())
-              }
-              : item
-          )
+                  ...realActivity,
+                  type: "activity",
+                  date: new Date(
+                    realActivity.timestamp ||
+                      realActivity.createdAt ||
+                      Date.now(),
+                  ),
+                }
+              : item,
+          ),
         );
       };
     }
@@ -390,7 +443,7 @@ export default function CombinedFeed() {
   // A completely simplified loadData function focused only on API calls
   const loadData = async () => {
     // console.log('LOAD DEBUG: loadData called');
-    
+
     // Only load data if there's a selected client
     if (!selectedClient || !selectedClient._id) {
       // console.log('LOAD DEBUG: No client selected, resetting states');
@@ -407,41 +460,55 @@ export default function CombinedFeed() {
 
       // Load all data - simplifying to just sequential calls for now
       // console.log('LOAD DEBUG: Fetching activities');
-      const activityResponse = await fetch(`/api/activities?clientId=${selectedClient._id}`);
-      const activityData = activityResponse.ok ? await activityResponse.json() : { data: [] };
+      const activityResponse = await fetch(
+        `/api/activities?clientId=${selectedClient._id}`,
+      );
+      const activityData = activityResponse.ok
+        ? await activityResponse.json()
+        : { data: [] };
       const fetchedActivities = activityData.data || [];
       // console.log('LOAD DEBUG: Fetched activities:', fetchedActivities.length);
 
       // console.log('LOAD DEBUG: Fetching notes');
-      const notesResponse = await fetch(`/api/notes?clientId=${selectedClient._id}`);
+      const notesResponse = await fetch(
+        `/api/notes?clientId=${selectedClient._id}`,
+      );
       const notesData = notesResponse.ok ? await notesResponse.json() : [];
       // console.log('LOAD DEBUG: Fetched notes:', notesData.length);
 
       // console.log('LOAD DEBUG: Fetching comments');
-      const commentsResponse = await fetch(`/api/comments?clientId=${selectedClient._id}`);
-      const commentsData = commentsResponse.ok ? await commentsResponse.json() : [];
+      const commentsResponse = await fetch(
+        `/api/comments?clientId=${selectedClient._id}`,
+      );
+      const commentsData = commentsResponse.ok
+        ? await commentsResponse.json()
+        : [];
       // console.log('LOAD DEBUG: Fetched comments:', commentsData.length);
 
-      // Process activities - filter out empty ones
+      // Process activities - filter out empty one's
       // console.log('LOAD DEBUG: Processing activities');
-      const validActivities = fetchedActivities.filter(activity =>
-        activity.statement || activity.description || activity.details || activity.category
+      const validActivities = fetchedActivities.filter(
+        (activity) =>
+          activity.statement ||
+          activity.description ||
+          activity.details ||
+          activity.category,
       );
       // console.log('LOAD DEBUG: Valid activities after filtering:', validActivities.length);
 
       // Format activities for the feed
-      const formattedActivities = validActivities.map(activity => ({
+      const formattedActivities = validActivities.map((activity) => ({
         ...activity,
-        type: 'activity',
-        date: new Date(activity.timestamp || activity.createdAt || Date.now())
+        type: "activity",
+        date: new Date(activity.timestamp || activity.createdAt || Date.now()),
       }));
 
       // Format notes for the feed
       // console.log('LOAD DEBUG: Processing notes');
-      const formattedNotes = (notesData || []).map(note => ({
+      const formattedNotes = (notesData || []).map((note) => ({
         ...note,
-        type: 'note',
-        date: new Date(note.createdAt || Date.now())
+        type: "note",
+        date: new Date(note.createdAt || Date.now()),
       }));
 
       // Set individual state collections
@@ -457,21 +524,22 @@ export default function CombinedFeed() {
 
       // Check for any existing items that should be preserved (optimistic updates)
       // Crucially, ONLY preserve items that match the current client ID
-      const existingItems = combinedFeed.filter(item =>
-        // Only preserve items that belong to the current client
-        item.clientId === selectedClient._id &&
-        // And are either flagged as optimistic
-        (item.isOptimistic === true ||
-          // Or items with a permanent flag
-          item.isPermaPersistent === true)
+      const existingItems = combinedFeed.filter(
+        (item) =>
+          // Only preserve items that belong to the current client
+          item.clientId === selectedClient._id &&
+          // And are either flagged as optimistic
+          (item.isOptimistic === true ||
+            // Or items with a permanent flag
+            item.isPermaPersistent === true),
       );
 
       // console.log(`LOAD DEBUG: Found ${existingItems.length} optimistic items for current client`);
 
       // Add existing optimistic items but avoid duplicates
-      existingItems.forEach(item => {
+      existingItems.forEach((item) => {
         // Skip if this ID already exists in the new feed
-        if (!newFeed.some(newItem => newItem._id === item._id)) {
+        if (!newFeed.some((newItem) => newItem._id === item._id)) {
           newFeed.push(item);
         }
       });
@@ -486,9 +554,8 @@ export default function CombinedFeed() {
 
       // Set a combined feed state
       setCombinedFeed(newFeed);
-      
     } catch (error) {
-      console.error('LOAD DEBUG: Error loading feed data:', error);
+      console.error("LOAD DEBUG: Error loading feed data:", error);
       setNotification({
         type: "error",
         message: "Failed to load client feed",
@@ -514,9 +581,9 @@ export default function CombinedFeed() {
       setComments([]);
       setCombinedFeed([]);
       setIsAddingNote(false);
-      setNoteContent('');
+      setNoteContent("");
       setCommentingOn(null);
-      setCommentContent('');
+      setCommentContent("");
       setExpandedComments({});
 
       // Load data for the new client - no need to preserve optimistic updates
@@ -556,23 +623,23 @@ export default function CombinedFeed() {
 
       // Create a unique temporary ID
       const tempId = `temp-${Date.now()}`;
-      
+
       // Optimistically add to UI first for immediate feedback
       const optimisticNote = {
         ...noteData,
         _id: tempId,
         type: "note",
         date: new Date(),
-        isOptimistic: true // Flag to identify optimistic updates
+        isOptimistic: true, // Flag to identify optimistic updates
       };
 
       // Add directly to both states to ensure visibility
       setNotes((prevNotes) => [optimisticNote, ...prevNotes]);
 
       // Also add directly to the combined feed for immediate visibility
-      setCombinedFeed(prevFeed => {
+      setCombinedFeed((prevFeed) => {
         // Check if already in the feed
-        if (prevFeed.some(item => item._id === tempId)) {
+        if (prevFeed.some((item) => item._id === tempId)) {
           return prevFeed;
         }
         // Add and re-sort
@@ -597,23 +664,21 @@ export default function CombinedFeed() {
       const realNote = {
         ...(result.note || {}),
         _id: result.note?._id || result._id || tempId,
-        type: 'note',
+        type: "note",
         date: new Date(result.note?.createdAt || Date.now()),
-        isOptimistic: false
+        isOptimistic: false,
       };
 
       // Update notes state
       setNotes((prevNotes) =>
-        prevNotes.map((note) =>
-          note._id === tempId ? realNote : note
-        ),
+        prevNotes.map((note) => (note._id === tempId ? realNote : note)),
       );
 
       // Also update the combined feed
-      setCombinedFeed(prevFeed =>
-        prevFeed.map(item =>
-          (item._id === tempId && item.type === 'note') ? realNote : item
-        )
+      setCombinedFeed((prevFeed) =>
+        prevFeed.map((item) =>
+          item._id === tempId && item.type === "note" ? realNote : item,
+        ),
       );
 
       // Clear form
@@ -630,13 +695,13 @@ export default function CombinedFeed() {
       console.error("Error adding note:", error);
 
       // Remove the optimistic update on error
-      setNotes((prevNotes) =>
-        prevNotes.filter((note) => note._id !== tempId)
-      );
+      setNotes((prevNotes) => prevNotes.filter((note) => note._id !== tempId));
 
       // Also remove from the combined feed
-      setCombinedFeed(prevFeed =>
-        prevFeed.filter(item => !(item._id === tempId && item.type === 'note'))
+      setCombinedFeed((prevFeed) =>
+        prevFeed.filter(
+          (item) => !(item._id === tempId && item.type === "note"),
+        ),
       );
 
       // Show error notification
@@ -677,12 +742,12 @@ export default function CombinedFeed() {
 
       // Create a unique ID for the optimistic update
       const tempId = `temp-${Date.now()}`;
-      
+
       // Optimistically add comment to UI first
       const optimisticComment = {
         ...commentData,
         _id: tempId,
-        isOptimistic: true
+        isOptimistic: true,
       };
 
       setComments((prevComments) => [optimisticComment, ...prevComments]);
@@ -713,10 +778,10 @@ export default function CombinedFeed() {
         prevComments.map((comment) =>
           comment._id === tempId
             ? {
-              ...result.comment,
-              _id: result.comment?._id || result._id,
-              isOptimistic: false
-            }
+                ...result.comment,
+                _id: result.comment?._id || result._id,
+                isOptimistic: false,
+              }
             : comment,
         ),
       );
@@ -736,7 +801,7 @@ export default function CombinedFeed() {
 
       // Remove the optimistic comment on error - use the flag to identify it
       setComments((prevComments) =>
-        prevComments.filter((comment) => !comment.isOptimistic)
+        prevComments.filter((comment) => !comment.isOptimistic),
       );
 
       // Show error notification
@@ -757,14 +822,16 @@ export default function CombinedFeed() {
 
   const openActivityModal = () => {
     // This function should open the ActivityModal
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       // console.log('CombinedFeed trying to open activity modal');
       // console.log('window.openActivityModal exists:', !!window.openActivityModal);
 
       // Force modal state directly if possible
-      if (typeof window !== 'undefined') {
+      if (typeof window !== "undefined") {
         // Create a custom event that will be picked up by any component listening for it
-        const event = new CustomEvent('openActivityModal', { detail: { open: 'activity' } });
+        const event = new CustomEvent("openActivityModal", {
+          detail: { open: "activity" },
+        });
         window.dispatchEvent(event);
         // console.log('Dispatched openActivityModal event');
       }
@@ -775,15 +842,17 @@ export default function CombinedFeed() {
           window.openActivityModal();
           // console.log('Activity modal should now be open via global function');
         } catch (error) {
-          console.error('Error opening activity modal:', error);
+          console.error("Error opening activity modal:", error);
           setNotification({
-            type: 'error',
-            message: 'Error opening activity modal',
-            active: true
+            type: "error",
+            message: "Error opening activity modal",
+            active: true,
           });
         }
       } else {
-        console.warn('Activity modal function not found - using event approach only');
+        console.warn(
+          "Activity modal function not found - using event approach only",
+        );
         // We've already dispatched the event, so no notification needed
       }
     }
@@ -795,18 +864,20 @@ export default function CombinedFeed() {
     const checkPersistedActivities = () => {
       // console.log('Checking for persisted activities');
 
-      if (typeof window !== 'undefined' && selectedClient?._id) {
+      if (typeof window !== "undefined" && selectedClient?._id) {
         try {
           // Check for permanently stored activities (this is the one with real activities)
           const permKey = `permanentActivities-${selectedClient._id}`;
-          const permActivities = JSON.parse(localStorage.getItem(permKey) || '[]');
+          const permActivities = JSON.parse(
+            localStorage.getItem(permKey) || "[]",
+          );
 
           // console.log('Found stored permanent activities to restore:', permActivities.length);
 
           if (permActivities.length > 0) {
             // Filter to ensure we only restore activities for THIS client
-            const clientActivities = permActivities.filter(activity =>
-              activity.clientId === selectedClient._id
+            const clientActivities = permActivities.filter(
+              (activity) => activity.clientId === selectedClient._id,
             );
 
             // console.log(`Filtered activities for the current client: ${clientActivities.length}`);
@@ -814,19 +885,23 @@ export default function CombinedFeed() {
             if (clientActivities.length > 0) {
               // DIRECT APPROACH: Add these activities directly to the combined feed
               // This bypasses all the state management complexity
-              setCombinedFeed(prev => {
+              setCombinedFeed((prev) => {
                 const newItems = [];
 
-                clientActivities.forEach(activity => {
+                clientActivities.forEach((activity) => {
                   // Format the activity properly
                   const formattedActivity = {
                     ...activity,
-                    type: activity.type || 'activity',
-                    date: new Date(activity.timestamp || activity.createdAt || Date.now())
+                    type: activity.type || "activity",
+                    date: new Date(
+                      activity.timestamp || activity.createdAt || Date.now(),
+                    ),
                   };
 
                   // Skip if this activity is already in the feed
-                  if (!prev.some(item => item._id === formattedActivity._id)) {
+                  if (
+                    !prev.some((item) => item._id === formattedActivity._id)
+                  ) {
                     newItems.push(formattedActivity);
                   }
                 });
@@ -842,7 +917,7 @@ export default function CombinedFeed() {
             }
           }
         } catch (e) {
-          console.error('Error checking for persisted activities:', e);
+          console.error("Error checking for persisted activities:", e);
         }
       }
     };
@@ -862,11 +937,11 @@ export default function CombinedFeed() {
       }
     };
 
-    if (typeof window !== 'undefined' && selectedClient) {
-      window.addEventListener('activityAdded', handleActivityAdded);
+    if (typeof window !== "undefined" && selectedClient) {
+      window.addEventListener("activityAdded", handleActivityAdded);
 
       return () => {
-        window.removeEventListener('activityAdded', handleActivityAdded);
+        window.removeEventListener("activityAdded", handleActivityAdded);
       };
     }
   }, [selectedClient]);
@@ -884,8 +959,10 @@ export default function CombinedFeed() {
     return (
       <div className="bg-base-100 w-full rounded shadow">
         <div className="">
-          <span className={`mb-3 text-xl uppercase font-light tracking-wider`}>Activity Feed</span>
-          <div className="text-base-content/50 flex  items-center justify-center">
+          <span className={`mb-3 text-xl font-light tracking-wider uppercase`}>
+            Activity Feed
+          </span>
+          <div className="text-base-content/50 flex items-center justify-center">
             <div className="text-center">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -914,9 +991,11 @@ export default function CombinedFeed() {
 
   if (loading) {
     return (
-      <div className=" bg-base-100 h-full w-full shadow">
+      <div className="bg-base-100 h-full w-full shadow">
         <div className="">
-          <span className={`mb-3 text-xl uppercase font-light tracking-wider`}>Activity Feed</span>
+          <span className={`mb-3 text-xl font-light tracking-wider uppercase`}>
+            Activity Feed
+          </span>
           <div className="flex h-96 items-center justify-center">
             <div className="loading loading-spinner loading-lg"></div>
           </div>
@@ -928,20 +1007,26 @@ export default function CombinedFeed() {
   return (
     <div className="bg-base-200 h-full w-full rounded shadow">
       <div className="p-6">
-        <div className="flex items-center justify-between flex-wrap gap-2">
-          <span className={`mb-3 text-xl uppercase font-light tracking-wider`}>Activity Feed</span>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <span className={`mb-3 text-xl font-light tracking-wider uppercase`}>
+            Activity Feed
+          </span>
           <div className="flex gap-1 md:gap-2">
-            <Button use={`primary`} onClick={() => setIsAddingNote(!isAddingNote)}
-                    label={isAddingNote ? 'Cancel' : 'Post Note'} />
-            <Button use={`primary`}
+            <Button
+              use={`primary`}
+              onClick={() => setIsAddingNote(!isAddingNote)}
+              label={isAddingNote ? "Cancel" : "Post Note"}
+            />
+            <Button
+              use={`primary`}
               onClick={() => {
-                const btn = document.getElementById('postActivityButton');
+                const btn = document.getElementById("postActivityButton");
                 if (btn) {
-                  btn.innerText = 'Opening...';
-                  btn.classList.add('btn-disabled');
+                  btn.innerText = "Opening...";
+                  btn.classList.add("btn-disabled");
                   setTimeout(() => {
-                    btn.innerText = 'Post Activity';
-                    btn.classList.remove('btn-disabled');
+                    btn.innerText = "Post Activity";
+                    btn.classList.remove("btn-disabled");
                   }, 2000);
                 }
 
@@ -949,23 +1034,22 @@ export default function CombinedFeed() {
                 openActivityModal();
 
                 // Force direct open as a last resort
-                if (typeof window !== 'undefined' && window.directOpenModal) {
+                if (typeof window !== "undefined" && window.directOpenModal) {
                   setTimeout(() => {
                     // console.log('Attempting direct modal open as fallback');
                     window.directOpenModal();
                   }, 200);
                 }
               }}
-                    label={`Post Activity`}
+              label={`Post Activity`}
               id="postActivityButton"
             />
-
           </div>
         </div>
 
         {/* Note Entry Form */}
         {isAddingNote && (
-          <div className=" mt-6">
+          <div className="mt-6">
             <h3 className="mb-2 font-medium">Add Note</h3>
             <textarea
               className="textarea textarea-bordered h-24 w-full"
@@ -987,7 +1071,7 @@ export default function CombinedFeed() {
 
         {/* Comment Entry Form */}
         {commentingOn && (
-          <div className=" my-3 rounded">
+          <div className="my-3 rounded">
             <h3 className="mb-2 font-medium">
               Add Comment to{" "}
               {commentingOn.type === "activity" ? "Activity" : "Note"}
@@ -1029,12 +1113,14 @@ export default function CombinedFeed() {
                 const isExpanded = expandedComments[item._id];
 
                 // Ensure unique keys by combining _id with index when available, or just use index
-                const uniqueKey = item._id ? `${item._id}-${index}` : `feed-item-${index}`;
-                
+                const uniqueKey = item._id
+                  ? `${item._id}-${index}`
+                  : `feed-item-${index}`;
+
                 return (
                   <li key={uniqueKey} className="mb-4">
                     <div
-                      className={`${item.type === 'activity' ? 'text-primary' : 'text-secondary'}`}
+                      className={`${item.type === "activity" ? "text-primary" : "text-secondary"}`}
                     >
                       {format(item.date, "MMM d, yyyy")}
                     </div>
@@ -1080,7 +1166,7 @@ export default function CombinedFeed() {
 
                       {/* Comments section */}
                       {hasComments && isExpanded && (
-                        <div className=" mt-2 pt-2">
+                        <div className="mt-2 pt-2">
                           <ul className="space-y-2">
                             {itemComments.map((comment) => (
                               <li
@@ -1122,5 +1208,5 @@ export default function CombinedFeed() {
 
 // Default props
 CombinedFeed.defaultProps = {
-  isNarrow: false
+  isNarrow: false,
 };

@@ -7,9 +7,8 @@ import { useClient } from "/contexts/ClientContext";
 import ActivityModal from "../components/ActivityModal";
 import { useLayout } from "/contexts/LayoutContext";
 import ClientProfileProgress from "./ClientProfileProgress";
-// import Button from './Button';
 
-export default function ClientProfile({ setOpenPanel }) {
+export default function ClientProfile() {
   const [isMounted, setIsMounted] = useState(false);
   const { selectedClient, setSelectedClient } = useClient();
   const [, setActions] = useState([]); // activities are the activities
@@ -574,7 +573,6 @@ export default function ClientProfile({ setOpenPanel }) {
             className={`${layoutConfig.isNarrow ? "col-span-1" : "col-span-5"}`}
           >
             <ClientProfilePersonalOrganization
-              setOpenPanel={setOpenPanel}
               isNarrow={layoutConfig.isNarrow}
               isMedium={layoutConfig.isMedium}
             />
@@ -582,7 +580,7 @@ export default function ClientProfile({ setOpenPanel }) {
           <div
             className={`${layoutConfig.isNarrow ? "col-span-1" : "col-span-5"}`}
           >
-            {selectedClient.group === "adult" && (
+            {selectedClient?.group === "adult" && (
               <ClientProfileProgress
                 isNarrow={layoutConfig.isNarrow}
                 isMedium={layoutConfig.isMedium}

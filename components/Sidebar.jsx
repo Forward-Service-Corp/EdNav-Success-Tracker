@@ -8,7 +8,7 @@ import Button from "./Button";
 import { useLayout } from "../contexts/LayoutContext";
 import { signOut } from "next-auth/react";
 
-function Sidebar({ setOpenPanel }) {
+function Sidebar({ setOpen, open }) {
   const { currentLayout, isSidebarVisible, isDetailsVisible } = useLayout();
   // Direct panel styling based on the current layout
   const getPanelStyles = () => {
@@ -45,12 +45,12 @@ function Sidebar({ setOpenPanel }) {
         <Button
           use={`primary`}
           label={`Dashboard`}
-          onClick={() => setOpenPanel("")}
+          onClick={() => setOpen("")}
         />
         <Button
           use={`primary`}
           label="+ Add Client"
-          onClick={() => setOpenPanel("form")}
+          onClick={() => setOpen("form")}
         />
         <Button use={`accent`} label="Logout" onClick={signOut} />
         <div className="divider mt-8 mb-3">Age Filters</div>

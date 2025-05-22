@@ -6,9 +6,9 @@ import React, {
   useContext,
   useEffect,
   useMemo,
-  useState
-} from 'react';
-import { useSession } from 'next-auth/react';
+  useState,
+} from "react";
+import { useSession } from "next-auth/react";
 
 // Properly typed model with required/optional fields
 interface Navigator {
@@ -45,15 +45,20 @@ interface NavigatorContextType {
 // Context with default values
 export const NavigatorContext = createContext<NavigatorContextType>({
   selectedNavigator: null,
-  setSelectedNavigator: () => {
-  },
+  setSelectedNavigator: () => {},
   navigatorList: [],
   loading: false,
-  error: null
+  error: null,
 });
 
-export let NavigatorProvider: ({ children }: { children: React.ReactNode }) => React.ReactElement = ({ children }) => {
-  const [selectedNavigator, setSelectedNavigator] = useState<Navigator | null>(null);
+export let NavigatorProvider: ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => React.ReactElement = ({ children }) => {
+  const [selectedNavigator, setSelectedNavigator] = useState<Navigator | null>(
+    null,
+  );
   const [navigatorList, setNavigatorList] = useState<Navigator[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -64,10 +69,10 @@ export let NavigatorProvider: ({ children }: { children: React.ReactNode }) => R
     setLoading(true);
     setError(null);
 
-    const navigatorsRes = await fetch('/api/navigators');
-    // if (!navigatorsRes.ok) {
-    //   throw new Error ('Failed to fetch navigators: ${navigatorsRes.status}');
-    // }
+    const navigatorsRes = await fetch("/api/navigators");
+    if (!navigatorsRes.ok) {
+      throw new Error("Failed to fetch navigators: ${navigatorsRes.status}");
+    }
     const res = await navigatorsRes.json();
     setNavigatorList(res);
     setSelectedNavigator(null);
@@ -80,9 +85,10 @@ export let NavigatorProvider: ({ children }: { children: React.ReactNode }) => R
 
   useEffect(() => {
     if (navigatorList.length && session?.user?.name) {
-      const userName = session.user.name;  // Capture the non-null value
+      const userName = session.user.name; // Capture the non-null value
       const matchingNavigator = navigatorList.find(
-        nav => nav.name.toLowerCase().trim() === userName.toLowerCase().trim()
+        (nav) =>
+          nav.name.toLowerCase().trim() === userName.toLowerCase().trim(),
       );
       if (matchingNavigator) {
         // @ts-ignore
@@ -92,13 +98,16 @@ export let NavigatorProvider: ({ children }: { children: React.ReactNode }) => R
   }, [navigatorList, session]);
 
   // Memoized context value to prevent unnecessary re-renders
-  const contextValue = useMemo(() => ({
-    selectedNavigator,
-    setSelectedNavigator,
-    navigatorList,
-    loading,
-    error
-  }), [selectedNavigator, navigatorList, loading, error]);
+  const contextValue = useMemo(
+    () => ({
+      selectedNavigator,
+      setSelectedNavigator,
+      navigatorList,
+      loading,
+      error,
+    }),
+    [selectedNavigator, navigatorList, loading, error],
+  );
 
   return (
     <NavigatorContext.Provider value={contextValue}>
@@ -111,7 +120,7 @@ export let NavigatorProvider: ({ children }: { children: React.ReactNode }) => R
 export const useNavigator = () => {
   const context = useContext(NavigatorContext);
   if (!context) {
-    throw new Error('useNavigator must be used within a NavigatorProvider');
+    throw new Error("useNavigator must be used within a NavigatorProvider");
   }
   return context;
 };

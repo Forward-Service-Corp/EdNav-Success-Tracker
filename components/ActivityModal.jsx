@@ -7,33 +7,38 @@ export default function ActivityModal({ open, setOpen, onSuccess }) {
   const [questions, setQuestions] = useState([]);
   const [isVisible, setIsVisible] = useState(false);
   const { selectedClient } = useClient();
+  console.log("ActivityModal open:", open);
+  console.log("ActivityModal selectedClient:", selectedClient);
+  // console.log('ActivityModal isVisible:', isVisible);
 
-  // console.log('ActivityModal rendering with open state:', open);
-
-  // Force visibility when open changes
-  useEffect(() => {
-    // console.log('ActivityModal open state changed to:', open);
-    if (open === "activity") {
-      // Verify we have a selected client
-      if (!selectedClient) {
-        const timeout = setTimeout(() => {
-          if (!selectedClient) {
-            console.warn("Still no client selected. Closing modal.");
-            if (typeof setOpen === "function") {
-              setOpen("");
-            }
-          }
-        }, 200);
-        return () => clearTimeout(timeout);
-      }
-      setIsVisible(true);
-      // Add a body class to prevent scrolling
-      document.body.classList.add("modal-open");
-    } else {
-      setIsVisible(false);
-      document.body.classList.remove("modal-open");
-    }
-  }, [open, selectedClient, setOpen, setIsVisible, setQuestions, isVisible]);
+  // Turbo-hammered modal state reset to forcibly restart animation/render cycle on every open
+  // useEffect(() => {
+  //   let timeout;
+  //   if (open === "activity") {
+  //     if (!selectedClient) {
+  //       timeout = setTimeout(() => {
+  //         if (!selectedClient) {
+  //           console.warn("Still no client selected. Closing modal.");
+  //           if (typeof setOpen === "function") {
+  //             setOpen("");
+  //           }
+  //         }
+  //       }, 200);
+  //     } else {
+  //       // Blast it closed then openly again with enough spacing to bypass React's laziness
+  //       setIsVisible(false);
+  //       timeout = setTimeout(() => {
+  //         setIsVisible(true);
+  //         document.body.classList.add("modal-open");
+  //       }, 10); // give it a tick
+  //     }
+  //   } else {
+  //     setIsVisible(false);
+  //     document.body.classList.remove("modal-open");
+  //   }
+  //
+  //   return () => clearTimeout(timeout);
+  // }, [open, selectedClient, setOpen]);
 
   const getQuestions = async () => {
     let cleanedQuestions = {};
@@ -61,7 +66,7 @@ export default function ActivityModal({ open, setOpen, onSuccess }) {
     return () => {
       // console.log('ActivityModal unmounted');
     };
-  }, [selectedClient, setOpen, setIsVisible, selectedClient]);
+  }, [selectedClient]);
 
   // When an activity is successfully added, pass it to parent components
   const handleActivitySuccess = (result) => {
@@ -92,7 +97,7 @@ export default function ActivityModal({ open, setOpen, onSuccess }) {
           !activityData.details &&
           !activityData.category
         ) {
-          setOpen("");
+          setOpen("client");
           return;
         }
       }

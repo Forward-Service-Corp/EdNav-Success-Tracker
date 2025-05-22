@@ -1,19 +1,17 @@
 // /components/blocks/molecules/ClientTableBody.tsx
 
-import ClientRow from '@/stories/blocks/molecules/ClientRow';
-import React, { useState } from 'react';
-import { useFepsLeft } from '@/contexts/FepsLeftContext';
+import ClientRow from "@/stories/blocks/molecules/ClientRow";
+import React, { useState } from "react";
+import { useFepsLeft } from "@/contexts/FepsLeftContext";
 
 type ClientTableBodyProps = {
   clients: any[]; // Replace it with your proper client type
   selectedClientId: string | null;
-  setOpenPanel: (panel: string | null) => void;
 };
 
 export default function ClientTableBody({
                                           clients,
                                           selectedClientId,
-                                          setOpenPanel
                                         }: ClientTableBodyProps) {
   const { selectedFepLeft } = useFepsLeft();
   const { grouped, pinned } = selectedFepLeft;
@@ -95,7 +93,6 @@ export default function ClientTableBody({
                 key={client._id}
                 person={client}
                 selected={selectedClientId === client._id}
-                setOpenPanel={setOpenPanel}
               />
             ))}
         </React.Fragment>
@@ -105,7 +102,6 @@ export default function ClientTableBody({
           key={client._id}
           person={client}
           selected={selectedClientId === client._id}
-          setOpenPanel={setOpenPanel}
         />
       ))}
     </tbody>
