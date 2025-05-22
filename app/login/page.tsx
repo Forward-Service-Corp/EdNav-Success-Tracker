@@ -1,10 +1,10 @@
 // app/login/page.tsx
 "use client";
 
-import React, { useState } from 'react';
-import { signIn } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import LogoCircle from '@/components/LogoCircle';
+import React, { useEffect, useState } from "react";
+import { signIn, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import LogoCircle from "@/components/LogoCircle";
 
 export default function Login() {
   const router = useRouter();
@@ -12,6 +12,13 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const { data: session } = useSession();
+
+  useEffect(() => {
+    if (session) {
+      router.push("/clients");
+    }
+  }, [session]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,7 +30,7 @@ export default function Login() {
         redirect: true,
         email,
         password,
-        callbackUrl: '/clients'
+        callbackUrl: "/clients",
       });
 
       if (result?.error) {
@@ -43,13 +50,10 @@ export default function Login() {
 
   return (
     <div className="bg-base-100 flex min-h-screen items-center justify-center">
-      <div
-        className="bg-base-200 max-w-md space-y-8 rounded-lg p-8 shadow-md flex flex-col items-center justify-center">
+      <div className="bg-base-200 flex max-w-md flex-col items-center justify-center space-y-8 rounded-lg p-8 shadow-md">
         <LogoCircle />
         <div className="text-center">
-          <p className=" text-gray-600">
-            Enter your credentials to continue
-          </p>
+          <p className="text-gray-600">Enter your credentials to continue</p>
         </div>
 
         {error && (

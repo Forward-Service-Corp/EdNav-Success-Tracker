@@ -1,14 +1,14 @@
 // components/AddClientForm.jsx
 
 "use client";
-import React, { useEffect, useState } from 'react';
-import { adultSchools, youthSchools } from '/public/data/schools';
-import { useClient } from '../contexts/ClientContext';
-import InputVariants from '../components/InputVariants';
-import { useEditing } from '../contexts/EditingContext';
-import { validation } from '../lib/validation';
-import { XSquare } from 'phosphor-react';
-import Button from './Button';
+import React, { useEffect, useState } from "react";
+import { adultSchools, youthSchools } from "/public/data/schools";
+import { useClient } from "../contexts/ClientContext";
+import InputVariants from "../components/InputVariants";
+import { useEditing } from "../contexts/EditingContext";
+import { validation } from "../lib/validation";
+import { XSquare } from "phosphor-react";
+import Button from "./Button";
 
 function AddClientForm({ setOpenPanel }) {
   const [feps] = useState([]);
@@ -17,7 +17,7 @@ function AddClientForm({ setOpenPanel }) {
   const { setSelectedClient } = useClient(null);
   const [formData, setFormData] = useState({
     caseNumber: "",
-    clientStatus: 'in progress',
+    clientStatus: "in progress",
     contactNumber: "",
     county: "",
     dateReferred: "",
@@ -84,7 +84,7 @@ function AddClientForm({ setOpenPanel }) {
   ];
   const formBackup = {
     caseNumber: "",
-    clientStatus: 'in progress',
+    clientStatus: "in progress",
     contactNumber: "",
     dateReferred: "",
     dob: "",
@@ -253,7 +253,7 @@ function AddClientForm({ setOpenPanel }) {
       label: "Age Group",
       type: "select",
       required: true,
-      options: ["Adult", "Youth"],
+      options: ["adult", "youth"],
       value: formData.group,
     },
     {
@@ -262,8 +262,8 @@ function AddClientForm({ setOpenPanel }) {
       type: "select",
       required: true,
       options:
-        formData.group === "Adult"
-          ? formData.group === "Youth"
+        formData.group === "adult"
+          ? formData.group === "youth"
             ? null
             : adultSchools
           : youthSchools,
@@ -396,18 +396,23 @@ function AddClientForm({ setOpenPanel }) {
 
   // The rest of your component remains the same, but pass errors to InputVariants
   return (
-    <div className={`bg-base-200 p-6 h-full w-full flex flex-col justify-start rounded shadow-lg`}>
-      <div className={`flex justify-between items-center mb-8 h-[80px]`}>
+    <div
+      className={`bg-base-200 flex h-full w-full flex-col justify-start rounded p-6 shadow-lg`}
+    >
+      <div className={`mb-8 flex h-[80px] items-center justify-between`}>
         <div className={`text-lg md:text-2xl`}>Personal Details</div>
-        <Button label={`Details`} use={`secondary`}
-                onClick={() => {
-                  setEditing('');
-                  setSelectedClient(null);
-                  setOpenPanel(false);
-                }} />
+        <Button
+          label={`Details`}
+          use={`secondary`}
+          onClick={() => {
+            setEditing("");
+            setSelectedClient(null);
+            setOpenPanel(false);
+          }}
+        />
       </div>
       <form onSubmit={handleSubmit}>
-        <div className="relative grid grid-cols-3 mt-[70px] gap-6">
+        <div className="relative mt-[70px] grid grid-cols-3 gap-6">
           {formFields.map((field) => {
             return (
               <InputVariants
@@ -443,11 +448,11 @@ function AddClientForm({ setOpenPanel }) {
       </form>
       <div
         onClick={() => {
-          setEditing('');
+          setEditing("");
           setSelectedClient(null);
-          setOpenPanel('');
+          setOpenPanel("");
         }}
-        className={` mt-5 mr-5 cursor-pointer text-base-content text-2xl`}
+        className={`text-base-content mt-5 mr-5 cursor-pointer text-2xl`}
       >
         <XSquare size={33} className={`text-base-content`} />
       </div>

@@ -1,4 +1,4 @@
-import { useFepsLeft } from '../contexts/FepsLeftContext';
+import { useFepsLeft } from "../contexts/FepsLeftContext";
 
 function FilterSelectRadiosAge() {
   const { setSelectedFepLeft } = useFepsLeft();
@@ -33,7 +33,7 @@ function FilterSelectRadiosAge() {
       >
         <p>Adult</p>
         <input
-          value="Adult"
+          value="adult"
           onClick={handleFilterChange}
           id={`filter-radio-7`}
           type="radio"
@@ -48,7 +48,7 @@ function FilterSelectRadiosAge() {
       >
         <p>Youth</p>
         <input
-          value="Youth"
+          value="youth"
           onClick={handleFilterChange}
           id={`filter-radio-8`}
           type="radio"
