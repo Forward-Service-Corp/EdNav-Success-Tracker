@@ -268,7 +268,7 @@ export default function ClientProfileDetailsForm({ isNarrow, isMedium }) {
               </p>
               {!isEditing ? (
                 <p className="text-base-content/80 py-2">
-                  {clientCopy[item.label] || <em>—</em>}
+                  {clientCopy[item.field] || <em>—</em>}
                 </p>
               ) : (
                 <div>
@@ -302,7 +302,9 @@ export default function ClientProfileDetailsForm({ isNarrow, isMedium }) {
 
       {selectedClient?.group?.toString().toLowerCase() === "adult" && (
         <div className="form-control">
-          {/*<p className={`label ${isEditing ? "hidden" : "visible"}`}>School If Enrolled</p>*/}
+          <p className={`label ${isEditing ? "hidden" : "visible"}`}>
+            School If Enrolled
+          </p>
           {!isEditing ? (
             <p className={`label ${isEditing ? "hidden" : "visible"}`}>
               {clientCopy["schoolIfEnrolled"] || <em>—</em>}
@@ -311,9 +313,9 @@ export default function ClientProfileDetailsForm({ isNarrow, isMedium }) {
             <div>
               <label
                 htmlFor={"schoolIfEnrolled"}
-                className={`label ${isEditing ? "hidden" : "visible"}`}
+                className={`label ${!isEditing ? "hidden" : "visible"}`}
               >
-                schoolIfEnrolled
+                School If Enrolled
               </label>
               <select
                 id={"schoolIfEnrolled"}
@@ -336,7 +338,7 @@ export default function ClientProfileDetailsForm({ isNarrow, isMedium }) {
 
       {selectedClient?.group?.toString().toLowerCase() === "youth" && (
         <div className="form-control">
-          <p className={`label ${isEditing ? "hidden" : "visible"}`}>
+          <p className={`label ${!isEditing ? "hidden" : "visible"}`}>
             School If Enrolled
           </p>
           {!isEditing ? (
