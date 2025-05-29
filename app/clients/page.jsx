@@ -128,7 +128,7 @@ function ClientsPageContent({ setMenuOpen, menuOpen, open, setOpen }) {
             {open === "profile" ? (
               <ClientProfile />
             ) : open === "form" ? (
-              <AddClientForm />
+              <AddClientForm setOpen={setOpen} />
             ) : (
               <DashboardContainer />
             )}

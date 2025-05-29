@@ -13,7 +13,7 @@ import { useEditing } from "../contexts/EditingContext";
 import { validation } from "../lib/validation";
 import { useNavigator } from "../contexts/NavigatorsContext";
 
-function AddClientForm() {
+function AddClientForm({ setOpen }) {
   const [feps, setFeps] = useState([]);
   const [errors, setErrors] = useState({});
   const { setEditing } = useEditing();
@@ -328,6 +328,7 @@ function AddClientForm() {
 
   const handleReset = () => {
     setFormData(formBackup);
+    setOpen("");
     setEditing("");
   };
 
