@@ -176,7 +176,9 @@ export default function ClientProfileDetailsForm({ isNarrow, isMedium }) {
         const isValid = clientCopy[name] && !errors[name];
         return (
           <div key={name} className="form-control relative">
-            <p className="label">{label}</p>
+            <p className={`label ${isEditing ? "hidden" : "visible"}`}>
+              {label}
+            </p>
             {!isEditing ? (
               <p className="text-base-content/80 py-2">
                 {clientCopy[name] || <em>—</em>}
@@ -217,7 +219,9 @@ export default function ClientProfileDetailsForm({ isNarrow, isMedium }) {
             </p>
           ) : (
             <div>
-              <label htmlFor={"fep"} className="label"></label>
+              <label htmlFor={"fep"} className="label">
+                FEP
+              </label>
               <select
                 id={"fep"}
                 name={"fep"}
@@ -238,14 +242,19 @@ export default function ClientProfileDetailsForm({ isNarrow, isMedium }) {
       }
 
       {[
-        { field: "navigator", list: navigators },
-        { field: "region", list: ["1", "2", "3", "4", "5", "6"] },
+        { field: "navigator", label: "Navigator", list: navigators },
+        {
+          field: "region",
+          label: "Region",
+          list: ["1", "2", "3", "4", "5", "6"],
+        },
         {
           field: "clientStatus",
+          label: "Client Status",
           list: ["active", "inactive", "in progress", "graduated"],
         },
-        { field: "county", list: wisconsinCounties },
-        { field: "group", list: ["adult", "youth"] },
+        { field: "county", label: "County", list: wisconsinCounties },
+        { field: "group", label: "Group", list: ["adult", "youth"] },
       ].map((item) => {
         if (
           clientCopy[item.field] !== undefined &&
@@ -254,18 +263,18 @@ export default function ClientProfileDetailsForm({ isNarrow, isMedium }) {
         ) {
           return (
             <div key={item.field} className="form-control">
-              <p className="label">
-                {item?.field?.charAt(0).toUpperCase() + item?.field?.slice(1)}
+              <p className={`label ${isEditing ? "hidden" : "visible"}`}>
+                {item?.label?.charAt(0).toUpperCase() + item?.label?.slice(1)}
               </p>
               {!isEditing ? (
                 <p className="text-base-content/80 py-2">
-                  {clientCopy[item.field] || <em>—</em>}
+                  {clientCopy[item.label] || <em>—</em>}
                 </p>
               ) : (
                 <div>
                   <label htmlFor={item.field} className="label">
-                    {item?.field?.charAt(0).toUpperCase() +
-                      item?.field?.slice(1)}
+                    {item?.label?.charAt(0).toUpperCase() +
+                      item?.label?.slice(1)}
                   </label>
                   <select
                     autoComplete={item.field}
@@ -293,14 +302,17 @@ export default function ClientProfileDetailsForm({ isNarrow, isMedium }) {
 
       {selectedClient?.group?.toString().toLowerCase() === "adult" && (
         <div className="form-control">
-          <p className="label">schoolIfEnrolled</p>
+          {/*<p className={`label ${isEditing ? "hidden" : "visible"}`}>School If Enrolled</p>*/}
           {!isEditing ? (
-            <p className="text-base-content/80 py-2">
+            <p className={`label ${isEditing ? "hidden" : "visible"}`}>
               {clientCopy["schoolIfEnrolled"] || <em>—</em>}
             </p>
           ) : (
             <div>
-              <label htmlFor={"schoolIfEnrolled"} className="label">
+              <label
+                htmlFor={"schoolIfEnrolled"}
+                className={`label ${isEditing ? "hidden" : "visible"}`}
+              >
                 schoolIfEnrolled
               </label>
               <select
@@ -324,15 +336,17 @@ export default function ClientProfileDetailsForm({ isNarrow, isMedium }) {
 
       {selectedClient?.group?.toString().toLowerCase() === "youth" && (
         <div className="form-control">
-          <p className="label">schoolIfEnrolled</p>
+          <p className={`label ${isEditing ? "hidden" : "visible"}`}>
+            School If Enrolled
+          </p>
           {!isEditing ? (
             <p className="text-base-content/80 py-2">
-              {clientCopy["schoolIfEnrolled"] || <em>—</em>}
+              {clientCopy["School If Enrolled"] || <em>—</em>}
             </p>
           ) : (
             <div>
               <label htmlFor={"schoolIfEnrolled"} className="label">
-                schoolIfEnrolled
+                School If Enrolled
               </label>
               <select
                 id={"schoolIfEnrolled"}
@@ -352,27 +366,27 @@ export default function ClientProfileDetailsForm({ isNarrow, isMedium }) {
           )}
         </div>
       )}
-      <div className="form-control">
-        <p className="label">TTS Dream</p>
-        {!isEditing ? (
-          <p className="text-base-content/80 py-2">
-            {clientCopy["ttsDream"] || <em>—</em>}
-          </p>
-        ) : (
-          <div>
-            <label htmlFor={"ttsDream"} className="label">
-              TTS Dream
-            </label>
-            <textarea
-              id={"ttsDream"}
-              name={"ttsDream"}
-              value={clientCopy["ttsDream"] || ""}
-              onChange={handleChange}
-              className="textarea textarea-bordered"
-            />
-          </div>
-        )}
-      </div>
+      {/*<div className="form-control">*/}
+      {/*  <p className="label">TTS Dream</p>*/}
+      {/*  {!isEditing ? (*/}
+      {/*    <p className="text-base-content/80 py-2">*/}
+      {/*      {clientCopy["ttsDream"] || <em>—</em>}*/}
+      {/*    </p>*/}
+      {/*  ) : (*/}
+      {/*    <div>*/}
+      {/*      <label htmlFor={"ttsDream"} className="label">*/}
+      {/*        TTS Dream*/}
+      {/*      </label>*/}
+      {/*      <textarea*/}
+      {/*        id={"ttsDream"}*/}
+      {/*        name={"ttsDream"}*/}
+      {/*        value={clientCopy["ttsDream"] || ""}*/}
+      {/*        onChange={handleChange}*/}
+      {/*        className="textarea textarea-bordered"*/}
+      {/*      />*/}
+      {/*    </div>*/}
+      {/*  )}*/}
+      {/*</div>*/}
 
       <div className="mt-4 flex gap-2">
         {!isEditing ? (
