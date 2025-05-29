@@ -78,23 +78,17 @@ function ClientProfileTabeOrientation({ isNarrow }) {
   }, [selectedClient]);
 
   return (
-    <div className="relative grid grid-cols-1 gap-3 md:gap-6">
+    <div className="relative flex gap-4">
       {selectedClient?.group === "adult" && (
-        <ClientProfileUnlockableSection
-          section="orientation"
-          isNarrow={isNarrow}
-        />
+        <ClientProfileUnlockableSection section="orientation" />
       )}
       {selectedClient?.group === "adult" && (
-        <ClientProfileUnlockableSection section="tabe" isNarrow={isNarrow} />
+        <ClientProfileUnlockableSection section="tabe" />
       )}
       {selectedClient &&
         selectedClient?.trackable?.program === "HSED" &&
         selectedClient?.group === "adult" && (
-          <ClientProfileUnlockableSection
-            section="transcripts"
-            isNarrow={isNarrow}
-          />
+          <ClientProfileUnlockableSection section="transcripts" />
         )}
     </div>
   );

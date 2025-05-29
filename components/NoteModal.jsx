@@ -1,15 +1,23 @@
 "use client";
-import React, { useState } from 'react';
-import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
-import { useClient } from '../contexts/ClientContext';
-import { useNavigator } from '../contexts/NavigatorsContext';
+import React, { useState } from "react";
+import {
+  Dialog,
+  DialogBackdrop,
+  DialogPanel,
+  DialogTitle,
+} from "@headlessui/react";
+import { useClient } from "../contexts/ClientContext";
+import { useNavigator } from "../contexts/NavigatorsContext";
+import { useSession } from "next-auth/react";
 
 export default function NoteModal({ open, setOpen }) {
   const { selectedClient } = useClient();
   const { selectedNavigator } = useNavigator();
+  const { data: session } = useSession();
+  console.log(session.user.name);
   const [note, setNote] = useState({
     noteContent: "",
-    noteAuthor: selectedNavigator?.name,
+    noteAuthor: session.user.name,
     createdAt: new Date(),
     clientId: selectedClient?._id,
   });

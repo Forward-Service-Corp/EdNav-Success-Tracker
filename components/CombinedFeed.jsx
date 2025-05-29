@@ -2,6 +2,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useClient } from "/contexts/ClientContext";
 import { format } from "date-fns";
+import { useSession } from "next-auth/react";
 import { useNotification } from "/contexts/NotificationContext";
 import { useNavigator } from "/contexts/NavigatorsContext";
 import Button from "./Button";
@@ -12,6 +13,7 @@ export default function CombinedFeed() {
   const [, setActivities] = useState([]);
   const [, setNotes] = useState([]);
   const [comments, setComments] = useState([]);
+  const { data: session, status } = useSession();
   const [combinedFeed, setCombinedFeed] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isAddingNote, setIsAddingNote] = useState(false);
@@ -601,7 +603,7 @@ export default function CombinedFeed() {
       loadData().then();
     }
   }, [selectedClient?._id]); // Only depend on client ID
-
+  console.log(session);
   const handleAddNote = async () => {
     if (!noteContent.trim() || !selectedClient || !selectedClient._id) return;
 
@@ -615,7 +617,7 @@ export default function CombinedFeed() {
 
       const noteData = {
         noteContent,
-        noteAuthor: navigatorName,
+        noteAuthor: session?.user?.name || "Author",
         clientId: selectedClient._id,
         isNote: true,
         createdAt: new Date().toISOString(),
@@ -732,7 +734,7 @@ export default function CombinedFeed() {
 
       const commentData = {
         commentContent,
-        commentAuthor: navigatorName,
+        commentAuthor: session?.user?.name || "Author",
         clientId: selectedClient._id,
         isComment: true,
         parentId: commentingOn.id,

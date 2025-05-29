@@ -570,32 +570,31 @@ export default function ClientProfile() {
       >
         <div className={`grid ${getGridClasses()}`}>
           <div
-            className={`${layoutConfig.isNarrow ? "col-span-1" : "col-span-5"}`}
+            className={`${layoutConfig.isNarrow ? "col-span-1" : "col-span-5"} mb-4`}
           >
             <ClientProfilePersonalOrganization
               isNarrow={layoutConfig.isNarrow}
               isMedium={layoutConfig.isMedium}
             />
           </div>
-          <div
-            className={`${layoutConfig.isNarrow ? "col-span-1" : "col-span-5"}`}
-          >
-            {selectedClient?.group === "adult" && (
-              <ClientProfileProgress
-                isNarrow={layoutConfig.isNarrow}
-                isMedium={layoutConfig.isMedium}
-              />
-            )}
-          </div>
-
-          <div className={`col-span-2`}>
-            <ClientProfileTABEOrientation isNarrow={layoutConfig.isNarrow} />
-          </div>
-          <div
-            className={`${layoutConfig.isNarrow ? "col-span-3" : "col-span-5"}`}
-          >
-            <CombinedFeed isNarrow={layoutConfig.isNarrow} />
-          </div>
+        </div>
+        <div
+          className={`${layoutConfig.isNarrow ? "col-span-1" : "col-span-5"}`}
+        >
+          {selectedClient?.group === "adult" && (
+            <ClientProfileProgress
+              isNarrow={layoutConfig.isNarrow}
+              isMedium={layoutConfig.isMedium}
+            />
+          )}
+        </div>
+        <div className={`w-full py-4`}>
+          <ClientProfileTABEOrientation />
+        </div>
+        <div
+          className={`${layoutConfig.isNarrow ? "col-span-3" : "col-span-5"}`}
+        >
+          <CombinedFeed isNarrow={layoutConfig.isNarrow} />
         </div>
       </div>
 
