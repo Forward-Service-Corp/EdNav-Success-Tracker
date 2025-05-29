@@ -378,7 +378,7 @@ function AddClientForm({ setOpen }) {
   // The rest of your component remains the same, but pass errors to InputVariants
   return (
     <div
-      className={`bg-base-200 flex h-full w-full flex-col justify-start rounded p-6 shadow-lg`}
+      className={`bg-base-200 no-scrollbar flex h-full w-full flex-col justify-start overflow-y-scroll rounded p-6 shadow-lg`}
     >
       <div className={`mb-8 flex h-[80px] items-center justify-between`}>
         <div className={`text-lg md:text-2xl`}>Personal Details</div>

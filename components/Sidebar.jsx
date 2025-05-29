@@ -35,7 +35,7 @@ function Sidebar({ setOpen, open }) {
   const styles = getPanelStyles();
   return (
     <div
-      className="bg-base-100 relative flex h-full flex-none flex-col items-center justify-start gap-5 rounded p-5 pt-2"
+      className="bg-base-100 no-scrollbar relative flex h-full flex-none flex-col items-center justify-start gap-5 overflow-y-scroll rounded p-5 pt-2"
       style={styles.sidebar}
     >
       <Logo />
