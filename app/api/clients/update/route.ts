@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     if (navigatorId) {
       const collection = await getCollection("users");
       const navigator = await collection.findOne({
-        _id: ObjectId.createFromBase64(navigatorId)
+        _id: ObjectId.createFromBase64(navigatorId),
       });
       return NextResponse.json(navigator, { status: 200 });
     }
@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     console.error("Error fetching navigators:", e);
     return NextResponse.json(
       { error: "Failed to fetch comments" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
               [`items.${trackable}.completed`]: completed,
               [`items.${trackable}.createdAt`]: new Date().toISOString(),
               [`items.${trackable}.name`]: name,
-              [`items.${trackable}.itemIndex`]: parseInt(trackable)
+              [`items.${trackable}.itemIndex`]: parseInt(trackable),
             },
           },
         );
@@ -54,29 +54,29 @@ export async function POST(request: NextRequest) {
       const activity = await activities.insertOne({ body });
       const result = await collection.updateOne(
         { _id: safeObjectId(_id ?? clientId) },
-        { $set: updateData
+        { $set: updateData },
       );
 
       if (result.matchedCount === 0) {
         return NextResponse.json(
           { error: "Client not found" },
-          { status: 404 }
+          { status: 404 },
         );
       }
       const newestActivity = await activities.findOne(
         { _id: activity.insertedId },
-        { sort: { createdAt: -1 } }
+        { sort: { createdAt: -1 } },
       );
       const client = await collection.findOne({
-        _id: safeObjectId(_id ?? clientId)
+        _id: safeObjectId(_id ?? clientId),
       });
       return NextResponse.json({ newestActivity, client }, { status: 200 });
     }
   } catch (error) {
-      console.error("Error adding/updating client:", error);
-      return NextResponse.json(
-        { error: "Failed to add/update client" },
-        { status: 500 }
-      );
+    console.error("Error adding/updating client:", error);
+    return NextResponse.json(
+      { error: "Failed to add/update client" },
+      { status: 500 },
+    );
   }
 }
