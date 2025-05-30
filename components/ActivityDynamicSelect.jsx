@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useClient } from "../contexts/ClientContext";
 import { useActivities } from "../contexts/ActivityContext";
+import { generateSentence } from "../utils/generateSentence";
 
 const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
   const { selectedActivity, setSelectedActivity } = useActivities();
@@ -434,7 +435,7 @@ const ActivityDynamicSelect = ({ setOpen, questions = {}, onSuccess }) => {
           //     return {
           //       ...item,
           //       completed: true,
-          //       savedInDatabase: false  // Explicitly mark as not saved in a database
+          //       savedInDatabase: false // Explicitly mark as not saved in a database
           //     };
           //   }
           //   return item;
