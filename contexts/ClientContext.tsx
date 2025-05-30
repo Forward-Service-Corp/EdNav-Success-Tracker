@@ -1,4 +1,4 @@
-import React, { createContext, ReactNode, useContext, useState } from 'react';
+import React, { createContext, ReactNode, useContext, useState } from "react";
 
 type Client = {
   _id: string;
@@ -14,6 +14,7 @@ type Client = {
   first_name: string;
   graduationResults: string;
   group: string;
+  items: [];
   isYouth: boolean;
   lastGrade: string;
   last_name: string;
@@ -36,12 +37,7 @@ type Client = {
   trackable: {
     program: string;
     length: number;
-    items: [
-      {
-        name: string;
-        completed: boolean;
-      },
-    ];
+    createdAt: string;
   };
   transcripts: {
     completionDate: string;
@@ -73,7 +69,7 @@ export const ClientProvider = ({ children }: { children: ReactNode }) => {
 export const useClient = () => {
   const context = useContext(ClientContext);
   if (!context) {
-    throw new Error('useClient must be used within a ClientsProvider');
+    throw new Error("useClient must be used within a ClientsProvider");
   }
   return context;
 };

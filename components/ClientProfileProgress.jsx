@@ -3,11 +3,9 @@ import { useClient } from "../contexts/ClientContext";
 import ProgressButton from "./ProgressButton";
 
 function ClientProfileProgress({ hasTrackable, isNarrow }) {
-  const { selectedClient } = useClient();
+  const { selectedClient, setSelectedClient } = useClient();
   const [completionPercentage, setCompletionPercentage] = useState(0);
-  const [displayItems, setDisplayItems] = useState(
-    selectedClient?.trackable?.items,
-  ); // Combined items for display
+  const [displayItems, setDisplayItems] = useState(selectedClient?.items); // Combined items for display
 
   // // Initialize our state when hasTrackable changes
   useEffect(() => {
@@ -24,12 +22,10 @@ function ClientProfileProgress({ hasTrackable, isNarrow }) {
   // Update the display items whenever savedItems or newSelections change
   useEffect(() => {
     // Update display items
-    setDisplayItems(selectedClient?.trackable?.items);
+    setDisplayItems(selectedClient?.items);
 
     // Also calculate completion percentage
-    const percentage = calculateCompletionPercentage(
-      selectedClient?.trackable?.items,
-    );
+    const percentage = calculateCompletionPercentage(selectedClient?.items);
     setCompletionPercentage(percentage);
 
     // Mark as updated if there are new selections
@@ -48,6 +44,32 @@ function ClientProfileProgress({ hasTrackable, isNarrow }) {
     return ((completedCount / totalCount) * 100).toFixed(1);
   }
 
+  const handleSaveProgress = async (index) => {
+    const updatedItems = [...selectedClient.items];
+    updatedItems[index] = { ...updatedItems[index], completed: true };
+    setSelectedClient({ ...selectedClient, items: updatedItems });
+    try {
+      const response = await fetch(
+        `/api/clients/trackable-progress?id=${selectedClient._id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ items: selectedClient?.items }),
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to update progress");
+      }
+
+      setDisplayItems(updatedItems);
+    } catch (error) {
+      console.error("Error saving progress:", error);
+    }
+  };
+
   // Determine if the progress area should be visible based on client data
   const isProgressVisible =
     selectedClient?.trackable?.program === "GED" ||
@@ -58,12 +80,13 @@ function ClientProfileProgress({ hasTrackable, isNarrow }) {
 
   // Function to safely render trackable items
   const renderTrackableItems = () => {
-    return selectedClient?.trackable?.items?.map((item, index) => {
+    return selectedClient?.items?.map((item, index) => {
       return (
         <ProgressButton
           item={item}
           index={index}
           isDisabled={item?.completed}
+          onSave={handleSaveProgress}
           key={`item-${index}`}
         />
       );

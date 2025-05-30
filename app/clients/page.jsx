@@ -13,7 +13,7 @@ import { useRouter } from "next/navigation";
 function ClientsPage() {
   const { setLoading } = useLoading(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [open, setOpen] = useState("");
+  const [open, setOpen] = useState("dashboard");
 
   useEffect(() => {
     setLoading(false);
@@ -129,9 +129,9 @@ function ClientsPageContent({ setMenuOpen, menuOpen, open, setOpen }) {
               <ClientProfile />
             ) : open === "form" ? (
               <AddClientForm setOpen={setOpen} />
-            ) : (
+            ) : open === "dashboard" ? (
               <DashboardContainer />
-            )}
+            ) : null}
           </div>
         )}
       </div>

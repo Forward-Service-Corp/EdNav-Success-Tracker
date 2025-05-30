@@ -280,15 +280,13 @@ export default function ClientProfileDetailsForm({ isNarrow, isMedium }) {
                     autoComplete={item.field}
                     id={item.field}
                     name={item.field}
-                    value={
-                      clientCopy[item?.field]?.toString().toLowerCase() || ""
-                    }
+                    value={clientCopy[item?.field]?.toString() || ""}
                     onChange={handleChange}
                     className="select select-bordered"
                   >
                     <option value="">-- Select --</option>
                     {item?.list?.map((option) => (
-                      <option key={option} value={option?.toLowerCase()}>
+                      <option key={option} value={option}>
                         {option}
                       </option>
                     ))}

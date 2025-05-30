@@ -38,7 +38,7 @@ const FilteredClients = () => {
           setClients(data.clients);
         } else {
           console.error("Unexpected response structure:", data);
-          setClients([]); // Fallback to an empty array if structure is unexpected
+          setClients([]); // Fallback to an empty array if the structure is unexpected
         }
       } catch (error) {
         console.error("Error fetching clients:", error);

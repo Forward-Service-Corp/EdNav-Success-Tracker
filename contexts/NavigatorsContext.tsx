@@ -88,7 +88,7 @@ export let NavigatorProvider: ({
       const userName = session.user.name; // Capture the non-null value
       const matchingNavigator = navigatorList.find(
         (nav) =>
-          nav.name.toLowerCase().trim() === userName.toLowerCase().trim(),
+          nav.name.toWellFormed().trim() === userName.toWellFormed().trim(),
       );
       if (matchingNavigator) {
         // @ts-ignore

@@ -7,7 +7,7 @@ export default function ActivityModal({ open, setOpen, onSuccess }) {
   const [questions, setQuestions] = useState([]);
   const [isVisible, setIsVisible] = useState(false);
   const { selectedClient } = useClient();
-  console.log("ActivityModal open:", open);
+  // console.log("ActivityModal open:", open);
   // console.log("ActivityModal selectedClient:", selectedClient);
   // console.log('ActivityModal isVisible:', isVisible);
 
