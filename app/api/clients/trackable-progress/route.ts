@@ -27,7 +27,7 @@ export async function PATCH(request: NextRequest) {
     if (result.matchedCount === 0) {
       return NextResponse.json(
         { message: "Client not found" },
-        { status: 404 ,
+        { status: 404 },
       );
     }
 
@@ -37,15 +37,15 @@ export async function PATCH(request: NextRequest) {
         modifiedCount: result.modifiedCount,
         matchedCount: result.matchedCount,
         upsertedCount: result.upsertedCount,
-        upsertedId: result.upsertedId
+        upsertedId: result.upsertedId,
       },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
     console.error("Error updating trackable progress:", error);
     return NextResponse.json(
       { message: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
