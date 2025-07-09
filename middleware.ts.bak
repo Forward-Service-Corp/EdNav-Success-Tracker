@@ -1,0 +1,38 @@
+// middleware.ts
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import { getToken } from 'next-auth/jwt';
+
+// Paths that require specific roles
+const protectedPaths = [
+  {
+    path: '/dashboard/admin-tools',
+    roles: ['IT', 'admin'],
+  },
+  // Add more protected paths as needed
+];
+
+export async function middleware(request: NextRequest) {
+  const token = await getToken({
+    req: request,
+    secret: process.env.NEXTAUTH_SECRET
+  });
+
+  // Check if the path is protected
+  const path = request.nextUrl.pathname;
+  const protectedPath = protectedPaths.find(p => path.startsWith(p.path));
+
+  if (protectedPath) {
+    // If no token or invalid role, redirect to dashboard
+    if (!token || !protectedPath.roles.includes(token.role as string)) {
+      return NextResponse.redirect(new URL('/dashboard', request.url));
+    }
+  }
+
+  return NextResponse.next();
+}
+
+// Configure paths that trigger this middleware
+export const config = {
+  matcher: ['/dashboard/admin-tools/:path*'],
+};

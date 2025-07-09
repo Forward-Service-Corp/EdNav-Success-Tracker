@@ -1,70 +1,126 @@
-import React, {createContext, useContext, useState, ReactNode, SetStateAction, Dispatch} from "react";
+import React, {
+  createContext,
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import { useSession } from "next-auth/react";
 
-type Navigator = {
-    _id: String,
-    name: String,
-    pinned: Array<string>,
-    preferences: {
-        theme: String,
-        lastAgeFilter: String,
-        lastStatusFilter: String
-    },
-    notifications: {
-        unread: Array<string>,
-        read: Array<string>
-    },
-    streak: {
-        active: Boolean,
-        streak: Number,
-        lastDate: String,
-        longestStreak: Number,
-        longestStreakDate: Number
-    }
+// Properly typed model with required/optional fields
+interface Navigator {
+  _id: string;
+  name: string;
+  pinned: string[];
+  preferences: {
+    theme: string;
+    lastAgeFilter: string;
+    lastStatusFilter: string;
+  };
+  notifications: {
+    unread: string[];
+    read: string[];
+  };
+  streak: {
+    active: boolean;
+    streak: number;
+    lastDate: string;
+    longestStreak: number;
+    longestStreakDate: number;
+  };
 }
 
-type NavigatorsContextType = {
-    selectedNavigator: {
-        _id: String,
-        name: String,
-        pinned: Array<string>,
-        preferences: {
-            theme: String,
-            lastAgeFilter: String,
-            lastStatusFilter: String
-        },
-        notifications: {
-            unread: Array<string>,
-            read: Array<string>
-        },
-        streak: {
-            active: Boolean,
-            streak: Number,
-            lastDate: String,
-            longestStreak: Number,
-            longestStreakDate: Number
-        }
-    };
-    setSelectedNavigator: Dispatch<SetStateAction<Navigator | null>>;
-};
+// Type safety with no nulls in the interface
+interface NavigatorContextType {
+  selectedNavigator: Navigator | null;
+  setSelectedNavigator: Dispatch<SetStateAction<Navigator | null>>;
+  navigatorList: Navigator[];
+  loading: boolean;
+  error: string | null;
+}
 
-const NavigatorContext = createContext<NavigatorsContextType | undefined>(undefined);
+// Context with default values
+export const NavigatorContext = createContext<NavigatorContextType>({
+  selectedNavigator: null,
+  setSelectedNavigator: () => {},
+  navigatorList: [],
+  loading: false,
+  error: null,
+});
 
-export const NavigatorProvider = ({ children }: { children: ReactNode }) => {
-    const [selectedNavigator, setSelectedNavigator] = useState<{} | null>(null);
+export let NavigatorProvider: ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => React.ReactElement = ({ children }) => {
+  const [selectedNavigator, setSelectedNavigator] = useState<Navigator | null>(
+    null,
+  );
+  const [navigatorList, setNavigatorList] = useState<Navigator[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { data: session } = useSession();
 
-    return (
+  // Memoized fetch function to avoid recreating on every render
+  const fetchNavigatorList = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
+    const navigatorsRes = await fetch("/api/navigators");
+    if (!navigatorsRes.ok) {
+      throw new Error("Failed to fetch navigators: ${navigatorsRes.status}");
+    }
+    const res = await navigatorsRes.json();
+    setNavigatorList(res);
+    setSelectedNavigator(null);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    fetchNavigatorList().then();
+  }, [fetchNavigatorList]);
+
+  useEffect(() => {
+    if (navigatorList.length && session?.user?.name) {
+      const userName = session.user.name; // Capture the non-null value
+      const matchingNavigator = navigatorList.find(
+        (nav) =>
+          nav.name.toWellFormed().trim() === userName.toWellFormed().trim(),
+      );
+      if (matchingNavigator) {
         // @ts-ignore
-        <NavigatorContext.Provider value={{ selectedNavigator, setSelectedNavigator }}>
-            {children}
-        </NavigatorContext.Provider>
-    );
+        setSelectedNavigator(matchingNavigator);
+      }
+    }
+  }, [navigatorList, session]);
+
+  // Memoized context value to prevent unnecessary re-renders
+  const contextValue = useMemo(
+    () => ({
+      selectedNavigator,
+      setSelectedNavigator,
+      navigatorList,
+      loading,
+      error,
+    }),
+    [selectedNavigator, navigatorList, loading, error],
+  );
+
+  return (
+    <NavigatorContext.Provider value={contextValue}>
+      {children}
+    </NavigatorContext.Provider>
+  );
 };
 
 // Custom hook for consuming context
-export const useNavigators = () => {
-    const context = useContext(NavigatorContext);
-    if (!context) {
-        throw new Error("useNavigators must be used within a NavigatorContext");
-    }
-    return context;
+export const useNavigator = () => {
+  const context = useContext(NavigatorContext);
+  if (!context) {
+    throw new Error("useNavigator must be used within a NavigatorProvider");
+  }
+  return context;
 };

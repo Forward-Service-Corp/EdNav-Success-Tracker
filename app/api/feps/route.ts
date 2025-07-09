@@ -1,44 +1,25 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getCollection } from '@/lib/mongodb';
+import { ObjectId } from 'mongodb';
 
-// GET all FEPs with aggregated activities and clients
-export async function GET() {
-    try {
-        const fepsCollection = await getCollection("feps");
-        const actionsCollection = await getCollection("actions");
-        const clientsCollection = await getCollection("clients");
-
-        // Fetch all FEPs
-        const feps = await fepsCollection.find({}).toArray();
-
-        const enrichedFeps = await Promise.all(
-            feps.map(async (fep) => {
-                const actions = await actionsCollection
-                  .find({ who: fep.name })
-                  .sort({ when: -1 })
-                    .toArray();
-
-                // Fetch clients associated with the FEP
-                const clients = await clientsCollection
-                  .find({ fep: fep.name })
-                    .toArray();
-
-                return {
-                    name: fep.name,
-                    educationNavigator: fep.navigatorName, // Assuming the field in DB is 'navigatorName'
-                    actions, // Actions where the FEP was involved
-                    clients, // Clients associated with the FEP
-                    mostRecentAction: actions.length > 0 ? actions[0] : null // Get the most recent action
-                };
-            })
-        );
-
-        return NextResponse.json(enrichedFeps, { status: 200 });
-    } catch (error) {
-        console.error("Error fetching FEPs with aggregated data:", error);
-        return NextResponse.json(
-            { error: "Failed to fetch FEPs with activities and clients" },
-            { status: 500 }
-        );
+// GET all feps
+export async function GET(request: NextRequest) {
+  const url = new URL(request.url);
+  const fepId = url.searchParams.get('fepId') || '';
+  try {
+    if (fepId) {
+      const collection = await getCollection('feps');
+      const fep = await collection.findOne({ _id: ObjectId.createFromBase64(fepId) });
+      return NextResponse.json(fep, { status: 200 });
     }
+    const collection = await getCollection('feps');
+    const feps = await collection.find({}).toArray();
+    return NextResponse.json(feps, { status: 200 });
+  } catch (e) {
+    console.error('Error fetching feps:', e);
+    return NextResponse.json(
+      { error: 'Failed to fetch comments' },
+      { status: 500 }
+    );
+  }
 }

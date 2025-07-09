@@ -1,141 +1,102 @@
-import React, { useState } from 'react';
-import moment from 'moment/moment';
-import { useClients } from '@/contexts/ClientsContext';
-import InputVariants from '@/components/InputVariants';
+import React, { useEffect, useState } from "react";
+import { useClient } from "/contexts/ClientContext";
+import ClientProfileUnlockableSection from "./ClientProfileUnlockableSection";
 
-function ClientProfileTabeOrientation() {
-  const { selectedClient } = useClients();
-  const [tabeOpen, setTabeOpen] = useState(false);
-  const [orientationOpen, setOrientationOpen] = useState(false);
-  const [dateValue, setDateValue] = useState('');
+function ClientProfileTabeOrientation({ isNarrow }) {
+  const { selectedClient } = useClient();
+  const [, setDateValue] = useState({
+    orientation: {
+      referralDate: selectedClient?.orientation?.referralDate || null,
+      completionDate: selectedClient?.orientation?.completionDate || null,
+    },
+    tabe: {
+      referralDate: selectedClient?.tabe?.referralDate || null,
+      completionDate: selectedClient?.tabe?.completionDate || null,
+    },
+    transcripts: {
+      referralDate: selectedClient?.transcripts?.referralDate || null,
+      completionDate: selectedClient?.transcripts?.completionDate || null,
+    },
+  });
 
-  const handleChange = (e) => {
-    setDateValue(e.target.value);
-  };
-
-  const handleTabeSave = async () => {
-    const res = await fetch(`/api/tabe`, {
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        _id: selectedClient._id,
-        completedDate: dateValue,
-      }),
-      method: 'POST'
+  useEffect(() => {
+    console.log("ClientProfileTABEOrientation: selectedClient updated:", {
+      hasOrientation: !!selectedClient?.orientation?.referralDate,
+      hasTabe: !!selectedClient?.tabe?.referralDate,
+      hasTranscripts: !!selectedClient?.transcripts?.referralDate,
     });
-    const data = await res.json();
-    if (data.error) {
-      console.error(data.error);
-    } else {
-      console.log('data', data);
-      setDateValue('');
-      setTabeOpen(false);
-    }
-  };
 
-  function hasValidKey(obj, key) {
-    return obj && Object.prototype.hasOwnProperty.call(obj, key) && !!obj[key];
-  }
+    setDateValue({
+      orientation: {
+        referralDate: selectedClient?.orientation?.referralDate || null,
+        completionDate: selectedClient?.orientation?.completionDate || null,
+      },
+      tabe: {
+        referralDate: selectedClient?.tabe?.referralDate || null,
+        completionDate: selectedClient?.tabe?.completionDate || null,
+      },
+      transcripts: {
+        referralDate: selectedClient?.transcripts?.referralDate || null,
+        completionDate: selectedClient?.transcripts?.completionDate || null,
+      },
+    });
+
+    // Check for trackable items that should unlock sections
+    if (
+      selectedClient?.trackable?.items &&
+      Array.isArray(selectedClient.trackable.items)
+    ) {
+      const completedItems = selectedClient.trackable.items
+        .filter((item) => item && item?.completed === true)
+        .map((item) => item?.name?.toString().toLowerCase());
+
+      // console.log('Checking trackable items for TABE/Orientation sections:', completedItems);
+
+      // If we have completed trackable items but sections aren't unlocked,
+      // force the sections to unlock by updating DOM directly
+      setTimeout(() => {
+        if (
+          completedItems.includes("orientation") &&
+          !selectedClient?.orientation?.referralDate
+        ) {
+          // console.log('Force unlocking an orientation section based on trackable item');
+          const section = document.getElementById("orientation");
+          if (section) {
+            try {
+              const overlay = section.querySelector(".absolute");
+              if (overlay) overlay.classList.add("invisible");
+
+              const card = section.querySelector(".card");
+              if (card) card.classList.remove("opacity-50", "blur-[2px]");
+            } catch (e) {
+              console.error("Error forcing orientation section unlock:", e);
+            }
+          }
+        }
+      }, 300); // Give some time for the component to render
+    }
+  }, [selectedClient]);
 
   return (
-    <div className="w-full mt-6 text-sm">
-      {
-        selectedClient && (selectedClient.tabe?.completionDate || selectedClient.orientation?.completionDate || selectedClient?.transcripts === "yes") && (
-          <div
-            className={`grid grid-cols-3 xl:grid-cols-3 w-full border-1 border-base-300/30 bg-base-200/40 shadow-xl rounded-lg py-4 px-4 ${hasValidKey(selectedClient, 'tabe') || hasValidKey(selectedClient, 'orientation') ? 'visible' : 'hidden'}`}>
-            {
-              hasValidKey(selectedClient, 'tabe') ? (
-                <div className={`px-4 border-r-1 border-base-content/10`}>
-                  <div className={`grid grid-cols-1 gap-2`}>
-                    <div className="font-semibold">TABE</div>
-                    <div>
-                      <div className={`text-xs font-light`}>Date Referred</div>
-                      {moment(selectedClient.tabe.dateReferred).format('MMMM Do, YYYY')}
-                    </div>
-                    <div>
-                      <div
-                        className={`text-xs font-light ${tabeOpen ? 'invisible h-0 collapse overflow-hidden' : 'visible'}`}>Date
-                        Completed
-                      </div>
-                      {
-                        selectedClient.tabe.completionDate !== ""
-                          ? <div>{moment(selectedClient.tabe.completedDate).format('MMMM Do, YYYY')}</div>
-                          : (<div>
-                            <div onClick={() => setTabeOpen(!tabeOpen)}
-                                 className={`text-secondary underline cursor-pointer ${tabeOpen ? 'invisible h-0 collapse overflow-hidden' : 'visible'}`}>Enter
-                              date
-                            </div>
-                            <div
-                              className={`flex gap-4 items-baseline ${tabeOpen ? 'visible' : 'invisible h-0 collapse overflow-hidden'}`}>
-                              <InputVariants className={``} type={`date`} name={`tabe`}
-                                          value={dateValue} handleChange={handleChange} label="Date Completed" />
-                              <button onClick={handleTabeSave}
-                                      className={`inline text-secondary/50 hover:text-secondary underline text-xs font-light ${tabeOpen ? 'visible' : 'invisible'}`}>Save
-                              </button>
-                            </div>
-                          </div>)
-                      }
-                    </div>
-                  </div>
-                </div>
-              ) : ''
-            }
-            {
-              hasValidKey(selectedClient, 'orientation') ? (
-                <div className={`px-4 border-r-1 border-base-content/10`}>
-                  <div className={`grid grid-cols-1 gap-2`}>
-                    <div className="font-semibold">Orientation</div>
-                    <div>
-                      <div className={`text-xs font-light`}>Date Referred</div>
-                      {moment(selectedClient?.orientation.dateReferred).format('MMMM Do, YYYY')}
-                    </div>
-                    <div>
-                      <div
-                        className={`text-xs font-light ${tabeOpen ? 'invisible h-0 collapse overflow-hidden' : 'visible'}`}>Date
-                        Completed
-                      </div>
-                      {
-                        selectedClient?.orientation.completedDate
-                          ? <div>{moment(selectedClient.orientation.completedDate).format('MMMM Do, YYYY')}</div>
-                          : (<div>
-                            <div onClick={() => setOrientationOpen(!orientationOpen)}
-                                 className={`text-secondary underline cursor-pointer ${orientationOpen ? 'invisible h-0 collapse overflow-hidden' : 'visible'}`}>Enter
-                              date
-                            </div>
-                            <div
-                              className={`flex gap-4 items-baseline ${orientationOpen ? 'visible' : 'invisible h-0 collapse overflow-hidden'}`}>
-                              <InputLabel className={``} type={`date`} name={`tabe`}
-                                          value={dateValue} handleChange={handleChange} label="Date Completed" />
-                              <button onClick={handleTabeSave}
-                                      className={`inline text-secondary/50 hover:text-secondary underline text-xs font-light ${orientationOpen ? 'visible' : 'invisible'}`}>Save
-                              </button>
-                            </div>
-                          </div>)
-                      }
-                    </div>
-                  </div>
-                </div>
-              ) : ''
-            }
-            {
-              hasValidKey(selectedClient, 'tabe') ? (
-                <div className={`flex justify-center items-start px-6`}>
-                  <div className={`grid grid-cols-1 gap-2`}>
-                    <div className="font-semibold">Transcripts</div>
-                    <div>
-                      <div className={`text-xs font-light`}>Date Obtained</div>
-                      {moment(selectedClient.tabe.dateReferred).format('MMMM Do, YYYY')}
-                    </div>
-                  </div>
-                </div>
-              ) : ''
-            }
-          </div>
-        )
-      }
+    <div className="relative flex gap-4">
+      {selectedClient?.group === "adult" && (
+        <ClientProfileUnlockableSection section="orientation" />
+      )}
+      {selectedClient?.group === "adult" && (
+        <ClientProfileUnlockableSection section="tabe" />
+      )}
+      {selectedClient &&
+        selectedClient?.trackable?.program === "HSED" &&
+        selectedClient?.group === "adult" && (
+          <ClientProfileUnlockableSection section="transcripts" />
+        )}
     </div>
   );
 }
+
+// Default props
+ClientProfileTabeOrientation.defaultProps = {
+  isNarrow: false,
+};
 
 export default ClientProfileTabeOrientation;

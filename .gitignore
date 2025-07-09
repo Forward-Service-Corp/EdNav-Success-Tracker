@@ -39,3 +39,5 @@ public/fonts/JetBrainsSans-Regular.woff2
 vitest.config.ts
 .idea/nx-console.xml
 .gitignore
+
+*storybook.log

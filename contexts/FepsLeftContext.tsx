@@ -1,37 +1,63 @@
-import React, {createContext, useContext, useState, ReactNode, SetStateAction, Dispatch} from "react";
+import { createContext, Dispatch, ReactNode, SetStateAction, useContext, useEffect, useState } from 'react';
 
 type FEP = {
-    "searchTerm": "",
-    "age": "All",
-    "status": "All"
-}
-
-type FepsLeftContextType = {
-    selectedFepLeft: {
-        "searchTerm": string,
-        "age": string,
-        "status": string
-    };
-    setSelectedFepLeft: Dispatch<SetStateAction<FEP>>;
+  searchTerm: string;
+  age: string;
+  status: string;
+  grouped: boolean;
+  pinned: boolean;
+  sortAlpha: boolean;
+  sortDate: boolean;
+  menuOpen: boolean | null;
 };
 
-const FepsLeftContext = createContext<FepsLeftContextType | null>(null as FepsLeftContextType | null);
+type FepsLeftContextType = {
+  selectedFepLeft: FEP;
+  setSelectedFepLeft: Dispatch<SetStateAction<FEP>>;
+};
+
+export const FepsLeftContext = createContext<FepsLeftContextType | null>(
+  null as FepsLeftContextType | null,
+);
 
 export const FepsLeftProvider = ({ children }: { children: ReactNode }) => {
-    const [selectedFepLeft, setSelectedFepLeft] = useState<FEP>({ searchTerm: "", age: "All", status: "All" });
+  const [selectedFepLeft, setSelectedFepLeft] = useState<FEP>({
+    searchTerm: "",
+    age: "All",
+    status: "All",
+    grouped: false,
+    pinned: false,
+    sortAlpha: false,
+    sortDate: false,
+    menuOpen: null,
+  });
 
-    return (
-        <FepsLeftContext.Provider value={{ selectedFepLeft, setSelectedFepLeft }}>
-            {children}
-        </FepsLeftContext.Provider>
-    );
+  // Ensure defaults are set correctly on mount
+  useEffect(() => {
+    setSelectedFepLeft({
+      searchTerm: '',
+      age: 'All',
+      status: 'All',
+      grouped: false,
+      pinned: false,
+      sortAlpha: false,
+      sortDate: false,
+      menuOpen: null
+    });
+  }, []);
+
+  return (
+    <FepsLeftContext.Provider value={{ selectedFepLeft, setSelectedFepLeft }}>
+      {children}
+    </FepsLeftContext.Provider>
+  );
 };
 
 // Custom hook for consuming context
 export const useFepsLeft = () => {
-    const context = useContext(FepsLeftContext);
-    if (!context) {
-        throw new Error("useClients must be used within a FepsLeftProvider");
-    }
-    return context;
+  const context = useContext(FepsLeftContext);
+  if (!context) {
+    throw new Error('useFepsLeft must be used within a FepsLeftProvider');
+  }
+  return context;
 };

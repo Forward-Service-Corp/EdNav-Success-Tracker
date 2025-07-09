@@ -1,0 +1,14 @@
+/* Modal fixes */
+.modal-open {
+    overflow: hidden;
+}
+
+/* Higher z-index to ensure modal appears on top */
+.z-100 {
+    z-index: 100;
+}
+
+/* Ensure backdrop works */
+.backdrop-blur-sm {
+    backdrop-filter: blur(4px);
+}

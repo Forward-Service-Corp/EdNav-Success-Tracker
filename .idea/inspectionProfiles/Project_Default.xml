@@ -15,14 +15,18 @@
     </inspection_tool>
     <inspection_tool class="DuplicatedCode" enabled="true" level="WEAK WARNING" enabled_by_default="true">
       <Languages>
-        <language minSize="67" name="JavaScript" />
+        <language minSize="162" name="JavaScript" />
+        <language minSize="195" name="TypeScript" />
       </Languages>
     </inspection_tool>
+    <inspection_tool class="ExceptionCaughtLocallyJS" enabled="true" level="INFORMATION" enabled_by_default="true" editorAttributes="INFORMATION_ATTRIBUTES" />
     <inspection_tool class="HtmlUnknownAttribute" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="myValues">
         <value>
-          <list size="1">
+          <list size="3">
             <item index="0" class="java.lang.String" itemvalue="slot" />
+            <item index="1" class="java.lang.String" itemvalue="value" />
+            <item index="2" class="java.lang.String" itemvalue="name" />
           </list>
         </value>
       </option>

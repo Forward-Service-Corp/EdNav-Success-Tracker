@@ -1,8 +1,13 @@
 import Email from 'next-auth/providers/email';
-import NextAuth from 'next-auth';
+import NextAuth, { AuthOptions } from 'next-auth';
 import { MongoDBAdapter } from '@auth/mongodb-adapter';
-import client from '@/lib/db';
+import type { Adapter } from 'next-auth/adapters';
 import { connectToDatabase } from '@/lib/mongodb';
+
+async function clientPromise() {
+  const { client } = await connectToDatabase();
+  return client;
+}
 
 async function fetchAdditionalData(email: string) {
   const { db } = await connectToDatabase();
@@ -14,8 +19,8 @@ async function fetchAdditionalData(email: string) {
   };
 }
 
-const authOptions = {
-  adapter: MongoDBAdapter(client),
+const authOptions: AuthOptions = {
+  adapter: MongoDBAdapter(clientPromise()) as Adapter,
   providers: [
     Email({
       server: process.env.EMAIL_SERVER,
@@ -38,6 +43,5 @@ const authOptions = {
     }
   }
 }
-export const {handlers, signIn, signOut, auth} = NextAuth(authOptions);
-export const GET = NextAuth(authOptions);
-export const POST = NextAuth(authOptions);
+const handler = NextAuth(authOptions);
+export { handler as GET, handler as POST };

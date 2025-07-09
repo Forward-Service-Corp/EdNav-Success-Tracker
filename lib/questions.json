@@ -723,6 +723,9 @@
           "GED": {},
           "HSED": {}
         }
+      },
+      "other": {
+        "textInput": {}
       }
     },
     "enrolled in": {
@@ -738,7 +741,10 @@
       "Omega School": {},
       "Oneida Community Educational Center": {},
       "Western Tech": {},
-      "Western Technical College": {}
+      "Western Technical College": {},
+      "other": {
+        "textInput": {}
+      }
     },
     "graduated from": {
       "Blackhawk Technical College": {
@@ -792,20 +798,27 @@
       "Western Technical College": {
         "GED": {},
         "HSED": {}
+      },
+      "other": {
+        "textInput": {}
       }
     },
     "inactive": {
-      "Graduated": {},
+      "graduated": {},
       "No contact with EN for 60 days": {},
       "No show to warm hand off 3x": {},
       "Participant Declined Assistance": {},
       "Participant Request (Barriers)": {},
       "Participant decline prior to meeting EN": {},
       "Participant request (Employment)": {},
-      "W-2 Case Closed": {}
+      "W-2 Case Closed": {},
+      "other": {
+        "textInput": {}
+      }
     },
-    "needs": [
+    "supportive services": [
       "career assessment",
+      "child care",
       "food",
       "legal help",
       "medical treatment",
@@ -836,7 +849,10 @@
       "Western Technical College": {},
       "resource": {
         "ADRC": {},
-        "WIOA": {}
+        "WIOA": {},
+        "other": {
+          "textInput": {}
+        }
       },
       "tutoring": {
         "ADVOCAP": {},
@@ -1006,7 +1022,13 @@
           "Wisconsin Dells High School": {},
           "Wisconsin Rapids Lincoln High School": {},
           "Xavier High School": {}
+        },
+        "other": {
+          "textInput": {}
         }
+      },
+      "other": {
+        "textInput": {}
       }
     }
   },
@@ -1957,64 +1979,67 @@
         }
       },
       "middle school": {
-        "ADAMS-FRIENDSHIP MIDDLE": {},
-        "ALMOND-BANCROFT MIDDLE": {},
-        "BENJAMIN FRANKLIN JUNIOR HIGH": {},
-        "BERLIN MIDDLE": {},
-        "BESSIE ALLEN MIDDLE": {},
-        "BLACK RIVER FALLS MIDDLE": {},
-        "CARMEN MIDDLE SCHOOL SOUTH": {},
-        "CENTRAL MIDDLE": {},
-        "CLARKE MIDDLE": {},
-        "CUBA CITY MIDDLE": {},
-        "DEERFIELD MIDDLE": {},
-        "ELKHART LAKE MIDDLE": {},
-        "ELKHORN AREA MIDDLE": {},
-        "FALL CREEK MIDDLE": {},
-        "GLACIER CREEK MIDDLE": {},
-        "GREENVILLE MIDDLE": {},
-        "INDIAN MOUND MIDDLE": {},
-        "IOWA-GRANT ELEMENTARY/MIDDLE": {},
-        "J C MCKENNA MIDDLE": {},
-        "JACK YOUNG MIDDLE": {},
-        "KEWASKUM MIDDLE": {},
-        "LENA MIDDLE": {},
-        "LINCOLN MIDDLE": {},
-        "LUCK MIDDLE": {},
-        "MARKESAN MIDDLE": {},
-        "MARSHFIELD MIDDLE": {},
-        "MENOMINEE INDIAN MIDDLE": {},
-        "MEYER MIDDLE": {},
-        "MILTON MIDDLE": {},
-        "NEILLSVILLE MIDDLE": {},
-        "NEW AUBURN MIDDLE": {},
-        "NEW GLARUS MIDDLE": {},
-        "PARK VIEW MIDDLE": {},
-        "PESHTIGO MIDDLE": {},
-        "PRAIRIE RIVER MIDDLE": {},
-        "PRAIRIE VIEW MIDDLE": {},
-        "RIB LAKE MIDDLE": {},
-        "RICHLAND MIDDLE": {},
-        "RIPON MIDDLE": {},
-        "RIVER RIDGE MIDDLE": {},
-        "RIVERSIDE MIDDLE": {},
-        "SENNETT MIDDLE": {},
-        "SLINGER MIDDLE": {},
-        "SPRING HARBOR MIDDLE": {},
-        "THEISEN MIDDLE": {},
-        "TOMORROW RIVER COMMUNITY MIDDLE (TRCMS)": {},
-        "TRILLIUM MIDDLE": {},
-        "UNITY MIDDLE": {},
-        "VIROQUA MIDDLE": {},
-        "WASHINGTON MIDDLE": {},
-        "WAUNAKEE MIDDLE": {},
-        "WAUPACA MIDDLE": {},
-        "WAYNE BARTELS MIDDLE": {},
-        "WEBSTER MIDDLE": {},
-        "WEST HIGH": {},
-        "WESTFIELD AREA MIDDLE": {},
-        "WHITE LAKE MIDDLE": {},
-        "WISCONSIN HEIGHTS MIDDLE": {}
+        "Adams-Friendship Middle": {},
+        "Almond-Bancroft Middle": {},
+        "Benjamin Franklin Junior High": {},
+        "Berlin Middle": {},
+        "Bessie Allen Middle": {},
+        "Black River Falls Middle": {},
+        "Carmen Middle School South": {},
+        "Central Middle": {},
+        "Clarke Middle": {},
+        "Cuba City Middle": {},
+        "Deerfield Middle": {},
+        "Elkhart Lake Middle": {},
+        "Elkhorn Area Middle": {},
+        "Fall Creek Middle": {},
+        "Glacier Creek Middle": {},
+        "Greenville Middle": {},
+        "Indian Mound Middle": {},
+        "Iowa-Grant Elementary/Middle": {},
+        "J C McKenna Middle": {},
+        "Jack Young Middle": {},
+        "Kewaskum Middle": {},
+        "Lena Middle": {},
+        "Lincoln Middle": {},
+        "Luck Middle": {},
+        "Markesan Middle": {},
+        "Marshfield Middle": {},
+        "Menominee Indian Middle": {},
+        "Meyer Middle": {},
+        "Milton Middle": {},
+        "Neillsville Middle": {},
+        "New Auburn Middle": {},
+        "New Glarus Middle": {},
+        "Park View Middle": {},
+        "Peshtigo Middle": {},
+        "Prairie River Middle": {},
+        "Prairie View Middle": {},
+        "Rib Lake Middle": {},
+        "Richland Middle": {},
+        "Ripon Middle": {},
+        "River Ridge Middle": {},
+        "Riverside Middle": {},
+        "Sennett Middle": {},
+        "Slinger Middle": {},
+        "Spring Harbor Middle": {},
+        "Theisen Middle": {},
+        "Tomorrow River Community Middle (TRCMS)": {},
+        "Trillium Middle": {},
+        "Unity Middle": {},
+        "Viroqua Middle": {},
+        "Washington Middle": {},
+        "Waunakee Middle": {},
+        "Waupaca Middle": {},
+        "Wayne Bartels Middle": {},
+        "Webster Middle": {},
+        "West High": {},
+        "Westfield Area Middle": {},
+        "White Lake Middle": {},
+        "Wisconsin Heights Middle": {},
+        "other": {
+          "textInput": {}
+        }
       }
     },
     "completed": {
@@ -2025,7 +2050,9 @@
     },
     "enrolled in": {
       "Apprenticeship": {
-        "textInput": {}
+        "other": {
+          "textInput": {}
+        }
       },
       "Tech school": {
         "Blackhawk Technical College": {},
@@ -2058,7 +2085,9 @@
       },
       "University": {},
       "Work program": {
-        "textInput": {}
+        "other": {
+          "textInput": {}
+        }
       }
     },
     "grade advancement": {
@@ -2069,10 +2098,14 @@
       "7th": {},
       "8th": {},
       "9th": {},
-      "Graduated": {}
+      "graduated": {}
     },
     "referred to": {
-      "Apprenticeship": {},
+      "Apprenticeship": {
+        "other": {
+          "textInput": {}
+        }
+      },
       "Tech school": {
         "Blackhawk Technical College": {},
         "Fox Valley Technical College": {},
@@ -2256,10 +2289,16 @@
           "Wisconsin Dells High School": {},
           "Wisconsin Rapids Lincoln High School": {},
           "Xavier High School": {}
+        },
+        "other": {
+          "textInput": {}
         }
       },
       "University": {},
-      "Work program": {}
+      "Work program": {},
+      "other": {
+        "textInput": {}
+      }
     },
     "supportive services": [
       "School shoes",

@@ -19,12 +19,6 @@
     }
 }
 
-.dashboard-viz div,
-.dashboard-viz svg {
-    border: none;
-    box-shadow: none;
-}
-
 @layer base {
     :root {
         --background: 0 0% 100%;
@@ -117,15 +111,40 @@ body {
     margin: 0;
     padding: 0;
     font-family: 'Helvetica Neue', sans-serif;
+    font-size: 14px;
 }
 
-span.activity {
-    font-weight: 600;
-}
 &:focus, &:focus-within {
-     /*--input-color: var(--color-base-content); */
      box-shadow: none !important;
      outline: 0;
     outline-offset: 0;
     isolation: isolate;
+}
+
+.transition-dashboard-panel {
+    height: 100vh;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    transition: all 0.4s ease-in-out;
+}
+
+.profile-section {
+    @apply m-6 p-8 rounded-lg bg-base-200 shadow;
+}
+
+.search-under-filter {
+    @apply absolute bg-success/30 backdrop-blur backdrop-grayscale-100 top-0 p-3 right-0 left-0 flex items-center justify-end gap-3 transition-all ease-out duration-700 -z-40;
+}
+
+.client-table-item {
+    @apply hover:bg-base-content/10 hover:text-base-content cursor-pointer box-border ;
+}
+
+.client-table-item td {
+}
+
+.top-bars {
+    @apply sticky top-0 left-0 right-0 h-[80px] flex items-center justify-between p-3;
 }

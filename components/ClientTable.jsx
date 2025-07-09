@@ -1,79 +1,146 @@
-'use client';
-import React, { useEffect, useMemo, useState } from 'react';
-import { useFepsLeft } from '/contexts/FepsLeftContext';
-import ClientTableItem from '/components/ClientTableItem';
-import { useNavigators } from '../contexts/NavigatorsContext';
-import { useClientList } from '../contexts/ClientListContext';
-import { Eye, EyeClosed } from 'phosphor-react';
-import SearchField from './SearchField';
+"use client";
+import { useEffect, useMemo, useRef, useState } from "react";
+import ClientsTable from "../stories/blocks/organisms/ClientsTable";
+import SearchField from "./SearchField";
+import { useClient } from "/contexts/ClientContext";
+import { useClientList } from "/contexts/ClientListContext";
+import { useFepsLeft } from "/contexts/FepsLeftContext";
+import { useLayout } from "/contexts/LayoutContext";
+import { useNavigator } from "/contexts/NavigatorsContext";
 
-export default function ClientTable({ menuClosed, setMenuClosed, clients, searchTerm, statusFilter }) {
-  const { clientList } = useClientList();
-  const { selectedNavigator } = useNavigators();
+export default function ClientTable({
+  menuOpen,
+  setMenuOpen,
+  setOpen,
+  open,
+  toggleSidebar,
+}) {
+  const { clientList, loading, error } = useClientList();
+  const { selectedNavigator } = useNavigator();
   const { selectedFepLeft } = useFepsLeft();
+  const { selectedClient } = useClient();
+  const { currentLayout } = useLayout();
   const [isMounted, setIsMounted] = useState(false);
   const [viewMode, setViewMode] = useState(null);
   const [filterOpen, setFilterOpen] = useState(false);
-  const [statusCollapse, setStatusCollapse] = useState([]);
+  const [, setStatusCollapse] = useState([]);
+  const tableRef = useRef(null);
 
-  const getBGColor = (status) => {
-    switch (status) {
-      case 'Inactive':
-        return 'bg-error text-error-content';
-      case 'In Progress':
-        return 'bg-warning text-warning-content';
-      case 'Active':
-        return 'bg-success text-success-content';
-      case 'Graduated':
-        return 'bg-info text-info-content';
-      default:
-        return 'bg-primary text-primary-content';
-    }
-  };
-
-  const handleCollapseChange = (status) => {
-    setStatusCollapse(prevState => {
-      if (prevState.includes(status)) {
-        return prevState.filter(item => item !== status);
-      }
-      return [...prevState, status];
-    });
-  };
-
-  const filteredClients = clientList?.filter(client => {
-    if (selectedNavigator?.name !== 'All') {
-      return client.navigator === selectedNavigator?.name;
-    }
-    return client;
-  }).filter(client => {
-    const matchesSearch = client.first_name?.toLowerCase().includes(selectedFepLeft.searchTerm.toLowerCase())
-      || client.last_name?.toLowerCase().includes(selectedFepLeft.searchTerm.toLowerCase());
-    const matchesStatus = selectedFepLeft.status === 'All' || client.clientStatus === selectedFepLeft.status;
-    const matchesGroup = selectedFepLeft.age === 'All' || client.group === selectedFepLeft.age;
-    return matchesSearch && matchesStatus && matchesGroup;
+  // State for tracking container width and visible columns
+  const [, setContainerWidth] = useState(0);
+  const [, setVisibleColumns] = useState({
+    status: true,
+    county: true,
+    details: true,
   });
 
-  const groupByClientStatus = (clients) => {
-    return clients
-      .filter(client => {
-        if (selectedNavigator.name !== 'All') return client.navigator === selectedNavigator?.name;
-        return client;
-      })
-      .sort((a, b) => (a.clientStatus > b.clientStatus ? 1 : -1))
-      .reduce((groups, client) => {
-        const status = client.clientStatus || 'Unknown';
-        if (!groups[status]) groups[status] = [];
-        groups[status].push(client);
-        return groups;
-      }, {});
+  // Update container width on layout changes
+  useEffect(() => {
+    if (tableRef.current) {
+      updateContainerWidth();
+    }
+  }, [currentLayout, isMounted]);
+
+  // Set up a resize observer to track container width changes
+  useEffect(() => {
+    if (!tableRef.current) return;
+
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        updateContainerWidth();
+      }
+    });
+
+    resizeObserver.observe(tableRef.current);
+
+    return () => {
+      if (tableRef.current) {
+        resizeObserver.unobserve(tableRef.current);
+      }
+    };
+  }, [isMounted]);
+
+  // Update container width and determine which columns to show
+  const updateContainerWidth = () => {
+    if (!tableRef.current) return;
+
+    const width = tableRef.current.offsetWidth;
+    setContainerWidth(width);
+
+    // Determine visible columns based on container width
+    if (width < 400) {
+      setVisibleColumns({
+        status: false,
+        county: false,
+        details: true,
+      });
+    } else if (width < 600) {
+      setVisibleColumns({
+        status: true,
+        county: false,
+        details: true,
+      });
+    } else {
+      setVisibleColumns({
+        status: true,
+        county: true,
+        details: true,
+      });
+    }
   };
+
+  const filteredClients = useMemo(() => {
+    // console.log(clientList);
+    if (!clientList) return [];
+
+    return clientList
+      .sort((a, b) => {
+        const aName = a?.first_name?.toLowerCase() || "z";
+        const bName = b?.first_name?.toLowerCase() || "z";
+        return aName.localeCompare(bName);
+      })
+      .filter((client) =>
+        selectedNavigator !== "All"
+          ? client?.navigator === selectedNavigator?.name
+          : true,
+      )
+      .filter((client) => {
+        const matchesSearch =
+          client?.first_name
+            ?.toLowerCase()
+            .includes(selectedFepLeft.searchTerm.toLowerCase()) ||
+          client?.last_name
+            ?.toLowerCase()
+            .includes(selectedFepLeft.searchTerm.toLowerCase());
+
+        const matchesStatus =
+          selectedFepLeft.status === "All" ||
+          client?.clientStatus.toLowerCase() ===
+            selectedFepLeft.status.toLowerCase();
+
+        const matchesGroup =
+          selectedFepLeft.age === "All" ||
+          client?.group === selectedFepLeft.age;
+
+        return matchesSearch && matchesStatus && matchesGroup;
+      });
+  }, [clientList, selectedNavigator, selectedFepLeft, selectedClient]);
+
+  function groupByClientStatus(clients) {
+    return clients.reduce((groups, client) => {
+      const status = client.clientStatus.toLowerCase() || "Unknown";
+      if (!groups[status]) groups[status] = [];
+      groups[status].push(client);
+      return groups;
+    }, {});
+  }
 
   const pinnedIds = selectedNavigator?.pinned || [];
 
   const clientsToShow = useMemo(() => {
     if (!filteredClients) return [];
 
-    if (viewMode === 'pinned') {
+    if (selectedFepLeft.pinned) {
       return [...filteredClients].sort((a, b) => {
         const aPinned = pinnedIds.includes(a._id.toString());
         const bPinned = pinnedIds.includes(b._id.toString());
@@ -81,71 +148,108 @@ export default function ClientTable({ menuClosed, setMenuClosed, clients, search
       });
     }
 
-    if (viewMode === 'grouped') {
+    if (viewMode === "grouped") {
       return groupByClientStatus(filteredClients); // returns object
     }
 
     return filteredClients;
-  }, [filteredClients, viewMode, pinnedIds]);
+  }, [filteredClients, selectedClient, viewMode, pinnedIds]);
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  // ✅ Prevent hydration mismatch by rendering only after mount
+  // Prevent hydration mismatch by rendering only after mount
   if (!isMounted) return null;
-  return (
-    <div className={`flex w-full relative h-full overflow-y-scroll no-scrollbar shadow ${menuClosed ? '' : ''}`}>
-      <div
-        className=" w-full h-[80px] box-border relative right-0 top-0 left-0 flex-col flex justify-between z-50 text-sm text-base-content no-scrollbar">
-        <SearchField menuClosed={menuClosed} setMenuClosed={setMenuClosed} setFilterOpen={setFilterOpen}
-                     filterOpen={filterOpen} setViewMode={setViewMode} setStatusCollapse={setStatusCollapse}
-                     className="fixed left-0 top-0 z-50 shadow-xl" />
-      </div>
-      <div className="mt-0 overflow-y-scroll no-scrollbar absolute right-0 left-0 top-0 bottom-0 z-40 ">
-        <div className={`h-auto w-full transition-all duration-500 ${filterOpen ? 'mt-[113px]' : 'mt-[68px]'}`}>
-          <div className="w-full h-full overflow-y-scroll no-scrollbar">
-            <div className={`overflow-y-scroll w-full no-scrollbar`}>
-              <table className={`overflow-y-scroll w-full ${menuClosed ? '' : ''}`}>
-                <tbody className="w-full overflow-y-scroll">
-                {viewMode === 'grouped' ? (
-                  Object.entries(clientsToShow).map(([status, clients], idx) => (
-                    <React.Fragment key={status}>
-                      <tr
-                        className={`${getBGColor(status)} ${selectedClient && selectedClient.clientStatus === status ? '' : ''} ${statusCollapse.includes(status) ? 'hidden' : ''} ${menuClosed ? '' : ''}`}>
-                        <td onClick={() => handleCollapseChange(status)}
-                            className={`py-2 text-sm flex w-full justify-between items-center cursor-pointer ${menuClosed ? '' : ''}`}>
-                          <span className={`w-6/7 text-left font-bold pl-3`}>{status}</span>
-                          <span className={`w-[30px] mr-3 text-center`}>
-                                              {!statusCollapse.includes(status) ?
-                                                <Eye size={27} className={getBGColor(status)} /> :
-                                                <EyeClosed size={27} className={getBGColor(status)} />}
-                                          </span>
-                        </td>
-                      </tr>
-                      {clients.map((person, i) => (
-                        <ClientTableItem key={`${idx}-${i}`} person={person} i={i} statusCollapse={statusCollapse} />
-                      ))}
-                    </React.Fragment>
-                  ))
-                ) : (
-                  Array.isArray(clientsToShow) && clientsToShow.length > 0 ? (
-                    clientsToShow.map((person, i) => (
-                      <ClientTableItem key={i} person={person} i={i} statusCollapse={statusCollapse}
-                                       menuClosed={menuClosed} />
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan="5" className="text-center py-4 text-sm text-gray-500">
-                        No clients found.
-                      </td>
-                    </tr>
-                  )
-                )}
-                </tbody>
-              </table>
+
+  // Render loading state
+  if (loading) {
+    return (
+      <div className="h-full w-full">
+        <div className="flex h-full w-full flex-col">
+          <div className="sticky top-0 z-50 flex h-[80px] w-full items-center justify-between px-3 py-4 shadow">
+            <SearchField
+              menuOpen={menuOpen}
+              setMenuOpen={setMenuOpen}
+              setFilterOpen={setFilterOpen}
+              toggleSidebar={toggleSidebar}
+              filterOpen={filterOpen}
+              setViewMode={setViewMode}
+              setStatusCollapse={setStatusCollapse}
+            />
+          </div>
+          <div className="flex flex-1 items-center justify-center">
+            <div className="text-center">
+              <div className="loading loading-spinner loading-lg"></div>
+              <p className="text-base-content mt-4">Loading clients...</p>
             </div>
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Render error state
+  if (error) {
+    return (
+      <div className="h-full w-full">
+        <div className="flex h-full flex-col">
+          <div className="bg-base-300 sticky top-0 z-50 flex h-[80px] w-full items-center justify-between px-3 py-4 shadow">
+            <SearchField
+              menuOpen={menuOpen}
+              setMenuOpen={setMenuOpen}
+              setFilterOpen={setFilterOpen}
+              toggleSidebar={toggleSidebar}
+              filterOpen={filterOpen}
+              setViewMode={setViewMode}
+              setStatusCollapse={setStatusCollapse}
+            />
+          </div>
+          <div className="flex flex-1 items-center justify-center">
+            <div className="text-error text-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="mx-auto mb-4 h-10 w-10"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              <p className="text-lg font-medium">Error Loading Clients</p>
+              <p className="mt-1">{error}</p>
+              <button
+                className="btn btn-outline btn-error btn-sm mt-4"
+                onClick={() => window.location.reload()}
+              >
+                Retry
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex h-full flex-col" ref={tableRef}>
+      <div className="bg-base-100 sticky top-0 z-50 flex h-[80px] w-full min-w-full items-center justify-between rounded px-3 py-4 shadow-lg">
+        <SearchField />
+      </div>
+
+      <div className="no-scrollbar w-full min-w-full flex-1 overflow-y-auto">
+        <div className="w-full">
+          <ClientsTable
+            open={open}
+            setOpen={setOpen}
+            clients={clientsToShow}
+            selectedClientId={selectedClient?._id}
+          />
         </div>
       </div>
     </div>

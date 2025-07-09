@@ -3,49 +3,61 @@
 import React, { useEffect, useState } from 'react';
 import { useThemes } from '@/contexts/ThemesContext';
 
-// List of available DaisyUI themes
 const themes = [
-  'Light Themes',
-  'acid',
-  'autumn',
-  'bumblebee',
-  'caramellatte',
-  'cmyk',
   'corporate',
-  'cupcake',
-  'cyberpunk',
-  'emerald',
   'fantasy',
-  'garden',
-  'lemonade',
   'light',
-  'lofi',
   'nord',
-  'pastel',
-  'retro',
-  'silk',
-  'valentine',
-  'winter',
-  'wireframe',
-  'Dark Themes',
   'abyss',
-  'aqua',
-  'black',
   'business',
-  'coffee',
-  'dark',
-  'dim',
-  'dracula',
-  'forest',
-  'halloween',
-  'luxury',
+  // 'dracula',
+  // 'halloween',
   'night',
   'sunset',
   'synthwave'
 ];
+// List of available DaisyUI themes
+// const themes = [
+//   'Light Themes',
+//   'acid',
+//   'autumn',
+//   'bumblebee',
+//   'caramellatte',
+//   'cmyk',
+//   'corporate',
+//   'cupcake',
+//   'cyberpunk',
+//   'emerald',
+//   'fantasy',
+//   'garden',
+//   'lemonade',
+//   'light',
+//   'lofi',
+//   'nord',
+//   'pastel',
+//   'retro',
+//   'silk',
+//   'valentine',
+//   'winter',
+//   'wireframe',
+//   'Dark Themes',
+//   'abyss',
+//   'aqua',
+//   'black',
+//   'business',
+//   'coffee',
+//   'dark',
+//   'dim',
+//   'dracula',
+//   'forest',
+//   'halloween',
+//   'luxury',
+//   'night',
+//   'sunset',
+//   'synthwave'
+// ];
 
 export default function ThemeSwitcher() {
-  // Load theme index from localStorage OR default to "light"
   const [theme, setTheme] = useState(() => {
     if (typeof window !== 'undefined') {
       const savedTheme = localStorage.getItem('theme');
@@ -68,12 +80,13 @@ export default function ThemeSwitcher() {
   }, [theme, setSelectedTheme]);
 
   return (
-    <div>
+    <div className="w-[180px]" style={{ zIndex: 10 }}>
+      <label htmlFor="theme-select" className="text-sm">Theme:
       <select
         name="theme-select"
         id="theme-select"
         value={theme}
-        className="select mt-2 capitalize"
+        className="select capitalize mt-1"
         onChange={(e) => setTheme(Number(e.target.value))}
       >
         {themes.map((theme, index) => (
@@ -82,6 +95,7 @@ export default function ThemeSwitcher() {
           </option>
         ))}
       </select>
+      </label>
     </div>
   );
 }
