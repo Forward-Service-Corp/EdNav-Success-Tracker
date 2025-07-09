@@ -274,12 +274,12 @@ function AddClientForm() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {https://vercel.com/fsc-team/ttsnew/settings/git
     e.preventDefault();
     postData(formData).then();
 
     if (!validateForm()) {
-      alert("Please fill in all required fields.");
+      alert("Push Successful. Please fill in all required fields.");
     }
   };
 
