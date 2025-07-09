@@ -251,7 +251,7 @@ function AddClientForm() {
       name: "ttsDream",
       label: "TTS Dream",
       type: "textarea",
-      required: true,
+      required: false,
       value: formData.ttsDream,
       options: null,
     },
@@ -266,7 +266,7 @@ function AddClientForm() {
   const validateForm = () => {
     let newErrors = {};
     Object.keys(formData).forEach((key) => {
-      if (!formData[key] && formData[key] !== false) {
+      if (!formData[key] && formData[key].required !== false) {
         newErrors[key] = "This field is required";
       }
     });
