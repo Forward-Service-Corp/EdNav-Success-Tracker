@@ -257,7 +257,7 @@ function AddClientForm({ setOpen }) {
       type: "select",
       required: true,
       options: wisconsinCounties,
-      value: formData.officeCity,
+      value: formData.county,
     },
     {
       name: "ttsDream",
